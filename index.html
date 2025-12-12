@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tooth Fairy Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              'sans': ['"Inter"', 'sans-serif'],
+              'mono': ['"JetBrains Mono"', 'monospace'],
+              'header': ['"Archivo Black"', 'sans-serif'],
+              'toy': ['"Archivo Black"', 'sans-serif'],
+            },
+            colors: {
+              cp: {
+                black: '#050505',
+                bg: '#0a0a0a',
+                card: '#111111',
+                teal: '#00B0C0', 
+                tealDark: '#007A85',
+                pink: '#F43F5E', 
+                purple: '#8B5CF6',
+                yellow: '#FACC15',
+                gray: '#262626',
+                lightGray: '#404040',
+                text: '#e5e5e5',
+                dimText: '#737373',
+              }
+            },
+            backgroundImage: {
+              'dot-pattern': 'radial-gradient(rgba(38, 38, 38, 0.5) 1px, transparent 1px)',
+              'gradient-night': 'linear-gradient(135deg, #00B0C0 0%, #8B5CF6 100%)',
+              'gradient-bed': 'linear-gradient(135deg, #F43F5E 0%, #FACC15 100%)',
+            },
+            boxShadow: {
+              'neon-teal': '0 0 10px rgba(0, 176, 192, 0.4)',
+              'neon-pink': '0 0 10px rgba(244, 63, 94, 0.4)',
+              'card-hover': '0 10px 30px -10px rgba(0,0,0,0.5)',
+            },
+            animation: {
+              'float': 'float 6s ease-in-out infinite',
+              'wiggle': 'wiggle 2s ease-in-out infinite',
+              'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'shimmer': 'shimmer 3s linear infinite',
+              'holo-pulse': 'holoPulse 4s ease-in-out infinite',
+              'scan': 'scan 3s linear infinite',
+              'marquee': 'marquee 10s linear infinite',
+              'gradient-move': 'gradientMove 5s ease infinite',
+            },
+            keyframes: {
+              float: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-6px)' },
+              },
+              wiggle: {
+                '0%, 100%': { transform: 'rotate(-2deg)' },
+                '50%': { transform: 'rotate(2deg)' },
+              },
+              shimmer: {
+                '0%': { backgroundPosition: '200% 0' },
+                '100%': { backgroundPosition: '-200% 0' }
+              },
+              holoPulse: {
+                '0%, 100%': { opacity: '0.1' },
+                '50%': { opacity: '0.3' }
+              },
+              scan: {
+                '0%': { top: '-5%' },
+                '100%': { top: '105%' }
+              },
+              marquee: {
+                '0%': { transform: 'translateX(0%)' },
+                '100%': { transform: 'translateX(-50%)' }
+              },
+              gradientMove: {
+                '0%': { backgroundPosition: '0% 50%' },
+                '50%': { backgroundPosition: '100% 50%' },
+                '100%': { backgroundPosition: '0% 50%' }
+              }
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+      body {
+        background-color: #050505;
+        color: #e5e5e5;
+        margin: 0;
+        font-family: 'Inter', sans-serif;
+        overflow-x: hidden;
+      }
+      
+      .bg-dots {
+        background-image: radial-gradient(#262626 1px, transparent 1px);
+        background-size: 24px 24px;
+      }
+
+      /* Clean Scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0a0a0a; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #333; 
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #00B0C0; 
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
+    "react": "https://aistudiocdn.com/react@^19.2.1",
+    "clsx": "https://esm.sh/clsx",
+    "tailwind-merge": "https://esm.sh/tailwind-merge"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
