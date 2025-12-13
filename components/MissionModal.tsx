@@ -18,14 +18,27 @@ export const MissionModal: React.FC<MissionModalProps> = ({ stage, onClose }) =>
       />
 
       {/* Main Device Container */}
-      <div className="relative w-full max-w-2xl transform transition-all animate-scale-up">
+      <div className="relative w-full max-w-2xl transform transition-all animate-scale-up group">
         
-        {/* Decorative Elements sticking out */}
-        <div className="absolute -top-3 left-10 w-20 h-4 bg-cyan-500/20 rounded-t-lg border-t border-x border-cyan-500/50 backdrop-blur-sm" />
-        <div className="absolute -bottom-3 right-10 w-32 h-4 bg-fuchsia-500/20 rounded-b-lg border-b border-x border-fuchsia-500/50 backdrop-blur-sm" />
+        {/* === GLOWING RAINBOW EDGE LAYERS === */}
+        {/* 1. The Blur/Glow Layer */}
+        <div 
+            className="absolute -inset-[5px] rounded-[2.8rem] bg-gradient-to-r from-red-500 via-yellow-400 via-green-500 via-cyan-500 to-fuchsia-500 opacity-60 blur-xl animate-gradient-move" 
+            style={{ backgroundSize: '400% 400%', animationDuration: '3s' }} 
+        />
+        
+        {/* 2. The Sharp Border Layer */}
+        <div 
+            className="absolute -inset-[2px] rounded-[2.6rem] bg-gradient-to-r from-red-500 via-yellow-400 via-green-500 via-cyan-500 to-fuchsia-500 opacity-100 animate-gradient-move" 
+            style={{ backgroundSize: '400% 400%', animationDuration: '3s' }} 
+        />
+
+        {/* Decorative Elements sticking out - preserved but behind card */}
+        <div className="absolute -top-3 left-10 w-20 h-4 bg-cyan-500/20 rounded-t-lg border-t border-x border-cyan-500/50 backdrop-blur-sm z-0" />
+        <div className="absolute -bottom-3 right-10 w-32 h-4 bg-fuchsia-500/20 rounded-b-lg border-b border-x border-fuchsia-500/50 backdrop-blur-sm z-0" />
 
         {/* The Card Itself */}
-        <div className="relative bg-[#090e1a] rounded-[2.5rem] border border-slate-700 shadow-[0_20px_60px_-15px_rgba(0,0,0,1),0_0_0_1px_rgba(255,255,255,0.05)] overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="relative z-10 bg-[#090e1a] rounded-[2.5rem] border border-slate-700 shadow-[0_20px_60px_-15px_rgba(0,0,0,1),0_0_0_1px_rgba(255,255,255,0.05)] overflow-hidden flex flex-col max-h-[90vh]">
             
             {/* === HEADER: DRONE FEED === */}
             <div className="relative h-72 shrink-0 bg-black group overflow-hidden">

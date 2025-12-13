@@ -7,7 +7,9 @@ import {
   Unlock, Wind, Zap, CheckCircle2,
   Activity, Crosshair, Signal, Gauge, ArrowUp,
   Cpu, Database, Shield, Sun, Radar, Scan, Backpack,
-  MessageCircle, Wifi, Battery, Radio, ChevronsRight
+  MessageCircle, Wifi, Battery, Radio, ChevronsRight,
+  Fingerprint, Compass, Navigation, Layers, ZoomIn,
+  Ruler, Move
 } from 'lucide-react';
 import { StageCard } from './components/StageCard';
 import { MissionModal } from './components/MissionModal';
@@ -59,7 +61,6 @@ const IMG_SUNRISE = "https://images.unsplash.com/photo-1470252649378-9c29740c9fa
 const IMG_SELFIE_1 = "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=300&auto=format&fit=crop";
 const IMG_SELFIE_2 = "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=300&auto=format&fit=crop";
 const IMG_TOOTH = "https://cdn-icons-png.flaticon.com/512/2865/2865586.png";
-const IMG_WIREFRAME_FACE = "https://images.unsplash.com/photo-1580927752452-89d86da3fa0a?q=80&w=600&auto=format&fit=crop";
 
 const STAGES: Stage[] = [
   { id: 1, title: "LEAVING FAIRYLAND", type: "completed", icon: Plane, message: "I'm on my way! The stardust wind is strong tonight, but my wings are ready!", subtext: "DEP: 20:00", location: "Fairyland Gate", cardImage: IMG_NIGHT_SKY, videoThumbnail: IMG_NIGHT_SKY, selfieImage: IMG_SELFIE_1, objectImage: IMG_TOOTH },
@@ -89,18 +90,24 @@ const NeonPanel = ({
 }) => {
   return (
     <div className={`relative group ${className} ${height}`}>
-       {/* Main Container */}
+       {/* Main Container with Gradient Border */}
        <div className={`
-         absolute inset-0 rounded-2xl border-2 ${borderColor} ${bgColor} 
+         absolute inset-0 rounded-2xl p-[1px]
          shadow-lg overflow-hidden transition-all duration-300 group-hover:scale-[1.02]
        `}>
-          {/* REDUCED OPACITY DOT PATTERN: opacity-5 instead of opacity-20 */}
-          <div className="absolute inset-0 opacity-5 pointer-events-none" 
-               style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '12px 12px' }} 
-          />
-          
-          <div className="relative z-10 h-full w-full flex flex-col items-center justify-center">
-             {children}
+          {/* Animated Gradient Border Layer */}
+          <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/40 via-purple-500/40 to-amber-500/40 animate-gradient-move" 
+               style={{ backgroundSize: '400% 400%' }} />
+
+          {/* Inner Content */}
+          <div className={`relative h-full w-full rounded-2xl ${bgColor} flex flex-col items-center justify-center overflow-hidden`}>
+             {/* REDUCED OPACITY DOT PATTERN */}
+             <div className="absolute inset-0 opacity-5 pointer-events-none" 
+                  style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '12px 12px' }} 
+             />
+             <div className="relative z-10 h-full w-full flex flex-col items-center justify-center">
+                {children}
+             </div>
           </div>
        </div>
 
@@ -183,9 +190,9 @@ const TeethCollectionWidget = () => {
 };
 
 const SignalWidget = () => (
-    <div className="w-full h-full flex flex-col items-center justify-center pt-2">
+    <div className="w-full h-full flex flex-col items-center justify-center pt-2 relative">
        {/* FULL WIDTH FULL LENGTH BARS - PURPLE THEME */}
-       <div className="flex items-end justify-center w-full h-full gap-[2px] px-1 pb-1">
+       <div className="flex items-end justify-center w-full h-full gap-[2px] px-1 pb-4">
           {[...Array(16)].map((_, i) => {
              const height = 20 + Math.random() * 80;
              return (
@@ -201,48 +208,165 @@ const SignalWidget = () => (
              );
           })}
        </div>
-       <div className="absolute bottom-1 right-2 bg-purple-900/90 px-2 py-0.5 rounded-full border border-purple-400/50 backdrop-blur-sm z-10 shadow-lg">
-          <span className="text-[8px] text-purple-200 font-black uppercase tracking-widest flex items-center gap-1">
-             <Wifi size={10} /> Connected
+       <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-purple-900/90 px-3 py-1 rounded-full border border-purple-400/50 backdrop-blur-sm z-10 shadow-lg whitespace-nowrap">
+          <span className="text-[10px] text-purple-200 font-black uppercase tracking-widest flex items-center gap-1.5">
+             <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" /> CONNECTED
           </span>
        </div>
     </div>
-  );
+);
 
 const RadarWidget = () => (
-   <div className="w-full h-full relative flex items-center justify-center overflow-hidden rounded-2xl bg-cyan-950/20">
-       {/* Constrain to square for circular shape */}
-       <div className="relative h-[85%] md:h-[90%] aspect-square flex items-center justify-center">
-            
-            {/* Background Grid inside circle */}
-            <div className="absolute inset-0 rounded-full border border-cyan-500/20 overflow-hidden bg-cyan-950/30 shadow-[inset_0_0_10px_rgba(6,182,212,0.2)]">
-                 <div className="absolute inset-0 opacity-30" 
-                      style={{ backgroundImage: 'radial-gradient(circle, rgba(6,182,212,0.6) 1px, transparent 1px)', backgroundSize: '10px 10px' }} 
-                 />
-            </div>
-            
-            {/* Concentric Circles */}
-            <div className="absolute inset-0 rounded-full border border-cyan-500/30" />
-            <div className="absolute inset-[25%] rounded-full border border-cyan-500/20" />
-            <div className="absolute inset-[50%] rounded-full border border-cyan-500/10" />
-            
-            {/* Crosshairs */}
-            <div className="absolute top-1/2 left-0 w-full h-[1px] bg-cyan-500/20" />
-            <div className="absolute left-1/2 top-0 h-full w-[1px] bg-cyan-500/20" />
+   <div className="w-full h-full flex items-center justify-center relative overflow-hidden bg-slate-900">
+      <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#22d3ee_1px,transparent_1px)] [background-size:16px_16px]" />
+      <div className="w-24 h-24 rounded-full border-2 border-cyan-500/30 relative flex items-center justify-center">
+          <div className="absolute inset-0 rounded-full border border-cyan-500/20 scale-75" />
+          <div className="absolute inset-0 rounded-full border border-cyan-500/20 scale-50" />
+          <div className="w-1 h-1 bg-cyan-500 rounded-full" />
+          
+          {/* Sweep */}
+          <div className="absolute top-1/2 left-1/2 w-[50%] h-1 bg-gradient-to-r from-cyan-500 to-transparent origin-left animate-[spin_2s_linear_infinite]" />
+          
+          {/* Blip */}
+          <div className="absolute top-6 right-6 w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_#ef4444]" />
+      </div>
+   </div>
+);
 
-            {/* Sweep - Conic Gradient */}
-            <div className="absolute inset-0 rounded-full animate-spin" style={{ animationDuration: '4s', animationTimingFunction: 'linear' }}>
-                 <div className="w-full h-full rounded-full" 
-                      style={{ background: 'conic-gradient(from 0deg, transparent 0deg, transparent 270deg, rgba(6,182,212,0.4) 360deg)' }} 
-                 />
+const LiveMapWidget = () => (
+   <div className="w-full h-full relative overflow-hidden bg-slate-950 rounded-2xl group">
+       {/* ANIMATIONS */}
+       <style>{`
+         @keyframes scan-line {
+           0% { top: 0%; opacity: 0; }
+           10% { opacity: 1; }
+           90% { opacity: 1; }
+           100% { top: 100%; opacity: 0; }
+         }
+         @keyframes pulse-ring {
+           0% { transform: scale(0.8); opacity: 0.5; }
+           100% { transform: scale(2); opacity: 0; }
+         }
+       `}</style>
+
+       {/* === 1. TACTICAL MAP BACKGROUND (VECTOR STYLE) === */}
+       <div className="absolute inset-[-25%] bg-[#020617] transform group-hover:scale-105 transition-transform duration-[10s] ease-linear">
+            {/* Dark Mode Street Grid Pattern */}
+            <div className="absolute inset-0" 
+                 style={{
+                   backgroundImage: `
+                      linear-gradient(#1e293b 2px, transparent 2px), 
+                      linear-gradient(90deg, #1e293b 2px, transparent 2px),
+                      linear-gradient(rgba(30, 41, 59, 0.5) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(30, 41, 59, 0.5) 1px, transparent 1px)
+                   `,
+                   backgroundSize: '100px 100px, 100px 100px, 20px 20px, 20px 20px',
+                   backgroundPosition: 'center'
+                 }} 
+            />
+            
+            {/* SVG Roads / Topography */}
+            <svg className="absolute inset-0 w-full h-full opacity-40 pointer-events-none" preserveAspectRatio="none">
+                 {/* Rivers / Parks */}
+                 <path d="M -100,300 C 100,280 300,350 500,300 S 800,200 1200,250" stroke="#0f172a" strokeWidth="60" fill="none" />
+                 <path d="M -100,300 C 100,280 300,350 500,300 S 800,200 1200,250" stroke="#0ea5e9" strokeWidth="15" fill="none" opacity="0.2" />
+
+                 {/* Major Highways */}
+                 <path d="M 100,-50 L 300,800" stroke="#334155" strokeWidth="12" fill="none" />
+                 <path d="M -50,400 L 1000,200" stroke="#334155" strokeWidth="12" fill="none" />
+                 <circle cx="300" cy="400" r="150" stroke="#334155" strokeWidth="10" fill="none" />
+            </svg>
+
+            {/* Glowing Points of Interest */}
+            <div className="absolute top-[30%] left-[40%] w-1 h-1 bg-yellow-500 rounded-full shadow-[0_0_8px_#eab308]" />
+            <div className="absolute bottom-[20%] right-[30%] w-1 h-1 bg-yellow-500 rounded-full shadow-[0_0_8px_#eab308]" />
+            <div className="absolute top-[10%] right-[10%] w-1 h-1 bg-yellow-500 rounded-full shadow-[0_0_8px_#eab308]" />
+       </div>
+
+       {/* === 2. DYNAMIC ELEMENTS === */}
+       
+       {/* Moving Path Line */}
+       <svg className="absolute inset-0 w-full h-full pointer-events-none z-10">
+           <defs>
+              <linearGradient id="pathGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                 <stop offset="0%" stopColor="transparent" />
+                 <stop offset="50%" stopColor="#22d3ee" />
+                 <stop offset="100%" stopColor="#22d3ee" />
+              </linearGradient>
+           </defs>
+           <path 
+              d="M -20,100 Q 150,140 300,80 T 600,100" 
+              stroke="url(#pathGradient)" 
+              strokeWidth="3" 
+              fill="none" 
+              strokeDasharray="8 6"
+              strokeLinecap="round"
+              className="opacity-80"
+           >
+              <animate attributeName="stroke-dashoffset" from="100" to="0" dur="2s" repeatCount="indefinite" />
+           </path>
+       </svg>
+
+       {/* Center User (Fairy) Marker */}
+       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+            {/* Radar Rings */}
+            <div className="absolute inset-[-30px] border border-cyan-500/20 rounded-full" style={{ animation: 'pulse-ring 2s infinite' }} />
+            <div className="absolute inset-[-15px] border border-cyan-500/40 rounded-full" style={{ animation: 'pulse-ring 2s infinite 0.5s' }} />
+            
+            {/* The Ship/Fairy Icon */}
+            <div className="relative w-10 h-10 bg-slate-900/80 backdrop-blur-sm border-2 border-cyan-400 rounded-full flex items-center justify-center shadow-[0_0_20px_#22d3ee] z-10">
+                 <Navigation size={18} className="text-cyan-400 fill-cyan-400/50 transform rotate-45" />
             </div>
             
-            {/* Blip */}
-            <div className="absolute top-[30%] right-[30%] w-2 h-2 bg-fuchsia-400 rounded-full animate-ping" />
-            <div className="absolute top-[30%] right-[30%] w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_5px_white]" />
+            {/* Altitude Tag */}
+            <div className="absolute left-full ml-3 top-0 bg-slate-900/80 border border-cyan-500/30 px-1.5 py-0.5 rounded flex flex-col">
+                <span className="text-[7px] font-mono text-cyan-500 font-bold whitespace-nowrap">ALT: 4500ft</span>
+                <span className="text-[7px] font-mono text-cyan-300 whitespace-nowrap">SPD: 830mph</span>
+                <div className="w-full h-[1px] bg-cyan-500/30 my-0.5" />
+                <span className="text-[6px] font-mono text-white/50">TARGET LOCKED</span>
+            </div>
        </div>
+
+       {/* Home Base Marker */}
+       <div className="absolute bottom-[25%] right-[15%] z-10 flex flex-col items-center group/home">
+           <div className="relative">
+              <MapPin size={24} className="text-amber-500 fill-amber-500/20 drop-shadow-lg transform -translate-y-1 group-hover/home:-translate-y-2 transition-transform" />
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-1 bg-black/50 blur-[2px] rounded-full" />
+           </div>
+           <div className="bg-amber-500 text-black text-[8px] font-bold px-1.5 py-0.5 rounded mt-1 shadow-lg">HOME</div>
+       </div>
+
+       {/* === 3. UI OVERLAYS (HUD) === */}
        
-       <div className="absolute bottom-1 right-2 text-[8px] font-mono text-cyan-500/70">RADAR ACTIVE</div>
+       {/* Top Right: Compass */}
+       <div className="absolute top-3 right-3 bg-slate-900/80 backdrop-blur border border-slate-700 rounded-full w-10 h-10 flex items-center justify-center shadow-lg z-30">
+            <div className="relative w-full h-full flex items-center justify-center">
+                 <span className="absolute top-1 text-[8px] font-bold text-red-500">N</span>
+                 <Compass size={18} className="text-slate-400" />
+            </div>
+       </div>
+
+       {/* Bottom Left: Controls (Visual) */}
+       <div className="absolute bottom-3 left-3 flex flex-col gap-1 z-30">
+            <div className="w-6 h-6 bg-slate-800/90 border border-slate-600 rounded flex items-center justify-center shadow">
+                <ZoomIn size={12} className="text-slate-300" />
+            </div>
+            <div className="w-6 h-6 bg-slate-800/90 border border-slate-600 rounded flex items-center justify-center shadow">
+                <Layers size={12} className="text-slate-300" />
+            </div>
+       </div>
+
+       {/* Bottom Right: Scale */}
+       <div className="absolute bottom-3 right-3 flex flex-col items-end z-30">
+            <span className="text-[8px] font-mono text-slate-400 mb-0.5">2 mi</span>
+            <div className="w-12 h-1.5 border-b-2 border-r-2 border-l-2 border-slate-500/50" />
+       </div>
+
+       {/* Scan Line Overlay */}
+       <div className="absolute left-0 right-0 h-[2px] bg-cyan-500/30 shadow-[0_0_10px_#22d3ee] z-20 pointer-events-none" style={{ animation: 'scan-line 4s linear infinite' }} />
+       
+       {/* Vignette */}
+       <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-2xl pointer-events-none z-40 shadow-[inset_0_0_40px_rgba(0,0,0,0.5)]" />
    </div>
 );
 
@@ -297,9 +421,9 @@ const FairyIDCard = () => (
      </div>
      
      {/* Text Area */}
-     <div className="h-10 md:h-16 flex flex-col items-center justify-center bg-[#020617] border-t border-cyan-900">
-         <h3 className="font-header text-lg md:text-2xl text-white tracking-wider">KIKI</h3>
-         <div className="text-[7px] md:text-[9px] text-cyan-500 font-mono tracking-[0.3em] uppercase">ID: 07-ALPHA</div>
+     <div className="h-8 md:h-10 flex flex-col items-center justify-center bg-[#020617] border-t border-cyan-900">
+         <h3 className="font-header text-sm md:text-lg text-white tracking-wider">KIKI</h3>
+         <div className="text-[7px] text-cyan-500 font-mono tracking-[0.3em] uppercase">ID: 07-ALPHA</div>
      </div>
   </div>
 );
@@ -354,7 +478,6 @@ const FunPhaseDivider = ({
             {/* ROW 3: SEPARATE WARNING CALLOUT */}
             {warning && (
                 <div className="mt-3 transform rotate-[-2deg] hover:rotate-0 transition-transform duration-300">
-                    {/* CHANGED: Red bg/border to Fuchsia/Purple for softer, magical vibe */}
                     <div className="inline-block px-4 py-1.5 bg-fuchsia-600 text-white border-2 border-fuchsia-400 shadow-[0_0_20px_rgba(232,121,249,0.6)]">
                          <span className="font-header text-sm md:text-base tracking-[0.2em] uppercase">
                              ⚠️ {warning} ⚠️
@@ -390,15 +513,17 @@ const HeaderStat = ({ icon: Icon, label, value, color }: { icon: any, label: str
 const MissionHeaderCard = () => (
     <div className="relative w-full flex flex-col items-center justify-center mb-6 pt-6 pb-4">
         
-        {/* === BACKGROUND PLATE === */}
-        <div className="absolute inset-0 bg-[#0f172a]/40 rounded-3xl border border-white/5 shadow-xl backdrop-blur-sm overflow-hidden">
-            {/* Grid texture */}
-            <div className="absolute inset-0 opacity-10 bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:20px_20px]" />
-            {/* Corner Accents */}
-            <div className="absolute top-0 left-0 w-16 h-16 border-t border-l border-cyan-500/20 rounded-tl-3xl" />
-            <div className="absolute top-0 right-0 w-16 h-16 border-t border-r border-cyan-500/20 rounded-tr-3xl" />
-            <div className="absolute bottom-0 left-0 w-16 h-16 border-b border-l border-cyan-500/20 rounded-bl-3xl" />
-            <div className="absolute bottom-0 right-0 w-16 h-16 border-b border-r border-cyan-500/20 rounded-br-3xl" />
+        {/* === BACKGROUND PLATE WITH GRADIENT BORDER === */}
+        <div className="absolute inset-0 rounded-3xl p-[1px] bg-gradient-to-r from-cyan-500/40 via-purple-500/40 to-amber-500/40 animate-gradient-move shadow-xl overflow-hidden" style={{ backgroundSize: '200% 200%' }}>
+            <div className="w-full h-full bg-[#0f172a]/90 backdrop-blur-md rounded-3xl overflow-hidden relative">
+                {/* Grid texture */}
+                <div className="absolute inset-0 opacity-10 bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:20px_20px]" />
+                {/* Corner Accents */}
+                <div className="absolute top-0 left-0 w-16 h-16 border-t border-l border-cyan-500/20 rounded-tl-3xl" />
+                <div className="absolute top-0 right-0 w-16 h-16 border-t border-r border-cyan-500/20 rounded-tr-3xl" />
+                <div className="absolute bottom-0 left-0 w-16 h-16 border-b border-l border-cyan-500/20 rounded-bl-3xl" />
+                <div className="absolute bottom-0 right-0 w-16 h-16 border-b border-r border-cyan-500/20 rounded-br-3xl" />
+            </div>
         </div>
 
         {/* === TOP HUD ELEMENTS === */}
@@ -412,28 +537,28 @@ const MissionHeaderCard = () => (
 
         <div className="relative z-10 flex flex-col items-center text-center w-full">
             
-            {/* ROW 1: MISSION LABEL - UPDATED SIZE & COLOR & MARGIN & DECORATION */}
-            <div className="relative z-30 mb-[-4px] md:mb-[-10px] flex items-center justify-center gap-3 group cursor-default">
+            {/* ROW 1: MISSION LABEL - UPDATED TO 'MISSION TO', MATCHED COLORS, REDUCED SPACING */}
+            <div className="relative z-30 mb-[-4px] md:mb-[-10px] flex items-center justify-center gap-3 group cursor-default -translate-y-1">
                   {/* Cool Decoration: Tiny animated arrows */}
-                  <div className="flex text-amber-400/80 animate-pulse gap-0.5">
-                     <div className="w-1 h-1 md:w-2 md:h-2 bg-amber-400 rounded-full" />
-                     <div className="w-1 h-1 md:w-2 md:h-2 bg-amber-400/50 rounded-full" />
-                     <div className="w-1 h-1 md:w-2 md:h-2 bg-amber-400/20 rounded-full" />
+                  <div className="flex text-cyan-400/80 animate-pulse gap-0.5">
+                     <div className="w-1 h-1 md:w-2 md:h-2 bg-cyan-400 rounded-full" />
+                     <div className="w-1 h-1 md:w-2 md:h-2 bg-cyan-400/50 rounded-full" />
+                     <div className="w-1 h-1 md:w-2 md:h-2 bg-cyan-400/20 rounded-full" />
                   </div>
 
-                  <h2 className="font-header text-lg md:text-3xl uppercase italic tracking-[0.3em] leading-none transform -skew-x-12 relative">
+                  <h2 className="font-header text-lg md:text-3xl uppercase italic tracking-[0.25em] leading-none transform -skew-x-12 relative">
                         {/* Glow effect behind */}
-                        <span className="absolute inset-0 text-amber-500 blur-sm opacity-50 select-none" aria-hidden="true">MISSION: TO</span>
-                        <span className="relative text-transparent bg-clip-text bg-gradient-to-b from-amber-100 via-amber-300 to-orange-500 drop-shadow-sm">
-                          MISSION: TO
+                        <span className="absolute inset-0 text-cyan-500 blur-sm opacity-50 select-none" aria-hidden="true">MISSION TO</span>
+                        <span className="relative text-transparent bg-clip-text bg-gradient-to-b from-white via-cyan-100 to-cyan-400 drop-shadow-sm">
+                          MISSION TO
                         </span>
                   </h2>
 
                   {/* Cool Decoration: Tiny animated arrows reversed */}
-                   <div className="flex text-amber-400/80 animate-pulse gap-0.5 flex-row-reverse">
-                     <div className="w-1 h-1 md:w-2 md:h-2 bg-amber-400 rounded-full" />
-                     <div className="w-1 h-1 md:w-2 md:h-2 bg-amber-400/50 rounded-full" />
-                     <div className="w-1 h-1 md:w-2 md:h-2 bg-amber-400/20 rounded-full" />
+                   <div className="flex text-cyan-400/80 animate-pulse gap-0.5 flex-row-reverse">
+                     <div className="w-1 h-1 md:w-2 md:h-2 bg-cyan-400 rounded-full" />
+                     <div className="w-1 h-1 md:w-2 md:h-2 bg-cyan-400/50 rounded-full" />
+                     <div className="w-1 h-1 md:w-2 md:h-2 bg-cyan-400/20 rounded-full" />
                   </div>
             </div>
 
@@ -480,224 +605,53 @@ const MissionHeaderCard = () => (
     </div>
 );
 
-const MessageCard = () => (
-    <div className="relative h-full min-h-[120px] md:min-h-[140px] bg-[#1a0b2e] rounded-3xl overflow-hidden border border-fuchsia-500/30 group cursor-pointer transition-transform hover:scale-[1.01] shadow-lg shadow-fuchsia-900/10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(162,28,175,0.15),transparent_70%)]" />
-        <div className="absolute inset-0 opacity-10" 
-             style={{ backgroundImage: 'radial-gradient(rgba(232,121,249,0.4) 1px, transparent 1px)', backgroundSize: '16px 16px' }} 
-        />
+// === REDESIGNED START MISSION CARD (FINAL FIXED LAYOUT) ===
+const StartMissionCard = ({ onClick }: { onClick?: () => void }) => (
+    <div onClick={onClick} className="relative w-full max-w-7xl mx-auto group cursor-pointer mb-32 mt-12">
         
-        {/* BIG ENVELOPE EMOJI ON THE SIDE */}
-        <div className="absolute -right-2 md:-right-6 top-1/2 -translate-y-1/2 text-7xl md:text-8xl opacity-80 group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 filter drop-shadow-lg z-0 pointer-events-none select-none">
-             📨
-        </div>
+        {/* Glow behind main card */}
+        <div className="absolute top-10 bottom-10 left-10 right-10 bg-cyan-500/20 blur-[80px] rounded-full" />
 
-        <div className="relative z-10 p-2 md:p-6 flex flex-col items-center justify-center h-full text-center">
-             <div className="flex items-center gap-2 mb-2">
-                 <div className="w-2 h-2 bg-fuchsia-500 rounded-full animate-pulse" />
-                 <span className="font-mono text-[8px] md:text-[10px] text-fuchsia-300 tracking-[0.2em] uppercase font-bold whitespace-nowrap">Encrypted Data</span>
-             </div>
+        {/* Main Card Container - Reduced Height via Padding */}
+        <div className="relative bg-[#020617] rounded-[2.5rem] border border-slate-800 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8 overflow-visible px-8 md:px-12 py-6">
+            
+            {/* Background Texture inside card */}
+            <div className="absolute inset-0 rounded-[2.5rem] overflow-hidden pointer-events-none z-0">
+                 <div className="absolute inset-0 opacity-20 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.05)_50%,transparent_75%)] bg-[length:250%_250%] animate-shimmer" />
+                 <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0)', backgroundSize: '24px 24px' }} />
+            </div>
 
-             <div className="flex flex-col items-center justify-center w-full mb-2 md:mb-4 pr-12 md:pr-0">
-                 <h2 className="font-header text-lg md:text-3xl text-white tracking-wide uppercase drop-shadow-md whitespace-nowrap leading-tight">
-                     New Updates
-                 </h2>
-                 <div className="mt-2 transform -rotate-2 hover:rotate-0 transition-transform duration-300">
-                    <div className="bg-yellow-400 text-black px-4 py-1 rounded-sm border-2 border-white shadow-[0_0_20px_rgba(250,204,21,0.6)]">
-                         <span className="font-header text-xs md:text-sm tracking-[0.2em] uppercase font-bold">
-                             For Savannah
-                         </span>
-                    </div>
-                 </div>
-             </div>
+            {/* LEFT CONTENT */}
+            <div className="flex-col items-start text-left z-10 flex relative py-2">
+                
+                {/* 1. Badge - CLEAN, NO STARS */}
+                <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-slate-900 border border-slate-700 shadow-lg mb-6 group-hover:border-slate-500 transition-colors">
+                    <span className="font-mono text-[10px] md:text-xs text-cyan-400 font-bold tracking-widest uppercase">
+                        SAVANNAH'S MISSION
+                    </span>
+                </div>
 
-             <div className="bg-fuchsia-500 hover:bg-fuchsia-400 text-white text-[8px] md:text-[10px] font-header uppercase tracking-wider px-3 py-1 md:px-6 md:py-2 rounded-full shadow-[0_0_15px_rgba(232,121,249,0.5)] transition-all active:scale-95 flex items-center gap-1 whitespace-nowrap relative z-10">
-                 TAP TO SEE <span className="text-[10px] hidden md:inline">»</span>
-             </div>
-        </div>
+                {/* 2. Title */}
+                <h2 className="font-header text-5xl md:text-7xl text-white uppercase italic tracking-tighter leading-[0.9] mb-8 drop-shadow-2xl">
+                    <span className="text-transparent bg-clip-text bg-gradient-to-br from-white via-cyan-100 to-cyan-500">
+                       MISSION<br/>STARTED
+                    </span>
+                </h2>
+                
+                {/* 4. Button - UPDATED TEXT */}
+                <button className="relative group/btn overflow-hidden bg-[#a3e635] hover:bg-[#bef264] text-black px-10 py-4 rounded-xl font-header text-lg uppercase tracking-widest shadow-[0_0_20px_rgba(163,230,53,0.3)] transition-all transform hover:-translate-y-1 active:scale-[0.98] border-b-[4px] border-[#4d7c0f] active:border-b-0 active:translate-y-1">
+                     <span className="relative z-10 flex items-center gap-2">
+                        SEE MY UPDATES <ChevronsRight size={20} />
+                     </span>
+                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-[-20deg] translate-x-[-200%] group-hover/btn:animate-shimmer" />
+                </button>
+            </div>
 
-        <div className="absolute inset-2 border border-fuchsia-500/20 rounded-2xl pointer-events-none" />
-    </div>
-);
-
-
-// === MAIN APP ===
-
-function App() {
-  const [currentStage, setCurrentStage] = useState(2);
-  const [maxUnlockedStage, setMaxUnlockedStage] = useState(3);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedStage, setSelectedStage] = useState<Stage | null>(null);
-  
-  const morningRef = useRef<HTMLDivElement>(null);
-
-  const handleUnlock = (stage: Stage) => {
-    // ALLOW ALL CLICKS - "NO MORE LOCKS"
-    setCurrentStage(stage.id);
-    setSelectedStage(stage);
-    setModalOpen(true);
-  };
-
-  const unlockNextBatch = () => {
-     if (maxUnlockedStage < 6) {
-         setMaxUnlockedStage(6);
-         setCurrentStage(4);
-         setTimeout(() => {
-             morningRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-         }, 100);
-     }
-  };
-
-  const nightStages = STAGES.slice(0, 3);
-  const morningStages = STAGES.slice(3, 6);
-  const isNextBatchAvailable = maxUnlockedStage === 3;
-
-  return (
-    <div className="min-h-screen bg-[#02040a] text-white font-sans selection:bg-cyan-500/30 pb-20 overflow-x-hidden">
-      
-      {/* Modal Overlay */}
-      {modalOpen && selectedStage && (
-        <MissionModal stage={selectedStage} onClose={() => setModalOpen(false)} />
-      )}
-
-      {/* Fixed Background */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_#0f172a_0%,_#02040a_100%)]" />
-          <div className="absolute inset-0 opacity-[0.03]" 
-               style={{ backgroundImage: 'linear-gradient(rgba(0, 176, 192, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 176, 192, 0.5) 1px, transparent 1px)', backgroundSize: '40px 40px' }} 
-          />
-      </div>
-
-      <div className="relative z-10 container mx-auto px-4 py-4 md:py-8 max-w-7xl">
-          
-          {/* 1. HEADER SECTION */}
-          
-          {/* Main Title: Full width */}
-          <MissionHeaderCard />
-
-          {/* Sub-Header Grid: Message & ID */}
-          <div className="grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-8 mb-6 md:mb-8">
-             {/* Message: Full width on mobile (col-span-2) and half on desktop */}
-             <div className="col-span-2 md:col-span-1" onClick={unlockNextBatch}>
-                <MessageCard />
-             </div>
-
-             {/* Fairy ID: Full width on mobile (col-span-2) and half on desktop */}
-             {/* Previously hidden on desktop, now showing for symmetry since Title is separate */}
-             <div className="col-span-2 md:col-span-1 h-full">
-                 <NeonPanel label="Fairy On Duty" borderColor="border-cyan-500" bgColor="bg-slate-950" height="h-full min-h-[140px]">
-                    <FairyIDCard />
-                 </NeonPanel>
-             </div>
-          </div>
-
-          {/* 2. TITLE ROW */}
-          <FunPhaseDivider 
-             phase="LIVE FEED" 
-             title="MISSION CONTROL" 
-             icon={Activity} 
-             color="text-cyan-400" 
-             className="mb-8 md:mb-12 mt-4" 
-          />
-
-          {/* 3. WIDGET GRID */}
-          {/* MOBILE: 2x2 Grid. DESKTOP: 3-Col Layout. */}
-          <div className="grid grid-cols-2 md:grid-cols-[1fr_288px_1fr] gap-4 md:gap-6 mb-8 md:mb-12 auto-rows-[140px] md:auto-rows-auto">
-             
-             {/* LEFT COLUMN ITEMS */}
-             <div className="col-span-1 md:col-start-1 md:row-start-1">
-                 <NeonPanel label="Flight Speed" borderColor="border-amber-400" bgColor="bg-slate-900" className="w-full h-full md:h-40">
-                    <SpeedWidget />
-                 </NeonPanel>
-             </div>
-             <div className="col-span-1 md:col-start-1 md:row-start-2">
-                 <NeonPanel label="Teeth Collected" borderColor="border-fuchsia-500" bgColor="bg-[#1a0b2e]" className="w-full h-full md:h-40">
-                    <TeethCollectionWidget />
-                 </NeonPanel>
-             </div>
-
-             {/* CENTER COLUMN (ID DUPLICATE? No, removed ID from here since it's up top now) */}
-             {/* Let's put a different decorative panel here or keep it simple. */}
-             {/* We'll use a large Radar visualization in the center for desktop */}
-             <div className="hidden md:block md:col-start-2 md:row-start-1 md:row-span-2 h-full">
-                <NeonPanel label="Long Range Scan" borderColor="border-cyan-500" bgColor="bg-slate-950" className="h-full">
-                   <RadarWidget />
-                </NeonPanel>
-             </div>
-             
-             {/* RIGHT COLUMN ITEMS */}
-             <div className="col-span-1 md:col-start-3 md:row-start-1">
-                 <NeonPanel label="Fairy Link" borderColor="border-purple-400" bgColor="bg-slate-900" className="w-full h-full md:h-40">
-                    <SignalWidget />
-                 </NeonPanel>
-             </div>
-             {/* For mobile, Radar was here. For desktop, it's center. We need a widget for bottom right desktop? */}
-             {/* Actually, let's just reuse RadarWidget here for mobile, but hide it on desktop since scanning is center */}
-             <div className="col-span-1 md:col-start-3 md:row-start-2 md:hidden">
-                 <NeonPanel label="Radar" borderColor="border-cyan-400" bgColor="bg-slate-900" className="w-full h-full md:h-40">
-                    <RadarWidget />
-                 </NeonPanel>
-             </div>
-             {/* Desktop Bottom Right: Changed to Tooth Target */}
-             <div className="hidden md:block col-span-1 md:col-start-3 md:row-start-2">
-                  <NeonPanel label="Tooth Target" borderColor="border-cyan-500" bgColor="bg-slate-900" className="w-full h-full md:h-40">
-                     <ToothTargetWidget />
-                 </NeonPanel>
-             </div>
-
-          </div>
-
-          {/* 4. MISSION STAGES */}
-          <FunPhaseDivider 
-             phase="Phase 1" 
-             title="Night Flight" 
-             warning="For Savannah Only!" 
-             icon={CustomMoonIcon} 
-             color="text-yellow-400" 
-             badgeText="ACTIVE" 
-          />
-          
-          <div className="grid grid-cols-1 gap-8 md:gap-12 mb-8 md:mb-12 px-1 md:px-2">
-              {nightStages.map((stage, index) => (
-                 <StageCard 
-                    key={stage.id}
-                    stage={stage}
-                    isActive={stage.type === 'active'}
-                    isLocked={stage.type === 'locked'}
-                    isCompleted={stage.type === 'completed'}
-                    onClick={() => handleUnlock(stage)}
-                    index={index}
-                 />
-              ))}
-          </div>
-
-          <div ref={morningRef} className={`transition-all duration-1000 ${isNextBatchAvailable ? 'opacity-50 blur-sm grayscale' : 'opacity-100'}`}>
-              <FunPhaseDivider 
-                phase="Phase 2"
-                title="Morning Report" 
-                icon={Sun} 
-                color="text-amber-400" 
-                badgeText="LOCKED" 
-              />
-              
-              <div className="grid grid-cols-1 gap-8 md:gap-12 px-1 md:px-2">
-                  {morningStages.map((stage, index) => (
-                     <StageCard 
-                        key={stage.id}
-                        stage={stage}
-                        isActive={stage.type === 'active'}
-                        isLocked={stage.type === 'locked'}
-                        isCompleted={stage.type === 'completed'}
-                        onClick={() => handleUnlock(stage)}
-                        index={index + 3}
-                     />
-                  ))}
-              </div>
-          </div>
-
-      </div>
-    </div>
-  );
-}
-
-export default App;
+            {/* RIGHT IMAGE - ID CARD POP OUT (NEGATIVE MARGINS) */}
+            <div className="relative z-20 perspective-1000 shrink-0 md:-my-32 md:-mr-4 mt-8 md:mt-0">
+                <div className="relative w-[300px] md:w-[580px] transform md:rotate-2 transition-all duration-500 md:group-hover:rotate-0 md:group-hover:scale-105 hover:z-30">
+                    
+                    {/* RAINBOW BORDER CONTAINER */}
+                    <div className="relative rounded-[2rem] md:rounded-[2.5rem]">
+                        {/* Glow Layer */}
+                        <div className="absolute -inset-2 md:-inset-3 bg-gradient-to-r from-red-500 via-yellow-400 via-green-500 via-cyan-500 to-fuchsia
