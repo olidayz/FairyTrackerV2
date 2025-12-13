@@ -499,106 +499,99 @@ const FunPhaseDivider = ({
 
 // === HEADER CARDS ===
 
-const HeaderStat = ({ icon: Icon, label, value, color }: { icon: any, label: string, value: string, color: string }) => (
-  <div className="flex flex-col items-center justify-center gap-1 group">
-      <div className={`flex items-center gap-1.5 text-[9px] font-mono uppercase tracking-widest ${color} opacity-80 group-hover:opacity-100 transition-opacity`}>
-         <Icon size={10} className="group-hover:animate-pulse" /> {label}
-      </div>
-      <div className="font-header text-xs md:text-sm text-white/90 tracking-wide drop-shadow-sm">
-         {value}
-      </div>
+const HudGauge = ({ icon: Icon, label, value, color, delay }: any) => (
+  <div className="flex flex-col items-center gap-2 group">
+    <div className="relative w-14 h-14 md:w-16 md:h-16 flex items-center justify-center">
+      {/* Outer Static Ring */}
+      <div className={`absolute inset-0 rounded-full border border-white/10 ${color.replace('text-', 'border-')}/30`} />
+      
+      {/* Rotating Dashed Ring */}
+      <div 
+        className={`absolute inset-1 rounded-full border border-dashed border-white/20 animate-spin-slow`} 
+        style={{ animationDuration: '10s', animationDelay: delay }}
+      />
+      
+      {/* Inner Glow */}
+      <div className={`absolute inset-0 rounded-full ${color.replace('text-', 'bg-')}/5 blur-md opacity-0 group-hover:opacity-100 transition-opacity`} />
+
+      {/* Icon */}
+      <Icon size={20} className={`${color} drop-shadow-[0_0_8px_currentColor]`} />
+    </div>
+    
+    <div className="text-center">
+      <div className={`font-mono text-[9px] uppercase tracking-widest ${color} opacity-80`}>{label}</div>
+      <div className="font-header text-xs text-white tracking-wide mt-0.5">{value}</div>
+    </div>
   </div>
 );
 
+
 const MissionHeaderCard = () => (
-    <div className="relative w-full flex flex-col items-center justify-center mb-6 pt-6 pb-4">
+    <div className="relative w-full flex flex-col items-center justify-center mb-10 pt-8 pb-4">
         
-        {/* === BACKGROUND PLATE WITH GRADIENT BORDER === */}
-        <div className="absolute inset-0 rounded-3xl p-[1px] bg-gradient-to-r from-cyan-500/40 via-purple-500/40 to-amber-500/40 animate-gradient-move shadow-xl overflow-hidden" style={{ backgroundSize: '200% 200%' }}>
-            <div className="w-full h-full bg-[#0f172a]/90 backdrop-blur-md rounded-3xl overflow-hidden relative">
-                {/* Grid texture */}
-                <div className="absolute inset-0 opacity-10 bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:20px_20px]" />
-                {/* Corner Accents */}
-                <div className="absolute top-0 left-0 w-16 h-16 border-t border-l border-cyan-500/20 rounded-tl-3xl" />
-                <div className="absolute top-0 right-0 w-16 h-16 border-t border-r border-cyan-500/20 rounded-tr-3xl" />
-                <div className="absolute bottom-0 left-0 w-16 h-16 border-b border-l border-cyan-500/20 rounded-bl-3xl" />
-                <div className="absolute bottom-0 right-0 w-16 h-16 border-b border-r border-cyan-500/20 rounded-br-3xl" />
-            </div>
+        {/* === TOP SYSTEM BAR === */}
+        <div className="w-full flex justify-between items-center px-2 md:px-4 mb-8 font-mono text-[9px] md:text-[10px] tracking-[0.2em] text-cyan-500/60 uppercase">
+             {/* Left: Rec */}
+             <div className="flex items-center gap-2">
+                 <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_#ef4444]" />
+                 <span className="text-red-400/80">LIVE FEED</span>
+             </div>
+
+             {/* Center: System Status (Hidden on small mobile) */}
+             <div className="hidden md:block opacity-50">
+                 Tooth Fairy Tracker 3000: ONLINE
+             </div>
+
+             {/* Right: Timer & Battery */}
+             <div className="flex items-center gap-4">
+                 <span>T-MINUS 04:00</span>
+                 <div className="flex gap-0.5 items-center opacity-80">
+                     <div className="w-4 h-2 border border-current rounded-sm flex items-center px-[1px]">
+                        <div className="w-full h-full bg-current opacity-80" />
+                     </div>
+                     <div className="w-[1px] h-1 bg-current" />
+                 </div>
+             </div>
         </div>
 
-        {/* === TOP HUD ELEMENTS === */}
-        <div className="absolute top-3 left-4 flex items-center gap-2 z-20">
-            <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_#ef4444]" />
-            <span className="text-[8px] font-mono text-red-400/80 tracking-widest uppercase">REC</span>
-        </div>
-        <div className="absolute top-3 right-4 flex items-center gap-2 z-20">
-             <span className="text-[8px] font-mono text-cyan-500/60 tracking-widest uppercase">T-MINUS 04:00</span>
-        </div>
-
-        <div className="relative z-10 flex flex-col items-center text-center w-full">
+        {/* === MAIN TARGET DISPLAY === */}
+        <div className="relative z-10 flex flex-col items-center text-center w-full max-w-4xl mx-auto">
             
-            {/* ROW 1: MISSION LABEL - UPDATED TO 'MISSION TO', MATCHED COLORS, REDUCED SPACING */}
-            <div className="relative z-30 mb-[-4px] md:mb-[-10px] flex items-center justify-center gap-3 group cursor-default -translate-y-1">
-                  {/* Cool Decoration: Tiny animated arrows */}
-                  <div className="flex text-cyan-400/80 animate-pulse gap-0.5">
-                     <div className="w-1 h-1 md:w-2 md:h-2 bg-cyan-400 rounded-full" />
-                     <div className="w-1 h-1 md:w-2 md:h-2 bg-cyan-400/50 rounded-full" />
-                     <div className="w-1 h-1 md:w-2 md:h-2 bg-cyan-400/20 rounded-full" />
-                  </div>
+            {/* JOURNEY TO TITLE - MOVED OUTSIDE BRACKET CONTAINER */}
+            <h2 className="font-header text-lg md:text-2xl text-cyan-400 uppercase italic tracking-[0.2em] mb-0 opacity-80 z-20">
+                JOURNEY TO
+            </h2>
 
-                  <h2 className="font-header text-lg md:text-3xl uppercase italic tracking-[0.25em] leading-none transform -skew-x-12 relative">
-                        {/* Glow effect behind */}
-                        <span className="absolute inset-0 text-cyan-500 blur-sm opacity-50 select-none" aria-hidden="true">MISSION TO</span>
-                        <span className="relative text-transparent bg-clip-text bg-gradient-to-b from-white via-cyan-100 to-cyan-400 drop-shadow-sm">
-                          MISSION TO
-                        </span>
-                  </h2>
+            {/* THE NAME with BRACKETS & SCAN LINE */}
+            <div className="relative px-8 py-2 mb-2 group flex flex-col items-center">
+                
+                {/* Corner Brackets */}
+                <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-cyan-500 drop-shadow-[0_0_8px_#22d3ee]" />
+                <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-cyan-500 drop-shadow-[0_0_8px_#22d3ee]" />
+                <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-cyan-500 drop-shadow-[0_0_8px_#22d3ee]" />
+                <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-cyan-500 drop-shadow-[0_0_8px_#22d3ee]" />
 
-                  {/* Cool Decoration: Tiny animated arrows reversed */}
-                   <div className="flex text-cyan-400/80 animate-pulse gap-0.5 flex-row-reverse">
-                     <div className="w-1 h-1 md:w-2 md:h-2 bg-cyan-400 rounded-full" />
-                     <div className="w-1 h-1 md:w-2 md:h-2 bg-cyan-400/50 rounded-full" />
-                     <div className="w-1 h-1 md:w-2 md:h-2 bg-cyan-400/20 rounded-full" />
-                  </div>
-            </div>
+                {/* Scan Line Animation - Positioned to scan the name */}
+                <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[2px] bg-cyan-400/50 shadow-[0_0_15px_#22d3ee] animate-scan pointer-events-none opacity-50 z-10" />
 
-            {/* ROW 2: NAME - REMOVED DECORATIONS - REMOVED TOP PADDING */}
-            <div className="relative w-full flex justify-center overflow-visible z-20">
-                <h1 className="font-header text-5xl sm:text-6xl md:text-8xl text-white uppercase italic tracking-tighter leading-[0.85] drop-shadow-[0_5px_0_rgba(0,0,0,1)] transform scale-y-110 pb-2 pt-0">
-                    <span className="inline-block text-transparent bg-clip-text bg-gradient-to-b from-white via-cyan-100 to-cyan-400 filter drop-shadow-[0_0_20px_rgba(34,211,238,0.3)] pr-4 mr-[-0.1em]">
+                {/* Main Text */}
+                <h1 className="font-header text-6xl sm:text-7xl md:text-9xl text-white uppercase italic tracking-tighter leading-none transform scale-y-110 drop-shadow-[0_0_20px_rgba(34,211,238,0.5)]">
                     SAVANNAH
-                    </span>
                 </h1>
             </div>
-
-            {/* ROW 3: PRIORITY BADGE (Skewed Rectangle) */}
-            {/* Kept close to name via small margins */}
-            <div className="mt-1 mb-5 group cursor-default z-20">
-                <div className="relative inline-flex items-center justify-center px-8 py-1.5 bg-gradient-to-r from-[#00B0C0] via-cyan-500 to-[#8B5CF6] text-white border border-cyan-400/50 shadow-[0_0_25px_rgba(0,176,192,0.4)] transform -skew-x-12 hover:scale-105 transition-transform">
-                     {/* Shimmer */}
-                     <div className="absolute top-0 -left-[100%] w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 animate-shimmer" />
-                     {/* Content */}
-                     <div className="flex items-center gap-2 transform skew-x-12">
-                         <div className="relative flex items-center justify-center w-2 h-2">
-                            <div className="absolute w-2 h-2 bg-white rounded-full animate-ping opacity-75" />
-                            <div className="relative w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_5px_white]" />
-                         </div>
-                         <span className="font-header text-[10px] md:text-xs tracking-[0.2em] uppercase text-white drop-shadow-md pt-0.5">
-                             Priority: Maximum
-                         </span>
-                     </div>
-                </div>
+            
+            {/* Priority Badge - Centered Below */}
+            <div className="transform -skew-x-10 -mt-1 z-20">
+                 <div className="bg-fuchsia-600 text-white px-4 py-1.5 text-[10px] md:text-xs font-header uppercase tracking-widest border border-white/20 shadow-lg">
+                    TOOTH PRIORITY: MAX
+                 </div>
             </div>
 
-            {/* ROW 4: FUN STATS (Divider Line & Grid) */}
-            <div className="w-full max-w-xl border-t border-white/5 pt-3 flex justify-center gap-6 md:gap-12 relative">
-                {/* Vertical Separators */}
-                <div className="absolute top-3 bottom-0 left-1/3 w-px bg-gradient-to-b from-white/10 to-transparent" />
-                <div className="absolute top-3 bottom-0 right-1/3 w-px bg-gradient-to-b from-white/10 to-transparent" />
-                
-                <HeaderStat icon={Moon} label="Moon Phase" value="Waxing Gibbous" color="text-yellow-400" />
-                <HeaderStat icon={Sparkles} label="Magic Integrity" value="98.5% Stable" color="text-fuchsia-400" />
-                <HeaderStat icon={Wind} label="Wind Speed" value="12 Knots NW" color="text-cyan-400" />
+            {/* === HOLOGRAPHIC GAUGES === */}
+            <div className="flex justify-center gap-8 md:gap-16 mt-6">
+                <HudGauge icon={Moon} label="Phase" value="Waxing" color="text-yellow-400" delay="0s" />
+                <HudGauge icon={Sparkles} label="Magic" value="98.5%" color="text-fuchsia-400" delay="2s" />
+                <HudGauge icon={Wind} label="Wind" value="12kts" color="text-cyan-400" delay="4s" />
             </div>
 
         </div>
@@ -649,9 +642,253 @@ const StartMissionCard = ({ onClick }: { onClick?: () => void }) => (
 
             {/* RIGHT IMAGE - ID CARD POP OUT (NEGATIVE MARGINS) */}
             <div className="relative z-20 perspective-1000 shrink-0 md:-my-32 md:-mr-4 mt-8 md:mt-0">
-                <div className="relative w-[300px] md:w-[580px] transform md:rotate-2 transition-all duration-500 md:group-hover:rotate-0 md:group-hover:scale-105 hover:z-30">
+                {/* REDUCED WIDTH TO 480px on MD, and LIFTED with -translate-y */}
+                <div className="relative w-[280px] md:w-[480px] transform md:rotate-2 transition-all duration-500 md:group-hover:rotate-0 md:group-hover:scale-105 md:-translate-y-6 hover:z-30">
                     
                     {/* RAINBOW BORDER CONTAINER */}
                     <div className="relative rounded-[2rem] md:rounded-[2.5rem]">
                         {/* Glow Layer */}
-                        <div className="absolute -inset-2 md:-inset-3 bg-gradient-to-r from-red-500 via-yellow-400 via-green-500 via-cyan-500 to-fuchsia
+                        <div className="absolute -inset-2 md:-inset-3 bg-gradient-to-r from-red-500 via-yellow-400 via-green-500 via-cyan-500 to-fuchsia-500 opacity-40 blur-xl animate-gradient-move rounded-[3rem]" style={{ backgroundSize: '400% 400%' }} />
+                        {/* Sharp Border Layer */}
+                        <div className="absolute -inset-1 bg-gradient-to-r from-red-500 via-yellow-400 via-green-500 via-cyan-500 to-fuchsia-500 animate-gradient-move rounded-[2.6rem]" style={{ backgroundSize: '400% 400%' }} />
+
+                        {/* Badge Body - LANDSCAPE - SCALED FOR MOBILE */}
+                        <div className="w-full h-[220px] md:h-[360px] bg-slate-900 rounded-[2rem] md:rounded-[2.5rem] relative overflow-hidden group/card z-10">
+                             {/* Full Image Background */}
+                             <img src={IMG_BEDROOM} className="absolute inset-0 w-full h-full object-cover opacity-90 transition-transform duration-700 group-hover/card:scale-110" alt="ID Photo" />
+                             
+                             {/* Gradient Overlay for Text Visibility - Stronger at corners */}
+                             <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-[#020617]/40" />
+                             <div className="absolute inset-0 bg-gradient-to-r from-[#020617]/60 via-transparent to-[#020617]/60" />
+
+                             {/* Top Left Label */}
+                             <div className="absolute top-6 left-6 md:top-8 md:left-8 z-10">
+                                  <div className="inline-block px-3 py-1.5 md:px-4 md:py-2 bg-black/50 backdrop-blur-md rounded-full border border-white/20 shadow-lg">
+                                      <span className="font-header text-white tracking-widest text-[10px] md:text-xs uppercase">
+                                          Your Tooth Fairy
+                                      </span>
+                                  </div>
+                             </div>
+
+                             {/* Bottom Left Content Area: Name */}
+                             <div className="absolute bottom-6 left-6 md:bottom-8 md:left-10 z-10">
+                                 {/* Name - Smaller on Mobile */}
+                                 <h2 className="font-header text-5xl md:text-7xl text-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] leading-none mb-2">
+                                    KIKI
+                                 </h2>
+                                 {/* ADDED SUBTITLE: THE TOOTH FAIRY */}
+                                 <div className="font-mono text-cyan-400 text-[10px] md:text-xs tracking-widest uppercase bg-black/40 backdrop-blur-md px-2 py-0.5 md:px-3 md:py-1 rounded w-fit border border-cyan-500/20">
+                                     The Tooth Fairy
+                                 </div>
+                             </div>
+
+                             {/* Right Side Stats Grid - Vertical Stack - SCALED FOR MOBILE */}
+                             <div className="absolute top-4 bottom-4 right-4 md:top-6 md:bottom-6 md:right-6 w-24 md:w-32 bg-black/60 backdrop-blur-md rounded-2xl p-2 border border-white/10 flex flex-col justify-evenly shadow-xl">
+                                 
+                                 {/* Height */}
+                                 <div className="flex flex-col items-center">
+                                     <div className="text-[7px] md:text-[9px] font-bold text-slate-300 uppercase tracking-wider mb-0.5">Height</div>
+                                     <div className="font-header text-xl md:text-2xl text-white flex items-baseline gap-0.5">
+                                        4.2<span className="text-xs md:text-sm text-slate-400">"</span>
+                                     </div>
+                                 </div>
+
+                                 <div className="w-full h-px bg-white/10" />
+
+                                 {/* Wing Span */}
+                                 <div className="flex flex-col items-center">
+                                     <div className="text-[7px] md:text-[9px] font-bold text-slate-300 uppercase tracking-wider mb-0.5 whitespace-nowrap">Wing Span</div>
+                                     <div className="font-header text-xl md:text-2xl text-white flex items-baseline gap-0.5">
+                                        6.8<span className="text-xs md:text-sm text-slate-400">"</span>
+                                     </div>
+                                 </div>
+
+                                 <div className="w-full h-px bg-white/10" />
+
+                                 {/* Top Speed - UPDATED COLOR and ADDED MPH */}
+                                 <div className="flex flex-col items-center">
+                                     <div className="text-[7px] md:text-[9px] font-bold text-slate-300 uppercase tracking-wider mb-0.5 whitespace-nowrap">Top Speed</div>
+                                     <div className="font-header text-xl md:text-2xl text-white flex flex-col items-center leading-none">
+                                        831
+                                        <span className="text-[8px] md:text-[10px] text-slate-400 font-mono mt-0.5">MPH</span>
+                                     </div>
+                                 </div>
+
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+);
+
+
+// === MAIN APP ===
+
+function App() {
+  const [currentStage, setCurrentStage] = useState(2);
+  const [maxUnlockedStage, setMaxUnlockedStage] = useState(3);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedStage, setSelectedStage] = useState<Stage | null>(null);
+  
+  const morningRef = useRef<HTMLDivElement>(null);
+
+  const handleUnlock = (stage: Stage) => {
+    // ALLOW ALL CLICKS - "NO MORE LOCKS"
+    setCurrentStage(stage.id);
+    setSelectedStage(stage);
+    setModalOpen(true);
+  };
+
+  const unlockNextBatch = () => {
+     if (maxUnlockedStage < 6) {
+         setMaxUnlockedStage(6);
+         setCurrentStage(4);
+         setTimeout(() => {
+             morningRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+         }, 100);
+     }
+  };
+
+  const nightStages = STAGES.slice(0, 3);
+  const morningStages = STAGES.slice(3, 6);
+  const isNextBatchAvailable = maxUnlockedStage === 3;
+
+  return (
+    <div className="min-h-screen bg-[#02040a] text-white font-sans selection:bg-cyan-500/30 pb-20 overflow-x-hidden">
+      
+      {/* Modal Overlay */}
+      {modalOpen && selectedStage && (
+        <MissionModal stage={selectedStage} onClose={() => setModalOpen(false)} />
+      )}
+
+      {/* Fixed Background */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_#0f172a_0%,_#02040a_100%)]" />
+          <div className="absolute inset-0 opacity-[0.03]" 
+               style={{ backgroundImage: 'linear-gradient(rgba(0, 176, 192, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 176, 192, 0.5) 1px, transparent 1px)', backgroundSize: '40px 40px' }} 
+          />
+      </div>
+
+      <div className="relative z-10 container mx-auto px-4 py-4 md:py-8 max-w-7xl">
+          
+          {/* 1. HEADER SECTION */}
+          <MissionHeaderCard />
+
+          {/* 2. ISOLATED START CARD */}
+          <StartMissionCard onClick={unlockNextBatch} />
+
+          {/* 3. TITLE ROW */}
+          <FunPhaseDivider 
+             phase="LIVE FEED" 
+             title="MISSION CONTROL" 
+             icon={Activity} 
+             color="text-cyan-400" 
+             className="mb-8 md:mb-12" 
+          />
+
+          {/* 4. DASHBOARD LAYOUT */}
+          <div className="flex flex-col gap-4 md:gap-6 mb-12">
+              
+              {/* PRIMARY DISPLAY: LIVE MAP (Full Width) */}
+              <div className="w-full h-64 md:h-96">
+                  <NeonPanel label="Global Positioning" borderColor="border-cyan-500" bgColor="bg-slate-950" height="h-full">
+                     <LiveMapWidget />
+                  </NeonPanel>
+              </div>
+
+              {/* SECONDARY GRID: STATUS MODULES */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 auto-rows-[120px] md:auto-rows-[160px]">
+                  
+                   {/* Slot 1: Speed */}
+                   <NeonPanel label="Speed" borderColor="border-amber-400" bgColor="bg-slate-900" height="h-full">
+                      <SpeedWidget />
+                   </NeonPanel>
+                   
+                   {/* Slot 2: Teeth */}
+                   <NeonPanel label="Teeth Collected" borderColor="border-fuchsia-500" bgColor="bg-[#1a0b2e]" height="h-full">
+                      <TeethCollectionWidget />
+                   </NeonPanel>
+
+                   {/* Slot 3: Signal */}
+                   <NeonPanel label="Fairy Link" borderColor="border-purple-400" bgColor="bg-slate-900" height="h-full">
+                      <SignalWidget />
+                   </NeonPanel>
+
+                   {/* Slot 4: Radar */}
+                   <NeonPanel label="Radar" borderColor="border-cyan-500" bgColor="bg-slate-950" height="h-full">
+                      <RadarWidget />
+                   </NeonPanel>
+
+              </div>
+          </div>
+
+          {/* 5. MISSION STAGES */}
+          <FunPhaseDivider 
+             phase="Phase 1" 
+             title="Night Flight" 
+             warning="For Savannah Only!" 
+             icon={CustomMoonIcon} 
+             color="text-yellow-400" 
+             badgeText="ACTIVE" 
+          />
+          
+          <div className="grid grid-cols-1 gap-8 md:gap-12 mb-8 md:mb-12 px-1 md:px-2">
+              {nightStages.map((stage, index) => (
+                 <StageCard 
+                    key={stage.id}
+                    stage={stage}
+                    isActive={stage.type === 'active'}
+                    isLocked={stage.type === 'locked'}
+                    isCompleted={stage.type === 'completed'}
+                    onClick={() => handleUnlock(stage)}
+                    index={index}
+                 />
+              ))}
+          </div>
+
+          <div ref={morningRef} className={`relative transition-all duration-1000 ${isNextBatchAvailable ? 'opacity-50 grayscale' : 'opacity-100'}`}>
+              
+              {/* LOCK OVERLAY */}
+              {isNextBatchAvailable && (
+                 <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
+                     <div className="bg-black/80 backdrop-blur-sm border border-white/20 px-6 py-4 rounded-xl flex items-center gap-4 shadow-2xl">
+                         <Lock className="text-slate-400" />
+                         <div className="text-left">
+                             <div className="font-header text-white uppercase tracking-widest text-lg">LOCKED UNTIL SUNRISE</div>
+                             <div className="font-mono text-slate-400 text-xs">Phase 2 requires daylight</div>
+                         </div>
+                     </div>
+                 </div>
+              )}
+
+              <FunPhaseDivider 
+                phase="Phase 2"
+                title="Morning Report" 
+                icon={Sun} 
+                color="text-amber-400" 
+                badgeText={isNextBatchAvailable ? "LOCKED" : "UNLOCKED"} 
+              />
+              
+              <div className="grid grid-cols-1 gap-8 md:gap-12 px-1 md:px-2">
+                  {morningStages.map((stage, index) => (
+                     <StageCard 
+                        key={stage.id}
+                        stage={stage}
+                        isActive={stage.type === 'active'}
+                        isLocked={stage.type === 'locked'}
+                        isCompleted={stage.type === 'completed'}
+                        onClick={() => handleUnlock(stage)}
+                        index={index + 3}
+                     />
+                  ))}
+              </div>
+          </div>
+
+      </div>
+    </div>
+  );
+}
+
+export default App;
