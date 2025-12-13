@@ -580,9 +580,9 @@ const MissionHeaderCard = () => (
                 </h1>
             </div>
             
-            {/* Priority Badge - Centered Below */}
-            <div className="transform -skew-x-10 -mt-1 z-20">
-                 <div className="bg-fuchsia-600 text-white px-4 py-1.5 text-[10px] md:text-xs font-header uppercase tracking-widest border border-white/20 shadow-lg">
+            {/* Priority Badge - Centered Below - SKEWED AND ANGLED */}
+            <div className="transform -rotate-6 -skew-x-12 -mt-4 z-20">
+                 <div className="bg-fuchsia-600 text-white px-6 py-2 text-[10px] md:text-xs font-header uppercase tracking-widest border-2 border-white/20 shadow-[0_0_20px_rgba(232,121,249,0.8)]">
                     TOOTH PRIORITY: MAX
                  </div>
             </div>
