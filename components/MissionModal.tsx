@@ -1,200 +1,200 @@
-import React from 'react';
-import { X, Play, Camera, Database, MessageCircle, Scan, Radio, Battery, Wifi, Maximize2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Play, ChevronsRight } from 'lucide-react';
 
 interface MissionModalProps {
-  stage: any;
-  onClose: () => void;
+    stage: any;
+    onClose: () => void;
+    onNext?: () => void;
+    isLastStage?: boolean;
 }
 
-export const MissionModal: React.FC<MissionModalProps> = ({ stage, onClose }) => {
-  if (!stage) return null;
+export const MissionModal: React.FC<MissionModalProps> = ({ stage, onClose, onNext, isLastStage }) => {
+    const [showSelfie, setShowSelfie] = useState(false);
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 animate-fade-in perspective-1000">
-      {/* Backdrop with heavy blur */}
-      <div 
-        className="absolute inset-0 bg-[#020617]/80 backdrop-blur-xl transition-opacity" 
-        onClick={onClose}
-      />
+    if (!stage) return null;
 
-      {/* Main Device Container */}
-      <div className="relative w-full max-w-2xl transform transition-all animate-scale-up group">
-        
-        {/* === GLOWING RAINBOW EDGE LAYERS === */}
-        {/* 1. The Blur/Glow Layer */}
-        <div 
-            className="absolute -inset-[5px] rounded-[2.8rem] bg-gradient-to-r from-red-500 via-yellow-400 via-green-500 via-cyan-500 to-fuchsia-500 opacity-60 blur-xl animate-gradient-move" 
-            style={{ backgroundSize: '400% 400%', animationDuration: '3s' }} 
-        />
-        
-        {/* 2. The Sharp Border Layer */}
-        <div 
-            className="absolute -inset-[2px] rounded-[2.6rem] bg-gradient-to-r from-red-500 via-yellow-400 via-green-500 via-cyan-500 to-fuchsia-500 opacity-100 animate-gradient-move" 
-            style={{ backgroundSize: '400% 400%', animationDuration: '3s' }} 
-        />
+    const handleNext = () => {
+        if (onNext && !isLastStage) {
+            onNext();
+        } else {
+            onClose();
+        }
+    };
 
-        {/* Decorative Elements sticking out - preserved but behind card */}
-        <div className="absolute -top-3 left-10 w-20 h-4 bg-cyan-500/20 rounded-t-lg border-t border-x border-cyan-500/50 backdrop-blur-sm z-0" />
-        <div className="absolute -bottom-3 right-10 w-32 h-4 bg-fuchsia-500/20 rounded-b-lg border-b border-x border-fuchsia-500/50 backdrop-blur-sm z-0" />
-
-        {/* The Card Itself */}
-        <div className="relative z-10 bg-[#090e1a] rounded-[2.5rem] border border-slate-700 shadow-[0_20px_60px_-15px_rgba(0,0,0,1),0_0_0_1px_rgba(255,255,255,0.05)] overflow-hidden flex flex-col max-h-[90vh]">
-            
-            {/* === HEADER: DRONE FEED === */}
-            <div className="relative h-72 shrink-0 bg-black group overflow-hidden">
-                {/* Image */}
-                <img 
-                  src={stage.videoThumbnail} 
-                  alt="Feed" 
-                  className="w-full h-full object-cover opacity-80 mix-blend-screen group-hover:scale-105 transition-transform duration-700"
-                />
-                {/* Scanlines & Grain */}
-                <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-10 bg-[length:100%_2px,3px_100%] pointer-events-none" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#090e1a] via-transparent to-transparent z-10" />
-
-                {/* HUD Overlay */}
-                <div className="absolute inset-0 p-6 z-20 flex flex-col justify-between pointer-events-none">
-                    {/* Top Bar */}
-                    <div className="flex justify-between items-start">
-                        <div className="flex flex-col gap-1">
-                             <div className="flex items-center gap-2">
-                                <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_#ef4444]" />
-                                <span className="font-mono text-red-500 font-bold tracking-widest text-xs">LIVE FEED</span>
-                             </div>
-                             <span className="font-mono text-cyan-500/70 text-[10px]">CAM-04 // {stage.location.toUpperCase()}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-cyan-500/70">
-                            <Wifi size={14} />
-                            <Battery size={14} />
-                            <span className="font-mono text-xs">98%</span>
-                        </div>
+    // Selfie fullscreen view
+    if (showSelfie) {
+        return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center px-4 animate-fade-in">
+                <div className="absolute inset-0 bg-black/95" onClick={() => setShowSelfie(false)} />
+                <div className="relative max-w-md w-full animate-scale-up">
+                    <button
+                        onClick={() => setShowSelfie(false)}
+                        className="absolute -top-2 -right-2 z-50 w-10 h-10 bg-slate-800 hover:bg-red-500 rounded-full border-2 border-white/20 flex items-center justify-center text-white transition-all shadow-xl"
+                    >
+                        <X size={20} />
+                    </button>
+                    <div className="p-[3px] rounded-[2rem] bg-gradient-to-r from-amber-400 via-pink-500 to-amber-400 shadow-[0_0_60px_rgba(251,191,36,0.4)]">
+                        <img
+                            src={stage.selfieImage}
+                            className="w-full rounded-[1.85rem]"
+                            alt="Kiki's Selfie"
+                        />
                     </div>
-
-                    {/* Center Play Trigger (Interactive) */}
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-auto">
-                         <button className="group/play relative w-20 h-20 flex items-center justify-center">
-                             <div className="absolute inset-0 bg-cyan-400/20 rounded-full animate-ping-slow" />
-                             <div className="absolute inset-0 border-2 border-cyan-400/50 rounded-full scale-100 group-hover/play:scale-110 transition-transform duration-300" />
-                             <div className="w-14 h-14 bg-cyan-500/90 backdrop-blur-md rounded-full flex items-center justify-center pl-1 shadow-[0_0_20px_rgba(6,182,212,0.5)] group-hover/play:bg-cyan-400 transition-colors">
-                                 <Play size={24} className="text-black fill-black" />
-                             </div>
-                         </button>
-                    </div>
-
-                    {/* Bottom Bar */}
-                    <div className="flex justify-between items-end">
-                        <div className="font-mono text-[10px] text-white/50 space-y-0.5">
-                            <div>ISO 800</div>
-                            <div>F/2.8</div>
-                            <div>1/60</div>
-                        </div>
-                        <Maximize2 size={16} className="text-white/50" />
+                    <div className="text-center mt-4">
+                        <span className="font-sans font-bold text-white text-lg">Kiki's Selfie</span>
                     </div>
                 </div>
             </div>
+        );
+    }
 
-            {/* === BODY CONTENT === */}
-            <div className="flex-1 overflow-y-auto scrollbar-hide p-6 md:p-8 space-y-6 relative">
-                 {/* Background Grid */}
-                 <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
-                      style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '30px 30px' }} 
-                 />
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 animate-fade-in">
+            {/* Backdrop */}
+            <div
+                className="absolute inset-0 bg-[#020617]/95 backdrop-blur-2xl"
+                onClick={onClose}
+            />
 
-                 {/* 1. DECODED TRANSMISSION */}
-                 <div className="relative pl-6 py-1">
-                     <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-cyan-500 to-fuchsia-500 rounded-full" />
-                     <div className="flex items-center gap-2 mb-2">
-                        <MessageCircle size={14} className="text-cyan-400" />
-                        <span className="font-mono text-[10px] text-cyan-400 tracking-[0.2em] uppercase">Incoming Transmission</span>
-                     </div>
-                     <h2 className="font-header text-2xl md:text-3xl text-white leading-tight mb-2 drop-shadow-lg">
-                        "{stage.message}"
-                     </h2>
-                     <div className="flex items-center gap-2">
-                        <div className="px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/20 text-[10px] font-mono text-cyan-300">
-                           SECURE_CHANNEL
-                        </div>
-                     </div>
-                 </div>
+            {/* Main Container */}
+            <div className="relative w-full max-w-lg animate-scale-up">
 
-                 {/* 2. DATA GRID */}
-                 <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                     
-                     {/* LEFT: VISUAL PROOF (2 cols) */}
-                     <div className="md:col-span-2 space-y-2">
-                         <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest pl-1">Visual Log</div>
-                         <div className="relative aspect-[4/5] bg-slate-900 rounded-2xl overflow-hidden border border-slate-700 group hover:border-yellow-500/50 transition-colors duration-300 shadow-lg">
-                             <img src={stage.selfieImage} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" alt="Selfie" />
-                             {/* Overlay UI */}
-                             <div className="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-black/90 to-transparent">
-                                 <div className="flex items-center gap-2 text-yellow-400">
-                                     <Camera size={14} />
-                                     <span className="font-mono text-[10px] font-bold">IMG_0042.RAW</span>
-                                 </div>
-                             </div>
-                             {/* Sticker */}
-                             <div className="absolute top-2 right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg transform rotate-12">
-                                <span className="text-black text-xs font-bold">:)</span>
-                             </div>
-                         </div>
-                     </div>
-
-                     {/* RIGHT: ITEM ANALYSIS (3 cols) */}
-                     <div className="md:col-span-3 space-y-2 flex flex-col">
-                        <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest pl-1">Item Analysis</div>
-                        <div className="flex-1 bg-[#0f1629] rounded-2xl border border-slate-700 relative overflow-hidden flex items-center justify-center p-6 group hover:border-fuchsia-500/50 transition-colors duration-300 shadow-inner">
-                            {/* Holographic Grid Floor */}
-                            <div className="absolute bottom-0 left-0 right-0 h-[40%] bg-[linear-gradient(transparent,rgba(232,121,249,0.1))] transform perspective-[500px] rotate-x-[60deg]" />
-                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(232,121,249,0.1),transparent_70%)]" />
-
-                            {/* Floating Item */}
-                            <div className="relative z-10 w-32 h-32 animate-float drop-shadow-[0_20px_20px_rgba(0,0,0,0.5)]">
-                                <img src={stage.objectImage} className="w-full h-full object-contain" alt="Object" />
-                            </div>
-
-                            {/* Scanning Line */}
-                            <div className="absolute top-0 left-0 w-full h-1 bg-fuchsia-500 shadow-[0_0_15px_#d946ef] animate-scan opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                            {/* Data Tags */}
-                            <div className="absolute top-4 left-4 font-mono text-[9px] text-fuchsia-500/60 space-y-1">
-                                <div>MASS: 0.4g</div>
-                                <div>TYPE: ORGANIC</div>
-                                <div>VAL: HIGH</div>
-                            </div>
-                            
-                            <div className="absolute bottom-4 right-4 bg-fuchsia-500/10 border border-fuchsia-500/30 px-2 py-1 rounded text-[10px] text-fuchsia-300 font-mono flex items-center gap-1">
-                                <Database size={10} /> ARCHIVED
-                            </div>
-                        </div>
-                     </div>
-                 </div>
-
-                 {/* ACTION BUTTON */}
-                 <button 
+                {/* Close Button */}
+                <button
                     onClick={onClose}
-                    className="w-full group relative py-4 bg-slate-800 hover:bg-slate-700 rounded-xl overflow-hidden border border-slate-600 transition-all duration-300 shadow-lg active:scale-[0.98]"
-                 >
-                    <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.05)_50%,transparent_75%)] bg-[length:250%_250%] animate-shimmer" />
-                    <div className="relative flex items-center justify-center gap-3">
-                        <span className="font-header text-white tracking-[0.2em] uppercase">Save to Archives</span>
-                        <div className="bg-green-500/20 p-1 rounded-full">
-                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_#22c55e]" />
+                    className="absolute -top-2 -right-2 z-50 w-10 h-10 bg-slate-800 hover:bg-red-500 rounded-full border-2 border-white/20 flex items-center justify-center text-white transition-all shadow-xl"
+                >
+                    <X size={20} />
+                </button>
+
+                {/* Card with Ring Accent - Matching NeonPanel Style */}
+                <div className="relative rounded-[2rem] bg-slate-950 ring-4 ring-cyan-400/60 overflow-hidden shadow-[0_0_60px_rgba(34,211,238,0.3),0_25px_50px_rgba(0,0,0,0.5)]">
+
+                    {/* 1. VIDEO SECTION */}
+                    <div className="relative aspect-video overflow-hidden">
+                        <img
+                            src={stage.videoThumbnail}
+                            alt="Video"
+                            className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
+
+                        {/* Play Button */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <button className="w-16 h-16 bg-white/90 hover:bg-white rounded-full flex items-center justify-center pl-1 shadow-2xl hover:scale-110 transition-transform">
+                                <Play size={28} className="text-slate-900 fill-slate-900" />
+                            </button>
+                        </div>
+
+                        <div className="absolute top-4 left-4">
+                            <div className={`bg-gradient-to-r ${stage.color || 'from-cyan-400 to-blue-500'} px-4 py-2 rounded-xl transform -rotate-2 shadow-xl border-2 border-white/50`}>
+                                <span className="font-chrome text-sm text-white uppercase tracking-wide">
+                                    Stage {stage.id}
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Status Badge - Header Style */}
+                        <div className="absolute top-4 right-4">
+                            <div className="bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/20 flex items-center gap-2">
+                                <span className={`text-[10px] font-sans font-bold uppercase ${stage.id <= 3 ? 'text-amber-400' : 'text-green-400'}`}>
+                                    {stage.id <= 3 ? 'In Flight' : 'Complete'}
+                                </span>
+                                <div className={`w-2 h-2 rounded-full ${stage.id <= 3 ? 'bg-amber-400 animate-pulse' : 'bg-green-400'} shadow-[0_0_8px_currentColor]`} />
+                            </div>
                         </div>
                     </div>
-                 </button>
 
+                    {/* 2. CONTENT SECTION */}
+                    <div className="p-6 space-y-5">
+
+                        {/* Title Only */}
+                        <div className="text-center">
+                            <h2 className="font-chrome text-2xl md:text-3xl text-white uppercase tracking-wide mb-1">
+                                {stage.title}
+                            </h2>
+                        </div>
+
+                        {/* Message Bubble */}
+                        <div className="bg-white rounded-2xl p-4 shadow-lg relative">
+                            <p className="font-sans text-slate-700 text-sm md:text-base leading-relaxed">
+                                "{stage.message}"
+                            </p>
+                            <div className="absolute -bottom-2 left-6 w-4 h-4 bg-white rotate-45" />
+                        </div>
+
+                        {/* Kiki Avatar */}
+                        <div className="flex items-center gap-3 pl-2">
+                            <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-cyan-400 shadow-lg">
+                                <img src="/PFP FULL SIZE KIKI 1.png" className="w-full h-full object-cover" alt="Kiki" />
+                            </div>
+                            <span className="font-sans font-bold text-sm text-white">Kiki</span>
+                        </div>
+
+                        {/* 2-Column Grid: Selfie & Location */}
+                        <div className="grid grid-cols-2 gap-4">
+
+                            {/* 1. Selfie Button */}
+                            <button
+                                onClick={() => setShowSelfie(true)}
+                                className="group relative rounded-2xl overflow-hidden ring-4 ring-amber-400/60 shadow-[0_0_25px_rgba(251,191,36,0.3)] hover:ring-amber-400 hover:scale-[1.02] transition-all duration-300 active:scale-100"
+                            >
+                                <div className="aspect-square relative flex items-center justify-center bg-slate-900">
+                                    <img src={stage.selfieImage} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="Selfie" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                                    <div className="absolute bottom-3 left-0 right-0 text-center">
+                                        <div className="inline-flex items-center gap-2 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
+                                            <span className="text-lg">📸</span>
+                                            <span className="font-sans font-bold text-[10px] text-white">View Selfie</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </button>
+
+                            {/* 2. Location Card */}
+                            <div className="rounded-2xl ring-4 ring-cyan-400/60 shadow-[0_0_25px_rgba(34,211,238,0.3)] bg-gradient-to-b from-slate-800 to-slate-900 overflow-hidden relative group">
+                                {/* Map Background Pattern */}
+                                <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(#22d3ee 1px, transparent 1px)', backgroundSize: '10px 10px' }} />
+                                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
+
+                                <div className="absolute inset-0 flex flex-col items-center justify-center p-2 text-center">
+                                    <div className="w-10 h-10 rounded-full bg-cyan-500/20 flex items-center justify-center mb-2 animate-pulse-slow">
+                                        <span className="text-xl">📍</span>
+                                    </div>
+                                    <div className="text-[10px] font-sans font-bold text-slate-400 uppercase tracking-widest mb-1">Location</div>
+                                    <div className="font-chrome text-sm md:text-base text-cyan-400 uppercase leading-tight line-clamp-2">
+                                        {stage.location}
+                                    </div>
+                                    <div className="mt-2 text-[9px] font-mono text-cyan-500/70">
+                                        LAT: {40 + stage.id * 2}.492<br />
+                                        LON: {70 - stage.id * 3}.104
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        {/* CTA Button - Next Stage, Stage 3 special, or Done */}
+                        <button
+                            onClick={handleNext}
+                            className={`w-full py-4 rounded-xl font-sans font-extrabold text-base uppercase tracking-tight shadow-lg transition-all transform hover:-translate-y-1 active:translate-y-1 flex items-center justify-center gap-2 ${stage.id === 3
+                                ? 'bg-gradient-to-r from-amber-400 to-orange-500 border-b-[4px] border-[#c2410c] active:border-b-0 shadow-[0_0_20px_rgba(251,191,36,0.3)]'
+                                : 'bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600 border-b-[4px] border-[#1e40af] active:border-b-0 shadow-[0_0_20px_rgba(34,211,238,0.3)]'
+                                } text-white`}
+                        >
+                            <span>
+                                {isLastStage
+                                    ? 'Done!'
+                                    : stage.id === 3
+                                        ? '🌙 Check Back Tomorrow Morning!'
+                                        : 'Next Stage'}
+                            </span>
+                            <ChevronsRight size={20} />
+                        </button>
+
+                    </div>
+                </div>
             </div>
-
-            {/* === CLOSE BUTTON (FLOATING) === */}
-            <button 
-                onClick={onClose}
-                className="absolute top-4 right-4 z-50 w-10 h-10 bg-black/50 hover:bg-red-500/20 hover:border-red-500 backdrop-blur-md rounded-full border border-white/10 flex items-center justify-center text-white/70 hover:text-red-400 transition-all duration-200 group"
-            >
-                <X size={20} className="group-hover:rotate-90 transition-transform duration-300" />
-            </button>
-            
         </div>
-      </div>
-    </div>
-  );
+    );
 };

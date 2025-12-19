@@ -1,6 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Star, ChevronsRight, ArrowRight } from 'lucide-react';
+import { MapContainer, TileLayer, Marker, Polyline, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+// Component to fix map sizing issues
+const MapUpdater = ({ center, zoom }: { center: [number, number], zoom: number }) => {
+    const map = useMap();
+    useEffect(() => {
+        map.setView(center, zoom);
+        const timer = setTimeout(() => {
+            map.invalidateSize();
+        }, 100);
+        return () => clearTimeout(timer);
+    }, [map, center, zoom]);
+    return null;
+};
 
 const NewLandingPage = () => {
     const navigate = useNavigate();
@@ -8,6 +24,17 @@ const NewLandingPage = () => {
     const [activeReview, setActiveReview] = useState(0);
     const [headerVisible, setHeaderVisible] = useState(true);
     const [lastScrollY, setLastScrollY] = useState(0);
+    const trackerIframeRef = useRef<HTMLIFrameElement>(null);
+
+    // Function to scroll iframe to a specific section
+    const scrollToSection = (sectionId: string) => {
+        if (trackerIframeRef.current?.contentWindow) {
+            trackerIframeRef.current.contentWindow.postMessage(
+                { scrollTo: sectionId },
+                '*'
+            );
+        }
+    };
 
     // Hide header on scroll down, show on scroll up
     useEffect(() => {
@@ -188,7 +215,7 @@ const NewLandingPage = () => {
 
                                     {/* Main Headline */}
                                     <div className="space-y-3">
-                                        <h1 className="font-chrome text-4xl md:text-5xl lg:text-6xl text-white uppercase leading-[0.9] tracking-tight">
+                                        <h1 className="font-chrome text-4xl md:text-5xl lg:text-6xl text-white uppercase leading-[0.9] tracking-normal">
                                             Gift Them a<br />
                                             <span className="text-transparent bg-clip-text bg-gradient-to-br from-white via-cyan-300 to-cyan-500">Night To Remember</span>
                                         </h1>
@@ -201,7 +228,7 @@ const NewLandingPage = () => {
                                     <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start pt-2">
                                         <button
                                             onClick={handleEnter}
-                                            className="relative group/btn overflow-hidden bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600 text-white px-8 py-4 rounded-2xl font-sans font-extrabold text-base uppercase tracking-tight shadow-[0_0_30px_rgba(34,211,238,0.3)] transition-all transform hover:-translate-y-1 hover:shadow-[0_0_40px_rgba(34,211,238,0.4)] active:scale-[0.98] flex items-center justify-center gap-2"
+                                            className="relative group/btn overflow-hidden bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600 text-white px-8 py-4 rounded-xl font-sans font-extrabold text-base uppercase tracking-tight shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all transform hover:-translate-y-1 active:translate-y-1 border-b-[4px] border-[#1e40af] active:border-b-0 flex items-center justify-center gap-2"
                                         >
                                             <span className="relative z-10">Start the Journey</span>
                                             <ChevronsRight size={20} className="relative z-10 group-hover/btn:translate-x-1 transition-transform" />
@@ -381,106 +408,146 @@ const NewLandingPage = () => {
                     </div>
                     <div className="container mx-auto max-w-5xl">
 
-                        {/* Section Header */}
+                        {/* Section Header with Badge */}
                         <div className="text-center mb-12">
-                            {/* Title with Overlapping Badge */}
-                            <div className="relative inline-block mb-8">
-                                <h2 className="font-chrome text-5xl md:text-6xl text-white uppercase tracking-tight">
+                            <div className="relative inline-block mb-4">
+                                <h2 className="font-chrome text-5xl md:text-6xl text-white uppercase tracking-normal">
                                     How It Works
                                 </h2>
                                 <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 transform rotate-2">
                                     <div className="bg-gradient-to-r from-fuchsia-500 to-pink-500 px-3 py-1 rounded-lg border border-white/30 shadow-xl backdrop-blur-sm">
                                         <p className="font-sans font-black text-[9px] text-white uppercase tracking-widest whitespace-nowrap">
-                                            100% stress-free
+                                            Simple & Easy
                                         </p>
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            {/* Explanatory text */}
-                            <p className="text-slate-400 text-lg max-w-2xl mx-auto leading-relaxed">
-                                The tracker is a step-by-step journey in <span className="text-white font-semibold">6 stages</span> — experienced in two parts: <span className="text-cyan-400">before bedtime</span> and <span className="text-amber-400">after waking up</span>.
+                        {/* PART 1: Form - Inline Text */}
+                        <div className="text-center mb-12">
+                            <p className="text-slate-300 text-lg">
+                                Fill out the form with your <span className="text-white font-semibold">child's name</span> + <span className="text-white font-semibold">your email</span>. We generate your tracker page.
                             </p>
                         </div>
 
-                        {/* 3 Balanced Feature Cards (Lighter & Symmetrical) */}
-                        <div className="grid md:grid-cols-3 gap-6">
-                            {/* Card 1: Setup */}
-                            <div className="relative group p-6 rounded-[2rem] bg-gradient-to-b from-slate-900/50 to-slate-950/50 border border-white/5 hover:border-cyan-500/20 transition-all text-center">
-                                {/* Time Pill */}
-                                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                                    <span className="px-3 py-1 rounded-full bg-cyan-950 border border-cyan-500/30 text-[10px] font-bold text-cyan-300 uppercase tracking-wider">
-                                        Before Bed
-                                    </span>
-                                </div>
-                                {/* Visual: ID Card Mini */}
-                                <div className="h-32 flex items-center justify-center mb-4">
-                                    <div className="relative w-24 h-32 bg-slate-800 rounded-xl border border-white/10 shadow-lg transform group-hover:scale-105 transition-transform rotate-[-6deg]">
-                                        <div className="absolute top-2 left-2 right-2 h-16 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-lg opacity-80" />
-                                        <div className="absolute bottom-3 left-2 w-12 h-2 bg-slate-700 rounded-full" />
-                                        <div className="absolute bottom-3 right-2 w-4 h-4 rounded-full bg-green-500/50" />
-                                    </div>
-                                    <div className="absolute w-24 h-32 bg-slate-800 rounded-xl border border-white/10 shadow-lg transform group-hover:scale-105 transition-transform rotate-[6deg] z-[-1]"></div>
-                                </div>
-                                <h3 className="font-chrome text-xl text-white uppercase mb-2">Create Mission</h3>
-                                <p className="text-slate-400 text-sm leading-relaxed">
-                                    Input your child's name to generate their <span className="text-white">personal tracking page</span>.
-                                </p>
-                            </div>
+                        {/* PART 2: Two Side-by-Side Cards with Hero-Style Titles */}
+                        <div className="grid md:grid-cols-2 gap-8">
 
-                            {/* Card 2: Tracking */}
-                            <div className="relative group p-6 rounded-[2rem] bg-gradient-to-b from-slate-900/50 to-slate-950/50 border border-white/5 hover:border-fuchsia-500/20 transition-all text-center">
-                                {/* Time Pill */}
-                                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                                    <span className="px-3 py-1 rounded-full bg-fuchsia-950 border border-fuchsia-500/30 text-[10px] font-bold text-fuchsia-300 uppercase tracking-wider">
-                                        All Night
-                                    </span>
-                                </div>
-                                {/* Visual: Radar Pulse */}
-                                <div className="h-32 flex items-center justify-center mb-4">
-                                    <div className="relative w-24 h-24 rounded-full border border-white/10 flex items-center justify-center bg-slate-800/50">
-                                        <div className="absolute inset-0 border border-fuchsia-500/30 rounded-full animate-ping" />
-                                        <div className="w-2 h-2 bg-fuchsia-400 rounded-full shadow-[0_0_10px_#e879f9]" />
-                                        <div className="absolute top-4 right-6 w-1 h-1 bg-white/50 rounded-full" />
-                                        <div className="absolute bottom-6 left-5 w-1 h-1 bg-white/30 rounded-full" />
-                                        {/* Line */}
-                                        <div className="absolute inset-0 border-t border-fuchsia-500/20 rounded-full rotate-45" />
+                            {/* Card 1: Live Tracking */}
+                            <div className="relative mt-6">
+                                {/* Title ON TOP of card */}
+                                <div className="absolute -top-4 left-6 z-[1000]">
+                                    <div className="bg-gradient-to-r from-cyan-400 to-blue-500 px-4 py-2 rounded-xl transform -rotate-1 shadow-xl border-2 border-white/50">
+                                        <h4 className="font-chrome text-lg text-white uppercase tracking-wide">Live Tracking</h4>
                                     </div>
                                 </div>
-                                <h3 className="font-chrome text-xl text-white uppercase mb-2">Follow Flight</h3>
-                                <p className="text-slate-400 text-sm leading-relaxed">
-                                    Watch her move on the map with live speed stats. She sends her <span className="text-white">first 3 video updates</span> before you sleep.
-                                </p>
+                                {/* Card Body with Ring Accent */}
+                                <div className="rounded-[2rem] bg-gradient-to-b from-slate-900/90 to-slate-950/90 ring-4 ring-cyan-500/40 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
+                                    {/* Leaflet Map Preview */}
+                                    <div style={{ height: '192px', width: '100%' }}>
+                                        <MapContainer
+                                            center={[40, 10]}
+                                            zoom={1.3}
+                                            zoomSnap={0.1}
+                                            scrollWheelZoom={false}
+                                            dragging={false}
+                                            zoomControl={false}
+                                            attributionControl={false}
+                                            style={{ height: '100%', width: '100%', background: '#020617' }}
+                                        >
+                                            <MapUpdater center={[40, 10]} zoom={1.3} />
+                                            <TileLayer
+                                                url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                                            />
+                                            {/* Static fairy marker for preview */}
+                                            <Marker
+                                                position={[48.8566, 2.3522]}
+                                                icon={L.divIcon({
+                                                    className: 'custom-fairy-preview',
+                                                    html: `<div style="width: 28px; height: 28px; border-radius: 50%; border: 2px solid #22d3ee; box-shadow: 0 0 12px #22d3ee; background: url('/fairy-head.png') center/cover; overflow: hidden;"></div>`,
+                                                    iconSize: [28, 28],
+                                                    iconAnchor: [14, 14]
+                                                })}
+                                            />
+                                            {/* Flight path line */}
+                                            <Polyline
+                                                positions={[[51.5, -0.1], [48.8, 2.4], [40.4, -3.7], [35.7, 139.7]]}
+                                                pathOptions={{
+                                                    color: '#22d3ee',
+                                                    weight: 2,
+                                                    opacity: 0.6,
+                                                    dashArray: '5, 10'
+                                                }}
+                                            />
+                                        </MapContainer>
+                                    </div>
+                                    {/* Content */}
+                                    <div className="p-6">
+                                        <p className="text-slate-400 text-sm mb-4">
+                                            A customized experience where they can:
+                                        </p>
+                                        <ul className="space-y-2 text-slate-300 text-sm">
+                                            <li className="flex items-start gap-2">
+                                                <span className="text-cyan-400">✓</span>
+                                                <span>See the fairy move on a <span className="text-white">live map</span></span>
+                                            </li>
+                                            <li className="flex items-start gap-2">
+                                                <span className="text-cyan-400">✓</span>
+                                                <span>Watch her <span className="text-white">speed stats</span></span>
+                                            </li>
+                                            <li className="flex items-start gap-2">
+                                                <span className="text-cyan-400">✓</span>
+                                                <span>View her <span className="text-white">Fairy ID</span> & <span className="text-white">mission progress</span></span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
 
-                            {/* Card 3: Morning */}
-                            <div className="relative group p-6 rounded-[2rem] bg-gradient-to-b from-slate-900/50 to-slate-950/50 border border-white/5 hover:border-amber-500/20 transition-all text-center">
-                                {/* Time Pill */}
-                                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                                    <span className="px-3 py-1 rounded-full bg-amber-950 border border-amber-500/30 text-[10px] font-bold text-amber-300 uppercase tracking-wider">
-                                        Morning
-                                    </span>
+                            {/* Card 2: Fairy Updates */}
+                            <div className="relative mt-6">
+                                {/* Title ON TOP of card */}
+                                <div className="absolute -top-4 left-6 z-20">
+                                    <div className="bg-gradient-to-r from-fuchsia-400 to-pink-500 px-4 py-2 rounded-xl transform rotate-1 shadow-xl border-2 border-white/50">
+                                        <h4 className="font-chrome text-lg text-white uppercase tracking-wide">Fairy Updates</h4>
+                                    </div>
                                 </div>
-                                {/* Visual: Photo Frame */}
-                                <div className="h-32 flex items-center justify-center mb-4">
-                                    <div className="relative w-28 h-24 bg-white p-1.5 pb-4 rounded-sm transform rotate-3 shadow-lg group-hover:rotate-6 transition-transform duration-300">
-                                        <div className="w-full h-full bg-slate-200 overflow-hidden relative">
-                                            <div className="absolute inset-0 bg-gradient-to-br from-amber-200 to-orange-100 opacity-50" />
-                                            <div className="absolute bottom-0 right-0 text-[8px] text-slate-400 p-0.5">📸</div>
+                                {/* Card Body with Ring Accent */}
+                                <div className="rounded-[2rem] bg-gradient-to-b from-slate-900/90 to-slate-950/90 ring-4 ring-fuchsia-500/40 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
+                                    {/* Kiki Visual - Stage 1 Image (URL encoded) */}
+                                    <div className="relative overflow-hidden" style={{ height: '200px' }}>
+                                        <img
+                                            src="/Fairy%20photo%20booth%20pic.webp"
+                                            alt="Kiki the Tooth Fairy"
+                                            className="w-full h-full object-cover object-top"
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent" />
+                                    </div>
+                                    {/* Content */}
+                                    <div className="p-6">
+                                        <p className="text-slate-300 text-sm mb-4">
+                                            <span className="text-white font-semibold">6 updates</span> — each with a <span className="text-white">video</span>, <span className="text-white">message</span>, and <span className="text-white">selfie</span>.
+                                        </p>
+                                        <div className="flex gap-3">
+                                            <div className="flex-1 p-3 bg-slate-800/50 border border-cyan-500/20 rounded-xl text-center">
+                                                <span className="text-xl block mb-1">🌙</span>
+                                                <span className="text-cyan-300 font-semibold text-xs">3 before bed</span>
+                                            </div>
+                                            <div className="flex-1 p-3 bg-slate-800/50 border border-amber-500/20 rounded-xl text-center">
+                                                <span className="text-xl block mb-1">☀️</span>
+                                                <span className="text-amber-300 font-semibold text-xs">3 in morning</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <h3 className="font-chrome text-xl text-white uppercase mb-2">Wake to Magic</h3>
-                                <p className="text-slate-400 text-sm leading-relaxed">
-                                    Wake up to <span className="text-white">3 new morning updates</span> showing exactly what she did while they slept.
-                                </p>
                             </div>
                         </div>
 
                         {/* Bottom Note */}
-                        <div className="text-center mt-12">
-                            <p className="text-slate-400 text-sm">
-                                ✨ Parents are in control ✨ You decide when your child sees each part of the journey.
+                        <div className="text-center mt-8">
+                            <p className="text-slate-500 text-xs">
+                                ✨ Parents control when each update is shown
                             </p>
                         </div>
 
@@ -488,7 +555,7 @@ const NewLandingPage = () => {
                         <div className="text-center mt-10">
                             <button
                                 onClick={handleEnter}
-                                className="bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600 text-white px-10 py-5 rounded-2xl font-sans font-extrabold text-lg uppercase tracking-tight shadow-[0_0_40px_rgba(34,211,238,0.3)] transition-all transform hover:-translate-y-1 hover:shadow-[0_0_50px_rgba(34,211,238,0.4)] flex items-center justify-center gap-3 mx-auto"
+                                className="bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600 text-white px-10 py-5 rounded-xl font-sans font-extrabold text-lg uppercase tracking-tight shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all transform hover:-translate-y-1 active:translate-y-1 border-b-[4px] border-[#1e40af] active:border-b-0 flex items-center justify-center gap-3 mx-auto"
                             >
                                 <span>Start the Journey</span>
                                 <ChevronsRight size={24} />
@@ -511,7 +578,7 @@ const NewLandingPage = () => {
                                 <div className="w-2 h-2 bg-lime-400 rounded-full animate-pulse" />
                                 <span className="text-xs font-bold text-lime-300 uppercase tracking-widest">Ready to Launch</span>
                             </div>
-                            <h2 className="font-chrome text-4xl md:text-5xl lg:text-6xl text-white uppercase tracking-tight mb-4">
+                            <h2 className="font-chrome text-4xl md:text-5xl lg:text-6xl text-white uppercase tracking-normal mb-4">
                                 Start the Magic
                             </h2>
                             <p className="text-slate-400 text-lg max-w-xl mx-auto">
@@ -573,7 +640,7 @@ const NewLandingPage = () => {
                                         {/* CTA Button - MASSIVE */}
                                         <button
                                             onClick={handleEnter}
-                                            className="w-full bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600 text-white px-8 py-6 rounded-2xl font-sans font-extrabold text-xl uppercase tracking-tight shadow-[0_0_50px_rgba(34,211,238,0.5)] transition-all transform hover:-translate-y-2 hover:shadow-[0_0_70px_rgba(34,211,238,0.6)] active:scale-[0.98] flex items-center justify-center gap-3"
+                                            className="w-full bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600 text-white px-8 py-6 rounded-xl font-sans font-extrabold text-xl uppercase tracking-tight shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all transform hover:-translate-y-1 active:translate-y-1 border-b-[4px] border-[#1e40af] active:border-b-0 flex items-center justify-center gap-3"
                                         >
                                             <span>Start Tracking</span>
                                             <span className="text-2xl">✨</span>
@@ -658,7 +725,7 @@ const NewLandingPage = () => {
                             <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-fuchsia-950/50 border border-fuchsia-500/30 rounded-full mb-4">
                                 <span className="text-xs font-bold text-fuchsia-300 uppercase tracking-widest">✨ Sneak Peek</span>
                             </div>
-                            <h2 className="font-chrome text-4xl md:text-5xl lg:text-6xl text-white uppercase tracking-tight mb-0 relative">
+                            <h2 className="font-chrome text-4xl md:text-5xl lg:text-6xl text-white uppercase tracking-normal mb-0 relative">
                                 Inside the Tracker
                             </h2>
                             <div className="relative -mt-2 mb-6 inline-block">
@@ -703,6 +770,7 @@ const NewLandingPage = () => {
                                     <div className="relative aspect-[16/9] bg-[#02040a] overflow-hidden">
                                         {/* Actual iframe to TrackerPage - SCROLLABLE */}
                                         <iframe
+                                            ref={trackerIframeRef}
                                             src="/tracker"
                                             className="absolute inset-0 w-full h-full border-0"
                                             title="Tracker Preview"
@@ -731,39 +799,45 @@ const NewLandingPage = () => {
                                         title: "Live Tracking Map",
                                         desc: "Watch Kiki fly across the globe in real-time with smooth animations.",
                                         gradient: "from-cyan-400 to-blue-600",
-                                        icon: "🗺️"
+                                        icon: "🗺️",
+                                        scrollTo: "tracker-map"
                                     },
                                     {
                                         title: "Personal Video Updates",
                                         desc: "She sends personalized video messages during her journey.",
                                         gradient: "from-fuchsia-400 to-purple-600",
-                                        icon: "🎬"
+                                        icon: "🎬",
+                                        scrollTo: "tracker-videos"
                                     },
                                     {
                                         title: "Fairy ID Card",
                                         desc: "A custom profile card featuring your child's name and mission.",
                                         gradient: "from-amber-400 to-orange-600",
-                                        icon: "🪪"
+                                        icon: "🪪",
+                                        scrollTo: "tracker-videos"
                                     },
                                     {
                                         title: "Speed & Stats",
                                         desc: "Track her flight speed, distance traveled, and current location.",
                                         gradient: "from-lime-400 to-green-600",
-                                        icon: "⚡"
+                                        icon: "⚡",
+                                        scrollTo: "tracker-speed"
                                     },
                                     {
                                         title: "Morning Surprise",
                                         desc: "Wake up to proof she visited – selfies, messages, and more.",
                                         gradient: "from-pink-400 to-rose-600",
-                                        icon: "🌅"
+                                        icon: "🌅",
+                                        scrollTo: "tracker-videos"
                                     }
                                 ].map((feature, idx) => (
                                     <div
                                         key={idx}
-                                        className="flex-shrink-0 w-72 snap-center group"
+                                        className="flex-shrink-0 w-72 snap-center group cursor-pointer"
+                                        onClick={() => scrollToSection(feature.scrollTo)}
                                     >
                                         {/* Card */}
-                                        <div className="bg-slate-900/50 border border-white/10 rounded-[2rem] overflow-hidden hover:border-white/20 transition-all duration-300 hover:shadow-xl">
+                                        <div className="bg-slate-900/50 border border-white/10 rounded-[2rem] overflow-hidden hover:border-white/20 transition-all duration-300 hover:shadow-xl hover:scale-[1.02]">
                                             {/* Mockup Area */}
                                             <div className={`h-48 bg-gradient-to-br ${feature.gradient} flex items-center justify-center relative overflow-hidden`}>
                                                 {/* Placeholder visual */}
@@ -788,7 +862,7 @@ const NewLandingPage = () => {
                         {/* Scroll hint */}
                         <div className="flex justify-center mt-6">
                             <p className="text-slate-500 text-sm flex items-center gap-2">
-                                <span>←</span> Scroll to explore <span>→</span>
+                                <span>←</span> Click a card to explore <span>→</span>
                             </p>
                         </div>
                     </div>
@@ -804,7 +878,7 @@ const NewLandingPage = () => {
                         <div className="relative">
 
                             {/* The Card (sits behind) */}
-                            <div className="relative lg:ml-[280px] bg-slate-900/80 backdrop-blur-sm border border-white/10 rounded-[2rem] p-8 lg:p-12 lg:pl-[280px]">
+                            <div className="relative lg:ml-[280px] bg-slate-900/80 backdrop-blur-sm border border-white/10 rounded-[2rem] p-8 lg:p-12 lg:pl-[320px]">
                                 {/* Inner glow */}
                                 <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-cyan-500/5 via-transparent to-cyan-500/5 pointer-events-none" />
 
@@ -815,10 +889,9 @@ const NewLandingPage = () => {
                                         <span className="text-xs font-bold text-cyan-300 uppercase tracking-widest">🧚‍♀️ Your Child's Fairy</span>
                                     </div>
 
-                                    {/* Title */}
-                                    <h2 className="font-chrome text-4xl md:text-5xl text-white uppercase tracking-tight">
-                                        Meet Kiki<br />
-                                        <span className="text-cyan-400">the Tooth Fairy</span>
+                                    {/* Title - Single line */}
+                                    <h2 className="font-chrome text-3xl md:text-4xl lg:text-5xl text-white uppercase tracking-normal">
+                                        Meet Kiki the Tooth Fairy
                                     </h2>
 
                                     {/* Paragraphs */}
@@ -871,7 +944,7 @@ const NewLandingPage = () => {
                             <span className="text-xs text-cyan-300 uppercase tracking-wider">5-Star Reviews</span>
                         </div>
 
-                        <h2 className="font-chrome text-4xl md:text-5xl lg:text-6xl text-white uppercase tracking-tight mb-0 relative">
+                        <h2 className="font-chrome text-4xl md:text-5xl lg:text-6xl text-white uppercase tracking-normal mb-0 relative">
                             What Parents Say
                         </h2>
                         {/* Overlapping Badge */}
@@ -991,33 +1064,261 @@ const NewLandingPage = () => {
                     </div>
                 </section>
 
-                {/* ========== SECTION 4: PRESS LOGOS ========== */}
-                <section className="relative py-16 px-4 border-t border-white/5">
+                {/* ========== SECTION 4: WHY FAMILIES LOVE US ========== */}
+                <section className="relative py-24 px-4 overflow-hidden">
+                    {/* Background Glow */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-cyan-500/10 rounded-full blur-[200px] pointer-events-none" />
+
                     <div className="container mx-auto max-w-5xl">
                         {/* Header */}
-                        <p className="text-center text-slate-500 text-sm uppercase tracking-widest mb-10">
-                            As Seen In
-                        </p>
+                        <div className="text-center mb-14">
+                            <div className="relative inline-block mb-8">
+                                <h2 className="font-chrome text-4xl md:text-5xl lg:text-6xl text-white uppercase tracking-normal">
+                                    Why Families Love Our<br />
+                                    <span className="text-white">Tooth Fairy Tracker</span>
+                                </h2>
+                                {/* Badge under title - styled like How It Works */}
+                                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 transform rotate-2">
+                                    <div className="bg-gradient-to-r from-fuchsia-500 to-pink-500 px-3 py-1 rounded-lg border border-white/30 shadow-xl backdrop-blur-sm">
+                                        <p className="font-sans font-black text-[9px] text-white uppercase tracking-widest whitespace-nowrap">
+                                            ✨ Trusted by Families
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                        {/* Logo Grid */}
-                        <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 opacity-50 hover:opacity-70 transition-opacity">
+                        {/* 2x2 Feature Grid */}
+                        <div className="grid md:grid-cols-2 gap-6 mb-12">
+                            {[
+                                {
+                                    icon: "✓",
+                                    title: "Free & Safe to Use",
+                                    desc: "No hidden costs. No ads. Just pure fun & magic.",
+                                    gradient: "from-cyan-400 to-blue-500",
+                                    glow: "shadow-cyan-500/30"
+                                },
+                                {
+                                    icon: "👥",
+                                    title: "Magic for the whole family",
+                                    desc: "Everyone can follow the journey together — kids, parents, even grandparents.",
+                                    gradient: "from-fuchsia-400 to-purple-500",
+                                    glow: "shadow-fuchsia-500/30"
+                                },
+                                {
+                                    icon: "♥",
+                                    title: "Created with parents & dentists",
+                                    desc: "Designed to feel warm, gentle, and genuinely magical.",
+                                    gradient: "from-pink-400 to-rose-500",
+                                    glow: "shadow-pink-500/30"
+                                },
+                                {
+                                    icon: "⭐",
+                                    title: "Loved by Parents & Kids",
+                                    desc: "More than a hundred families are already tracking Kiki's nightly flights.",
+                                    gradient: "from-amber-400 to-orange-500",
+                                    glow: "shadow-amber-500/30"
+                                }
+                            ].map((feature, idx) => (
+                                <div
+                                    key={idx}
+                                    className="group relative bg-slate-900/60 backdrop-blur-sm border border-white/10 rounded-[1.5rem] p-6 hover:border-white/20 hover:bg-slate-900/80 transition-all duration-300"
+                                >
+                                    <div className="flex items-start gap-5">
+                                        {/* Glowing Icon Box */}
+                                        <div className={`flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center shadow-lg ${feature.glow} group-hover:scale-110 group-hover:-rotate-3 transition-all duration-300`}>
+                                            <span className="text-2xl">{feature.icon}</span>
+                                        </div>
+
+                                        {/* Text */}
+                                        <div>
+                                            <h3 className="font-bold text-white text-lg mb-1">{feature.title}</h3>
+                                            <p className="text-slate-400 text-sm leading-relaxed">{feature.desc}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* CTA */}
+                        <div className="text-center">
+                            <button
+                                onClick={handleEnter}
+                                className="bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600 text-white px-10 py-5 rounded-xl font-sans font-extrabold text-lg uppercase tracking-tight shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all transform hover:-translate-y-1 active:translate-y-1 border-b-[4px] border-[#1e40af] active:border-b-0 flex items-center justify-center gap-3 mx-auto"
+                            >
+                                <span>Start the Journey</span>
+                                <span className="text-xl">✨</span>
+                            </button>
+
+                            {/* Trust Signals */}
+                            <div className="flex items-center justify-center gap-4 mt-5 text-slate-500 text-sm">
+                                <span className="flex items-center gap-1.5">
+                                    <span className="w-2 h-2 rounded-full bg-green-500" />
+                                    No credit card required
+                                </span>
+                                <span>•</span>
+                                <span className="flex items-center gap-1.5">
+                                    <span>⏱</span>
+                                    Takes 3 seconds
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* ========== SECTION 5: PRESS LOGOS ========== */}
+                <section className="relative py-20 px-4">
+                    {/* Background glow */}
+                    <div className="absolute inset-0 flex justify-center pointer-events-none">
+                        <div className="w-[600px] h-[300px] bg-cyan-500/5 rounded-full blur-[100px]" />
+                    </div>
+
+                    <div className="container mx-auto max-w-5xl relative z-10">
+                        {/* Section Title */}
+                        <div className="text-center mb-10">
+                            <h2 className="font-chrome text-3xl md:text-4xl text-white uppercase tracking-normal">
+                                They're Talking About Us
+                            </h2>
+                        </div>
+
+                        {/* Logo Grid - Pops more */}
+                        <div className="flex flex-wrap justify-center items-center gap-6 md:gap-10">
                             {/* Placeholder Logos - Replace with actual press logos */}
                             {[
-                                { name: "TechCrunch", width: "w-32" },
-                                { name: "Forbes", width: "w-24" },
-                                { name: "Parents", width: "w-28" },
-                                { name: "Mashable", width: "w-28" },
-                                { name: "The Verge", width: "w-28" }
+                                { name: "TechCrunch", width: "w-36" },
+                                { name: "Forbes", width: "w-28" },
+                                { name: "Parents", width: "w-32" },
+                                { name: "Mashable", width: "w-32" },
+                                { name: "The Verge", width: "w-32" }
                             ].map((press, idx) => (
                                 <div
                                     key={idx}
-                                    className={`${press.width} h-8 bg-white/10 rounded-lg flex items-center justify-center`}
+                                    className={`${press.width} h-12 bg-slate-800/60 border border-white/10 rounded-xl flex items-center justify-center hover:bg-slate-800 hover:border-white/20 transition-all cursor-pointer`}
                                 >
-                                    <span className="text-white/60 text-sm font-bold tracking-wide">
+                                    <span className="text-white/70 text-sm font-bold tracking-wide">
                                         {press.name}
                                     </span>
                                 </div>
                             ))}
+                        </div>
+                    </div>
+                </section>
+
+                {/* ========== SECTION 6: FAQ & CONTACT ========== */}
+                <section id="faq" className="relative py-24 px-4">
+                    {/* Thin glowing line divider */}
+                    <div className="absolute inset-x-0 top-0 flex justify-center">
+                        <div className="w-1/2 h-px bg-gradient-to-r from-transparent via-fuchsia-500/50 to-transparent" />
+                    </div>
+
+                    <div className="container mx-auto max-w-6xl">
+                        <div className="grid lg:grid-cols-2 gap-16 items-start">
+
+                            {/* Contact Form Column - LEFT (3 Stacked Cards) */}
+                            <div className="relative w-full max-w-lg">
+                                {/* 3 Stacked background cards */}
+                                <div className="absolute w-full h-full bg-gradient-to-br from-amber-400 to-orange-500 rounded-[2rem] transform rotate-6 translate-x-3 translate-y-3 shadow-2xl opacity-70" />
+                                <div className="absolute w-full h-full bg-gradient-to-br from-fuchsia-400 to-pink-500 rounded-[2rem] transform -rotate-3 translate-x-1 translate-y-1 shadow-2xl opacity-80" />
+                                <div className="absolute w-full h-full bg-gradient-to-br from-cyan-400 to-blue-500 rounded-[2rem] transform rotate-2 -translate-y-1 shadow-2xl opacity-90" />
+
+                                {/* Main Form Card */}
+                                <div className="relative bg-slate-950 rounded-[2rem] p-8 shadow-[0_30px_80px_rgba(0,0,0,0.6)] border-2 border-white/10 z-10">
+                                    {/* Inner subtle glow */}
+                                    <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-cyan-500/5 via-transparent to-fuchsia-500/5 pointer-events-none" />
+
+                                    <div className="relative z-10 space-y-6">
+                                        <div className="mb-6">
+                                            <span className="text-xs font-bold text-cyan-400 uppercase tracking-widest">Say Hello</span>
+                                            <h2 className="font-chrome text-2xl md:text-3xl text-white uppercase tracking-normal mt-2">
+                                                Get in Touch
+                                            </h2>
+                                        </div>
+
+                                        <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+                                            <div>
+                                                <label className="block text-white font-bold text-sm mb-2">Your Name</label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Sarah"
+                                                    className="w-full px-5 py-4 bg-white border-2 border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/20 transition-all shadow-inner"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-white font-bold text-sm mb-2">Email Address</label>
+                                                <input
+                                                    type="email"
+                                                    placeholder="sarah@email.com"
+                                                    className="w-full px-5 py-4 bg-white border-2 border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/20 transition-all shadow-inner"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-white font-bold text-sm mb-2">Message</label>
+                                                <textarea
+                                                    rows={4}
+                                                    placeholder="Hi! I had a question about..."
+                                                    className="w-full px-5 py-4 bg-white border-2 border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/20 transition-all shadow-inner resize-none"
+                                                />
+                                            </div>
+                                            <button
+                                                type="submit"
+                                                className="w-full bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600 text-white py-4 rounded-xl font-sans font-extrabold uppercase tracking-tight shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all hover:-translate-y-1 active:translate-y-1 border-b-[4px] border-[#1e40af] active:border-b-0"
+                                            >
+                                                Send Message ✨
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* FAQ Column - RIGHT */}
+                            <div>
+                                <div className="mb-8">
+                                    <span className="text-xs font-bold text-fuchsia-400 uppercase tracking-widest">Got Questions?</span>
+                                    <h2 className="font-chrome text-3xl md:text-4xl text-white uppercase tracking-normal mt-2">
+                                        Frequently Asked
+                                    </h2>
+                                </div>
+
+                                {/* FAQ Items */}
+                                <div className="space-y-4">
+                                    {[
+                                        {
+                                            q: "Is this really free?",
+                                            a: "Yes! The Tooth Fairy Tracker is completely free. No hidden costs, no subscriptions, no ads."
+                                        },
+                                        {
+                                            q: "How long does it take to set up?",
+                                            a: "Just 3 seconds! Enter your child's name and you're ready to go."
+                                        },
+                                        {
+                                            q: "When should I start the tracker?",
+                                            a: "Start it about 30 minutes before bedtime for the full experience. Kiki sends her first updates right away!"
+                                        },
+                                        {
+                                            q: "Can grandparents watch too?",
+                                            a: "Absolutely! Share the tracking link with family so everyone can follow Kiki's journey together."
+                                        },
+                                        {
+                                            q: "Is my child's name stored anywhere?",
+                                            a: "No. We don't store any personal information. Everything stays on your device."
+                                        }
+                                    ].map((faq, idx) => (
+                                        <details
+                                            key={idx}
+                                            className="group bg-slate-900/50 border border-white/10 rounded-xl overflow-hidden"
+                                        >
+                                            <summary className="flex items-center justify-between p-5 cursor-pointer hover:bg-white/5 transition-colors">
+                                                <span className="font-semibold text-white">{faq.q}</span>
+                                                <span className="text-cyan-400 text-xl group-open:rotate-45 transition-transform">+</span>
+                                            </summary>
+                                            <div className="px-5 pb-5 text-slate-400 text-sm leading-relaxed">
+                                                {faq.a}
+                                            </div>
+                                        </details>
+                                    ))}
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </section>

@@ -17,7 +17,9 @@ import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline } from 'react-
 import L from 'leaflet';
 
 // Fix for default marker icon in React-Leaflet
+// @ts-ignore
 import icon from 'leaflet/dist/images/marker-icon.png';
+// @ts-ignore
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
 let DefaultIcon = L.icon({
@@ -103,36 +105,70 @@ const NeonPanel = ({
   bgColor?: string,
   height?: string,
 }) => {
-  return (
-    <div className={`relative group ${className} ${height}`}>
-      {/* Main Container with Gradient Border */}
-      <div className={`
-         absolute inset-0 rounded-2xl p-[1px]
-         shadow-lg overflow-hidden transition-all duration-300 group-hover:scale-[1.02]
-       `}>
-        {/* Animated Gradient Border Layer */}
-        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/40 via-purple-500/40 to-amber-500/40 animate-gradient-move"
-          style={{ backgroundSize: '400% 400%' }} />
+  // Map borderColor to gradient colors for the floating badge
+  const getGradient = () => {
+    if (borderColor.includes('cyan')) return 'from-cyan-400 to-blue-500';
+    if (borderColor.includes('amber')) return 'from-amber-400 to-orange-500';
+    if (borderColor.includes('fuchsia')) return 'from-fuchsia-400 to-pink-500';
+    if (borderColor.includes('purple')) return 'from-purple-400 to-fuchsia-500';
+    if (borderColor.includes('lime')) return 'from-lime-400 to-green-500';
+    if (borderColor.includes('emerald')) return 'from-emerald-400 to-teal-500';
+    return 'from-cyan-400 to-blue-500';
+  };
 
-        {/* Inner Content */}
-        <div className={`relative h-full w-full rounded-2xl ${bgColor} flex flex-col items-center justify-center overflow-hidden`}>
-          {/* REDUCED OPACITY DOT PATTERN */}
-          <div className="absolute inset-0 opacity-5 pointer-events-none"
-            style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '12px 12px' }}
-          />
-          <div className="relative z-10 h-full w-full flex flex-col items-center justify-center">
-            {children}
-          </div>
+  // Map borderColor to ring color - BRIGHTER
+  const getRingColor = () => {
+    if (borderColor.includes('cyan')) return 'ring-cyan-400/60';
+    if (borderColor.includes('amber')) return 'ring-amber-400/60';
+    if (borderColor.includes('fuchsia')) return 'ring-fuchsia-400/60';
+    if (borderColor.includes('purple')) return 'ring-purple-400/60';
+    if (borderColor.includes('lime')) return 'ring-lime-400/60';
+    if (borderColor.includes('emerald')) return 'ring-emerald-400/60';
+    return 'ring-cyan-400/60';
+  };
+
+  // Map borderColor to glow shadow - COLOR POP
+  const getGlowShadow = () => {
+    if (borderColor.includes('cyan')) return 'shadow-[0_0_40px_rgba(34,211,238,0.3),0_20px_50px_rgba(0,0,0,0.4)]';
+    if (borderColor.includes('amber')) return 'shadow-[0_0_40px_rgba(251,191,36,0.3),0_20px_50px_rgba(0,0,0,0.4)]';
+    if (borderColor.includes('fuchsia')) return 'shadow-[0_0_40px_rgba(232,121,249,0.3),0_20px_50px_rgba(0,0,0,0.4)]';
+    if (borderColor.includes('purple')) return 'shadow-[0_0_40px_rgba(192,132,252,0.3),0_20px_50px_rgba(0,0,0,0.4)]';
+    if (borderColor.includes('lime')) return 'shadow-[0_0_40px_rgba(163,230,53,0.3),0_20px_50px_rgba(0,0,0,0.4)]';
+    if (borderColor.includes('emerald')) return 'shadow-[0_0_40px_rgba(52,211,153,0.3),0_20px_50px_rgba(0,0,0,0.4)]';
+    return 'shadow-[0_0_40px_rgba(34,211,238,0.3),0_20px_50px_rgba(0,0,0,0.4)]';
+  };
+
+  // Badge glow shadow
+  const getBadgeGlow = () => {
+    if (borderColor.includes('cyan')) return 'shadow-[0_0_20px_rgba(34,211,238,0.5)]';
+    if (borderColor.includes('amber')) return 'shadow-[0_0_20px_rgba(251,191,36,0.5)]';
+    if (borderColor.includes('fuchsia')) return 'shadow-[0_0_20px_rgba(232,121,249,0.5)]';
+    if (borderColor.includes('purple')) return 'shadow-[0_0_20px_rgba(192,132,252,0.5)]';
+    if (borderColor.includes('lime')) return 'shadow-[0_0_20px_rgba(163,230,53,0.5)]';
+    if (borderColor.includes('emerald')) return 'shadow-[0_0_20px_rgba(52,211,153,0.5)]';
+    return 'shadow-[0_0_20px_rgba(34,211,238,0.5)]';
+  };
+
+  return (
+    <div className={`relative group ${className} ${height} mt-6`}>
+      {/* Floating Title Badge - Centered ON TOP of card */}
+      <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-30">
+        <div className={`bg-gradient-to-r ${getGradient()} px-3 py-1.5 rounded-lg transform -rotate-1 ${getBadgeGlow()} border border-white/50 group-hover:rotate-0 transition-transform`}>
+          <h4 className="font-chrome text-xs md:text-sm text-white uppercase tracking-wide whitespace-nowrap">
+            {label}
+          </h4>
         </div>
       </div>
 
-      {/* Floating Badge (Pill on Border) */}
+      {/* Card Body with Ring Accent - Vibrant Colors */}
       <div className={`
-          absolute -top-2.5 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full
-          z-20 border-2 ${borderColor} ${bgColor}
-       `}>
-        <div className="text-[9px] md:text-[10px] text-white font-header tracking-widest uppercase whitespace-nowrap px-1">
-          {label}
+        relative rounded-[2rem] ${bgColor} ring-4 ${getRingColor()} overflow-hidden 
+        ${getGlowShadow()} h-full
+        transition-all duration-300 hover:ring-opacity-80
+      `}>
+        {/* Content */}
+        <div className="relative z-10 h-full w-full flex flex-col items-center justify-center overflow-hidden">
+          {children}
         </div>
       </div>
     </div>
@@ -158,10 +194,10 @@ const SpeedWidget = () => {
   return (
     <div className="flex flex-col items-center justify-center h-full w-full pt-4">
       <div className="flex items-baseline gap-1 relative">
-        <span className="font-fastmode text-5xl md:text-7xl text-amber-400 drop-shadow-[0_0_15px_rgba(245,158,11,0.6)] tabular-nums tracking-tighter">
+        <span className="font-chrome text-5xl md:text-7xl text-amber-400 drop-shadow-[0_0_15px_rgba(245,158,11,0.6)] tabular-nums tracking-tighter">
           {speed}
         </span>
-        <span className="font-header text-sm text-amber-200 uppercase mt-2">MPH</span>
+        <span className="font-sans font-bold text-sm text-amber-200 uppercase mt-2">MPH</span>
       </div>
 
       {/* Segmented Speed Bar */}
@@ -219,7 +255,7 @@ const TeethCollectionWidget = () => {
 
       {/* Pill Badge at Bottom - Matched to SignalWidget size */}
       <div className="bg-fuchsia-900/90 px-3 py-1 rounded-full border border-fuchsia-400/50 backdrop-blur-sm shadow-lg mb-1 relative z-10">
-        <span className="text-[10px] text-fuchsia-200 font-fastmode uppercase tracking-widest flex items-center gap-1.5">
+        <span className="text-[10px] text-fuchsia-200 font-sans font-bold uppercase tracking-widest flex items-center gap-1.5">
           <div className="w-1.5 h-1.5 rounded-full bg-fuchsia-400 animate-pulse" />
           {count.toLocaleString()}
         </span>
@@ -230,14 +266,14 @@ const TeethCollectionWidget = () => {
 
 const SignalWidget = () => (
   <div className="w-full h-full flex flex-col items-center justify-center pt-2 relative">
-    {/* FULL WIDTH FULL LENGTH BARS - PURPLE THEME */}
+    {/* FULL WIDTH FULL LENGTH BARS - LIME/GREEN THEME */}
     <div className="flex items-end justify-center w-full h-full gap-[2px] px-1 pb-4">
       {[...Array(16)].map((_, i) => {
         const height = 20 + Math.random() * 80;
         return (
           <div
             key={i}
-            className="flex-1 bg-purple-500/80 rounded-sm shadow-[0_0_4px_rgba(168,85,247,0.4)]"
+            className="flex-1 bg-lime-400/80 rounded-sm shadow-[0_0_4px_rgba(163,230,53,0.4)]"
             style={{
               height: `${height}%`,
               opacity: i % 2 === 0 ? 0.9 : 0.5,
@@ -247,9 +283,9 @@ const SignalWidget = () => (
         );
       })}
     </div>
-    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-purple-900/90 px-3 py-1 rounded-full border border-purple-400/50 backdrop-blur-sm z-10 shadow-lg whitespace-nowrap">
-      <span className="text-[10px] text-purple-200 font-black uppercase tracking-widest flex items-center gap-1.5">
-        <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" /> CONNECTED
+    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-green-900/90 px-3 py-1 rounded-full border border-lime-400/50 backdrop-blur-sm z-10 shadow-lg whitespace-nowrap">
+      <span className="text-[10px] text-lime-200 font-sans font-black uppercase tracking-widest flex items-center gap-1.5">
+        <div className="w-1.5 h-1.5 rounded-full bg-lime-400 animate-pulse" /> CONNECTED
       </span>
     </div>
   </div>
@@ -306,19 +342,30 @@ const RadarWidget = () => {
         }}
       />
 
-      {/* Moving Turquoise Blip */}
+      {/* Moving Turquoise Blip - REPLACED WITH FAIRY MAP ICON (Scaled down to 32px) */}
       <div
-        className="absolute w-3 h-3 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_12px_#22d3ee,0_0_20px_#22d3ee] transition-all duration-1000 ease-in-out"
+        className="absolute transition-all duration-1000 ease-in-out z-20"
         style={{
           top: `${blipPos.top}%`,
           left: `${blipPos.left}%`,
           transform: 'translate(-50%, -50%)'
         }}
-      />
+      >
+        <div style={{ position: 'relative', width: '32px', height: '32px' }}>
+          {/* Glow */}
+          <div style={{ position: 'absolute', inset: '-4px', background: 'radial-gradient(circle, rgba(34,211,238,0.4) 0%, transparent 70%)', animation: 'pulse 2s ease-in-out infinite' }} />
+          {/* Main Circle with Border & Image */}
+          <div style={{ position: 'absolute', inset: '0', width: '32px', height: '32px', borderRadius: '50%', border: '2px solid #22d3ee', boxShadow: '0 0 15px #22d3ee, inset 0 0 10px rgba(34,211,238,0.5)', overflow: 'hidden', background: '#0f172a' }}>
+            <img src="/PFP FULL SIZE KIKI 1.png" style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Fairy" />
+          </div>
+          {/* Twinkle Dot */}
+          <div style={{ position: 'absolute', top: '-1px', right: '3px', width: '3px', height: '3px', background: '#ffffff', borderRadius: '50%', boxShadow: '0 0 8px #ffffff', animation: 'twinkle 1.5s infinite' }} />
+        </div>
+      </div>
 
       {/* Corner Tech Details */}
-      <div className="absolute top-2 left-2 text-[8px] font-mono text-cyan-500/50">SCAN ACTIVE</div>
-      <div className="absolute bottom-2 right-2 text-[8px] font-fastmode text-cyan-500/50">360°</div>
+      <div className="absolute top-2 left-2 text-[8px] font-sans font-bold text-cyan-500/50">SCAN ACTIVE</div>
+      <div className="absolute bottom-2 right-2 text-[8px] font-sans font-bold text-cyan-500/50">360°</div>
     </div>
   );
 };
@@ -451,7 +498,7 @@ const LiveMapWidget = () => {
     html: `<div style="position: relative; width: 48px; height: 48px;">
               <div style="position: absolute; inset: -6px; background: radial-gradient(circle, rgba(34,211,238,0.4) 0%, transparent 70%); animation: pulse 2s ease-in-out infinite;"></div>
               <div style="position: absolute; inset: 0; width: 48px; height: 48px; border-radius: 50%; border: 2px solid #22d3ee; box-shadow: 0 0 15px #22d3ee, inset 0 0 10px rgba(34,211,238,0.5); overflow: hidden; background: #0f172a;">
-                <img src="/fairy-head.png" style="width: 100%; height: 100%; object-fit: cover;" alt="Fairy" />
+                <img src="/PFP FULL SIZE KIKI 1.png" style="width: 100%; height: 100%; object-fit: cover;" alt="Fairy" />
               </div>
               <div style="position: absolute; top: -2px; right: 4px; width: 4px; height: 4px; background: #ffffff; border-radius: 50%; box-shadow: 0 0 8px #ffffff; animation: twinkle 1.5s infinite;"></div>
             </div>`,
@@ -559,7 +606,7 @@ const ToothTargetWidget = () => (
 
     {/* Text Label */}
     <div className="absolute bottom-2 w-full text-center z-40">
-      <span className="font-header text-[10px] text-cyan-200 tracking-wider uppercase drop-shadow-md">Savannah's Tooth</span>
+      <span className="font-sans text-[10px] font-bold text-cyan-200 tracking-wider uppercase drop-shadow-md">Savannah's Tooth</span>
     </div>
   </div>
 );
@@ -585,8 +632,8 @@ const FairyIDCard = () => (
 
     {/* Text Area */}
     <div className="h-8 md:h-10 flex flex-col items-center justify-center bg-[#020617] border-t border-cyan-900">
-      <h3 className="font-header text-sm md:text-lg text-white tracking-wider">KIKI</h3>
-      <div className="text-[7px] text-cyan-500 font-fastmode tracking-[0.3em] uppercase">ID: 07-ALPHA</div>
+      <h3 className="font-sans font-bold text-sm md:text-lg text-white tracking-wider">KIKI</h3>
+      <div className="text-[7px] text-cyan-500 font-sans font-bold tracking-[0.3em] uppercase">ID: 07-ALPHA</div>
     </div>
   </div>
 );
@@ -600,7 +647,7 @@ const FunPhaseDivider = ({
   icon: Icon,
   color,
   badgeText,
-  className = "my-10 md:my-14"
+  className = "my-6 md:my-10"
 }: {
   phase: string,
   title: string,
@@ -615,41 +662,43 @@ const FunPhaseDivider = ({
     <div className="absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-24 md:h-32 bg-[#020617]/90 skew-x-[-20deg] border-y border-cyan-500/20 blur-[1px] shadow-[0_0_30px_rgba(0,0,0,0.8)]" />
 
-    <div className="relative flex flex-col items-center justify-center z-10 px-4 text-center space-y-2">
+    <div className="relative flex flex-col items-center justify-center z-10 px-4 text-center">
 
-      {/* ROW 1: PHASE BADGE & ICON */}
-      <div className="flex items-center gap-2 mb-1">
-        <div className={`
-                    p-1.5 rounded-lg bg-[#0b1221] border border-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.4)]
-                `}>
-          <Icon size={16} className={`${color} drop-shadow-[0_0_8px_currentColor]`} fill="currentColor" />
+      {/* ROW 1: PHASE BADGE & ICON - Only show if phase is not empty */}
+      {phase && (
+        <div className="flex items-center gap-2 mb-1">
+          <div className={`
+                      p-1.5 rounded-lg bg-[#0b1221] border border-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.4)]
+                  `}>
+            <Icon size={16} className={`${color} drop-shadow-[0_0_8px_currentColor]`} fill="currentColor" />
+          </div>
+          <div className="px-3 py-1 bg-slate-800 border border-cyan-500/50 rounded-full shadow-[0_0_10px_rgba(34,211,238,0.2)]">
+            <span className="font-sans text-xs md:text-sm text-cyan-300 font-bold tracking-[0.2em] uppercase">
+              {phase}
+            </span>
+          </div>
         </div>
-        <div className="px-3 py-1 bg-slate-800 border border-cyan-500/50 rounded-full shadow-[0_0_10px_rgba(34,211,238,0.2)]">
-          <span className="font-fastmode text-xs md:text-sm text-cyan-300 font-bold tracking-[0.2em] uppercase">
-            {phase}
-          </span>
-        </div>
-      </div>
+      )}
 
       {/* ROW 2: MAIN TITLE */}
-      <h2 className="font-header text-4xl md:text-6xl text-white uppercase italic tracking-tighter leading-normal drop-shadow-[0_4px_0_rgba(0,0,0,1)] scale-y-110 py-6">
-        <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-cyan-100 pb-2 inline-block">
+      <h2 className="font-chrome text-5xl md:text-7xl text-white uppercase tracking-normal leading-normal drop-shadow-[0_4px_0_rgba(0,0,0,1)] scale-y-110 py-2 md:py-4">
+        <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-cyan-100 pb-1 inline-block">
           {title}
         </span>
       </h2>
 
-      {/* ROW 3: SEPARATE WARNING CALLOUT */}
+      {/* ROW 3: OVERLAPPING WARNING CALLOUT */}
       {warning && (
-        <div className="mt-3 transform rotate-[-2deg] hover:rotate-0 transition-transform duration-300">
-          <div className="inline-block px-4 py-1.5 bg-fuchsia-600 text-white border-2 border-fuchsia-400 shadow-[0_0_20px_rgba(232,121,249,0.6)]">
-            <span className="font-header text-sm md:text-base tracking-[0.2em] uppercase">
+        <div className="relative z-20 -mt-4 md:-mt-6 transform rotate-[-2deg] hover:rotate-0 transition-transform duration-300">
+          <div className="inline-block px-5 py-1.5 bg-fuchsia-600 text-white border-2 border-fuchsia-400 shadow-[0_4px_20px_rgba(232,121,249,0.5)] rounded-lg">
+            <span className="font-sans font-bold text-sm md:text-base tracking-[0.2em] uppercase drop-shadow-md">
               ⚠️ {warning} ⚠️
             </span>
           </div>
         </div>
       )}
 
-      {/* Optional Status Badge */}
+      {/* Optional Status Badge - Attached to Warning */}
       {badgeText && (
         <div className="mt-2 inline-block px-3 py-0.5 bg-yellow-400 text-black font-mono text-[10px] md:text-xs font-black uppercase tracking-[0.3em] shadow-[0_0_10px_rgba(250,204,21,0.6)] rounded-sm transform -skew-x-12">
                    // Status: {badgeText}
@@ -682,8 +731,8 @@ const HudGauge = ({ icon: Icon, label, value, color, delay }: any) => (
     </div>
 
     <div className="text-center">
-      <div className={`font-mono text-[9px] uppercase tracking-widest ${color} opacity-80`}>{label}</div>
-      <div className="font-fastmode text-xs text-white tracking-wide mt-0.5">{value}</div>
+      <div className={`font-sans font-bold text-[9px] uppercase tracking-widest ${color} opacity-80`}>{label}</div>
+      <div className="font-sans font-bold text-xs text-white tracking-wide mt-0.5">{value}</div>
     </div>
   </div>
 );
@@ -692,130 +741,93 @@ const HudGauge = ({ icon: Icon, label, value, color, delay }: any) => (
 const MissionHeaderCard = () => (
   <div className="relative w-full flex flex-col items-center justify-center mb-10 pt-8 pb-4">
 
-    {/* === TOP SYSTEM BAR === */}
-    <div className="w-full flex justify-between items-center px-2 md:px-4 mb-8 font-mono text-[9px] md:text-[10px] tracking-[0.2em] text-cyan-500/60 uppercase">
-      {/* Left: Rec */}
+    {/* === PERSONALIZED HEADER === */}
+    <div className="w-full flex justify-between items-center px-2 md:px-6 mb-8">
+      {/* Left: Date */}
       <div className="flex items-center gap-2">
-        <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_#ef4444]" />
-        <span className="text-red-400/80">LIVE FEED</span>
+        <span className="text-xs md:text-sm font-sans text-white/50 tracking-wide">December 19, 2025</span>
       </div>
 
-      {/* Center: System Status (Hidden on small mobile) */}
-      <div className="hidden md:block opacity-50 font-fastmode">
-        TOOTH FAIRY TRACKER 3000: ONLINE
-      </div>
-
-      {/* Right: Timer & Battery */}
-      <div className="flex items-center gap-4">
-        <span className="font-fastmode">T-MINUS 04:00</span>
-        <div className="flex gap-0.5 items-center opacity-80">
-          <div className="w-4 h-2 border border-current rounded-sm flex items-center px-[1px]">
-            <div className="w-full h-full bg-current opacity-80" />
-          </div>
-          <div className="w-[1px] h-1 bg-current" />
-        </div>
+      {/* Right: Pickup */}
+      <div className="flex items-center gap-2">
+        <span className="text-xs md:text-sm font-sans font-medium text-white/80 tracking-wide">Pickup: Savannah's Tooth</span>
       </div>
     </div>
 
     {/* === MAIN TARGET DISPLAY === */}
     <div className="relative z-10 flex flex-col items-center text-center w-full max-w-4xl mx-auto">
 
-      {/* JOURNEY TO TITLE - MOVED OUTSIDE BRACKET CONTAINER */}
-      <h2 className="font-header text-lg md:text-2xl text-cyan-400 uppercase italic tracking-[0.2em] mb-0 opacity-80 z-20">
-        JOURNEY TO
-      </h2>
+      {/* Unified Journey + Name Block - Hero Headline Style */}
+      <div className="relative flex flex-col items-center">
 
-      {/* THE NAME with BRACKETS & SCAN LINE */}
-      <div className="relative px-8 py-2 mb-2 group flex flex-col items-center">
+        {/* "Journey to" - Smaller label */}
+        <span className="font-chrome text-2xl md:text-3xl lg:text-4xl text-white uppercase leading-none tracking-normal text-center mb-0">
+          Journey to
+        </span>
 
-        {/* Corner Brackets */}
-        <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-cyan-500 drop-shadow-[0_0_8px_#22d3ee]" />
-        <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-cyan-500 drop-shadow-[0_0_8px_#22d3ee]" />
-        <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-cyan-500 drop-shadow-[0_0_8px_#22d3ee]" />
-        <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-cyan-500 drop-shadow-[0_0_8px_#22d3ee]" />
+        {/* SAVANNAH - Main name with scan line */}
+        <div className="relative -mt-1 md:-mt-3">
+          <span className="font-chrome text-white text-6xl sm:text-7xl md:text-[9rem] tracking-wide uppercase"
+            style={{
+              textShadow: '0 0 40px rgba(34,211,238,0.8), 0 0 80px rgba(34,211,238,0.4), 0 4px 0 rgba(0,0,0,0.5)'
+            }}>
+            SAVANNAH
+          </span>
 
-        {/* Scan Line Animation - Positioned to scan the name */}
-        <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[2px] bg-cyan-400/50 shadow-[0_0_15px_#22d3ee] animate-scan pointer-events-none opacity-50 z-10" />
+          {/* Scan Line Animation - Only on name */}
+          <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[3px] bg-gradient-to-r from-transparent via-white to-transparent shadow-[0_0_20px_#fff] animate-scan pointer-events-none z-20" />
+        </div>
 
-        {/* Main Text */}
-        <h1 className="font-header text-6xl sm:text-7xl md:text-9xl text-white uppercase italic tracking-tighter leading-none transform scale-y-110 drop-shadow-[0_0_20px_rgba(34,211,238,0.5)]">
-          SAVANNAH
-        </h1>
+        {/* Glow layer behind text */}
+        <div className="absolute inset-0 blur-2xl bg-gradient-to-r from-cyan-500/40 via-fuchsia-500/30 to-amber-500/40 scale-150 animate-pulse -z-10" />
       </div>
 
-      {/* === MISSION PROGRESS SECTION (Replaces Priority Badge) === */}
-      <div className="flex flex-col items-center gap-6 mt-4 w-full max-w-lg mx-auto relative px-4 z-20">
+      {/* === MISSION UPDATES - Compact Horizontal === */}
+      <div className="relative mt-10 w-full max-w-xl mx-auto px-4 z-20">
 
-        {/* HEADER BADGE - Matches Priority Max Styling */}
-        <div className="transform -rotate-2 -skew-x-6 z-20 hover:rotate-0 transition-transform duration-300">
-          <div className="bg-fuchsia-600 text-white px-8 py-2 text-[10px] md:text-xs font-header uppercase tracking-widest border-2 border-white/20 shadow-[0_0_25px_rgba(232,121,249,0.6)] flex items-center gap-3">
-            <span>MISSION PROGRESS</span>
-            {/* Pop Bubble hanging off the badge */}
-            <div className="absolute -top-6 -right-12 bg-yellow-400 text-black text-[9px] font-bold px-2 py-1 rounded-lg rounded-bl-none transform rotate-12 shadow-lg animate-bounce border border-white/40 whitespace-nowrap">
-              2 UPDATES
-            </div>
+        {/* Floating Title Badge */}
+        <div className="absolute -top-3 left-8 z-30">
+          <div className="bg-gradient-to-r from-fuchsia-400 to-pink-500 px-3 py-1 rounded-lg transform -rotate-1 shadow-xl border-2 border-white/50">
+            <span className="font-chrome text-xs text-white uppercase tracking-wide">Mission Updates</span>
           </div>
         </div>
 
-        {/* DYNAMIC PROGRESS BARS */}
-        <div className="w-full bg-[#0b1221]/80 backdrop-blur-sm border border-cyan-500/20 p-4 rounded-2xl flex flex-col gap-4 relative shadow-2xl">
-
-          {/* NIGHT SHIFT - ACTIVE & ANIMATED */}
-          <div className="flex flex-col gap-2">
-            <div className="flex justify-between items-end px-1">
-              <span className="text-[10px] font-mono text-cyan-300 tracking-widest uppercase font-bold text-shadow-cyan">
-                Night Shift
-              </span>
-              <span className="text-[10px] font-mono text-cyan-400 animate-pulse">
-                IN PROGRESS...
-              </span>
-            </div>
-
-            {/* Bar Track */}
-            <div className="relative w-full h-4 bg-cyan-950/50 rounded-full border border-cyan-900/50 overflow-visible">
-              {/* Active Fill (65%) */}
-              <div className="absolute top-0 left-0 h-full bg-gradient-to-r from-cyan-600 via-cyan-400 to-cyan-300 rounded-full w-[65%] shadow-[0_0_15px_rgba(34,211,238,0.5)]">
-                {/* Shimmer Effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent w-1/2 animate-[shimmer_2s_infinite] skew-x-[-20deg]" />
-              </div>
-
-              {/* THE FAIRY HEAD ICON - Moving along the path */}
-              <div className="absolute top-1/2 -translate-y-1/2 left-[65%] -ml-4 z-10 transition-all duration-1000">
-                <div className="relative group/fairy cursor-help">
-                  {/* Glow */}
-                  <div className="absolute inset-0 bg-cyan-400/50 blur-md rounded-full animate-pulse" />
-                  {/* Head Image */}
-                  <div className="w-10 h-10 rounded-full border-2 border-white shadow-lg overflow-hidden relative bg-slate-900">
-                    <img src="/PFP FULL SIZE KIKI 1.png" className="w-full h-full object-cover object-top" alt="Fairy" />
-                  </div>
-                  {/* Tooltip */}
-                  <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover/fairy:opacity-100 transition-opacity bg-black/80 text-white text-[9px] px-2 py-1 rounded border border-white/20 whitespace-nowrap pointer-events-none">
-                    Currently in London
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* MORNING SHIFT - LOCKED */}
-          <div className="flex flex-col gap-2 opacity-60">
-            <div className="flex justify-between items-end px-1">
-              <span className="text-[10px] font-mono text-slate-500 tracking-widest uppercase font-bold flex items-center gap-1.5">
-                <Lock size={10} /> Morning Shift
-              </span>
-              <span className="text-[9px] font-mono text-slate-600">
-                LOCKED
-              </span>
-            </div>
-            <div className="w-full h-3 bg-slate-800/50 rounded-full border border-slate-700/50 relative overflow-hidden">
-              {/* Striped Pattern for Locked */}
-              <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_5px,rgba(0,0,0,0.2)_5px,rgba(0,0,0,0.2)_10px)]" />
-            </div>
+        {/* Fun "3 Available" Callout - Floating Right */}
+        <div className="absolute -top-3 right-8 z-30">
+          <div className="bg-cyan-500 px-3 py-1 rounded-full transform rotate-2 shadow-lg border border-white/40 animate-bounce">
+            <span className="text-[10px] font-bold text-white">✨ 3 Available</span>
           </div>
         </div>
-      </div>
 
+        {/* Card Body */}
+        <div className="rounded-2xl bg-gradient-to-b from-slate-900/90 to-slate-950/90 ring-2 ring-fuchsia-500/30 shadow-xl px-6 py-5 pt-6">
+
+          {/* Timeline Row - Single Line */}
+          <div className="relative flex items-center h-8">
+
+            {/* Track */}
+            <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-1.5 bg-slate-800 rounded-full">
+              <div className="h-full w-1/2 bg-gradient-to-r from-cyan-500 to-cyan-400 rounded-full shadow-[0_0_10px_rgba(34,211,238,0.4)]" />
+            </div>
+
+            {/* Kiki at 50% */}
+            <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-10">
+              <div className="w-7 h-7 rounded-full border-2 border-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.5)] overflow-hidden bg-slate-900">
+                <img src="/PFP FULL SIZE KIKI 1.png" className="w-full h-full object-cover object-top" alt="Kiki" />
+              </div>
+            </div>
+
+            {/* Labels */}
+            <span className="absolute left-0 text-[8px] font-sans text-slate-400 uppercase tracking-wider">Lift Off</span>
+            <span className="absolute left-1/2 -translate-x-1/2 top-full mt-1 text-[8px] font-sans text-cyan-400 uppercase tracking-wider">Flying</span>
+            <span className="absolute right-0 text-[8px] font-sans text-slate-500 uppercase tracking-wider">Picked Up</span>
+          </div>
+
+        </div>
+
+      </div>
     </div>
+
   </div>
 );
 
@@ -842,27 +854,24 @@ const StartMissionCard = ({ onClick }: { onClick?: () => void }) => (
         {/* 1. Badge - Centered on Mobile */}
         <div className="w-full flex justify-center md:w-auto md:inline-flex mb-3">
           <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-slate-900 border border-slate-700 shadow-lg group-hover:border-slate-500 transition-colors">
-            <span className="font-mono text-[10px] md:text-xs text-cyan-400 font-bold tracking-widest uppercase">
+            <span className="font-sans text-[10px] md:text-xs text-cyan-400 font-bold tracking-widest uppercase">
               SAVANNAH'S MISSION
             </span>
           </div>
         </div>
 
         {/* 2. Title - Compact on Mobile */}
-        <h2 className="font-header text-5xl sm:text-6xl md:text-7xl text-white uppercase italic tracking-tighter leading-[0.9] drop-shadow-2xl text-center md:text-left w-full md:w-auto mb-1">
+        <h2 className="font-chrome-oblique text-5xl sm:text-6xl md:text-7xl text-white uppercase tracking-normal leading-[0.9] drop-shadow-2xl text-center md:text-left w-full md:w-auto mb-1">
           <span className="text-transparent bg-clip-text bg-gradient-to-br from-white via-cyan-100 to-cyan-500 pt-1 pb-3 md:pb-8 md:pr-4 inline-block leading-[0.85] md:leading-[0.9]">
             MISSION<br />STARTED
           </span>
         </h2>
 
-        {/* 3. Button - Larger on Mobile - HIGH Z-INDEX */}
-        {/* 3. Button - Larger on Mobile - HIGH Z-INDEX */}
+        {/* 3. Button - Landing Page Style */}
         <div className="w-full flex justify-center md:inline-block relative z-30 mb-8 md:mb-0">
-          <button className="relative group/btn overflow-hidden bg-[#a3e635] hover:bg-[#bef264] text-black px-8 py-4 md:px-10 md:py-4 rounded-xl font-header text-lg md:text-lg uppercase tracking-widest shadow-[0_0_20px_rgba(163,230,53,0.3)] transition-all transform hover:-translate-y-1 active:scale-[0.98] border-b-[4px] border-[#4d7c0f] active:border-b-0 active:translate-y-1 w-auto">
-            <span className="relative z-10 flex items-center justify-center gap-2">
-              SEE MY UPDATES <ChevronsRight size={20} className="md:w-5 md:h-5" />
-            </span>
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-[-20deg] translate-x-[-200%] group-hover/btn:animate-shimmer" />
+          <button className="relative group/btn overflow-hidden bg-[#a3e635] hover:bg-[#bef264] text-black px-10 py-5 rounded-xl font-sans font-extrabold text-lg uppercase tracking-tight shadow-[0_0_20px_rgba(163,230,53,0.3)] transition-all transform hover:-translate-y-1 active:translate-y-1 border-b-[4px] border-[#4d7c0f] active:border-b-0 flex items-center justify-center gap-2">
+            <span className="relative z-10">See My Updates</span>
+            <ChevronsRight size={22} className="relative z-10 group-hover/btn:translate-x-1 transition-transform" />
           </button>
         </div>
       </div>
@@ -903,48 +912,34 @@ const StartMissionCard = ({ onClick }: { onClick?: () => void }) => (
 
               {/* 1. Purple Pill - SMALLER & COMPACT */}
               <div className="inline-block px-2 py-0.5 bg-fuchsia-900/90 backdrop-blur-md rounded-t-lg rounded-br-lg border-t border-l border-r border-fuchsia-500/50 shadow-[0_0_15px_rgba(232,121,249,0.3)]">
-                <span className="font-mono text-fuchsia-100 tracking-[0.05em] text-[7px] md:text-xs uppercase font-bold flex items-center gap-1">
+                <span className="font-sans text-fuchsia-100 tracking-[0.05em] text-[7px] md:text-xs uppercase font-bold flex items-center gap-1">
                   <div className="w-1 h-1 rounded-full bg-fuchsia-400 animate-pulse" />
-                  Assigned Tooth Fairy
+                  Your Tooth Fairy
                 </span>
               </div>
 
               {/* 2. Name */}
-              <h2 className="font-header text-5xl md:text-6xl text-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] leading-none">
+              <h2 className="font-chrome text-5xl md:text-6xl text-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] leading-none">
                 KIKI
               </h2>
             </div>
 
-            {/* Right Side Stats Grid - Vertical Stack - WIDER for Visibility */}
-            <div className="absolute top-3 bottom-3 right-3 w-[88px] md:top-6 md:bottom-6 md:right-6 md:w-32 bg-black/60 backdrop-blur-md rounded-2xl p-1.5 md:p-2 border border-white/10 flex flex-col justify-evenly shadow-xl">
-
-              {/* Height */}
-              <div className="flex flex-col items-center">
-                <div className="text-[8px] md:text-[9px] font-bold text-slate-300 uppercase tracking-wider mb-0.5">Hmm</div>
-                <div className="font-fastmode text-lg md:text-2xl text-white flex items-baseline gap-0.5">
-                  4.2<span className="text-[10px] md:text-sm text-slate-400 font-sans">"</span>
-                </div>
+            {/* Stats Bar - Vertical */}
+            <div className="absolute top-4 bottom-4 right-4 md:top-6 md:bottom-6 md:right-6 w-20 md:w-28 bg-black/60 backdrop-blur-md rounded-2xl p-2 border border-white/10 flex flex-col justify-evenly items-center shadow-xl">
+              <div className="text-center">
+                <div className="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Height</div>
+                <div className="font-sans font-bold text-base md:text-xl text-white">4.2"</div>
               </div>
-
-              <div className="w-full h-px bg-white/10" />
-
-              {/* Wing Span */}
-              <div className="flex flex-col items-center">
-                <div className="text-[8px] md:text-[9px] font-bold text-slate-300 uppercase tracking-wider mb-0.5 whitespace-nowrap">Wing</div>
-                <div className="font-fastmode text-lg md:text-2xl text-white flex items-baseline gap-0.5">
-                  6.8<span className="text-[10px] md:text-sm text-slate-400 font-sans">"</span>
-                </div>
+              <div className="w-3/4 h-px bg-white/10" />
+              <div className="text-center">
+                <div className="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Wing</div>
+                <div className="font-sans font-bold text-base md:text-xl text-white">6.8"</div>
               </div>
-
-              <div className="w-full h-px bg-white/10" />
-
-              {/* Top Speed */}
-              <div className="flex flex-col items-center">
-                <div className="text-[8px] md:text-[9px] font-bold text-slate-300 uppercase tracking-wider mb-0.5 whitespace-nowrap">Speed</div>
-                <div className="font-fastmode text-lg md:text-2xl text-white flex flex-col items-center leading-none">
-                  831
-                  <span className="text-[10px] md:text-[10px] text-slate-400 font-mono mt-0.5">MPH</span>
-                </div>
+              <div className="w-3/4 h-px bg-white/10" />
+              <div className="text-center">
+                <div className="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Speed</div>
+                <div className="font-sans font-bold text-base md:text-xl text-white">831</div>
+                <div className="text-[8px] text-slate-500 font-bold">MPH</div>
               </div>
             </div>
           </div>
@@ -965,6 +960,20 @@ function Tracker() {
   const [selectedStage, setSelectedStage] = useState<Stage | null>(null);
 
   const morningRef = useRef<HTMLDivElement>(null);
+
+  // Listen for postMessage from landing page to scroll to sections
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data && event.data.scrollTo) {
+        const element = document.getElementById(event.data.scrollTo);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
 
   const handleUnlock = (stage: Stage) => {
     // ALLOW ALL CLICKS - "NO MORE LOCKS"
@@ -992,7 +1001,23 @@ function Tracker() {
 
       {/* Modal Overlay */}
       {modalOpen && selectedStage && (
-        <MissionModal stage={selectedStage} onClose={() => setModalOpen(false)} />
+        <MissionModal
+          stage={selectedStage}
+          onClose={() => setModalOpen(false)}
+          isLastStage={selectedStage.id === 6}
+          onNext={() => {
+            const nextStageId = selectedStage.id + 1;
+            if (nextStageId <= 6) {
+              const nextStage = STAGES.find(s => s.id === nextStageId);
+              if (nextStage) {
+                setSelectedStage(nextStage);
+                setCurrentStage(nextStageId);
+              }
+            } else {
+              setModalOpen(false);
+            }
+          }}
+        />
       )}
 
       {/* Fixed Background */}
@@ -1012,19 +1037,36 @@ function Tracker() {
         <StartMissionCard onClick={unlockNextBatch} />
 
         {/* 3. TITLE ROW */}
-        <FunPhaseDivider
-          phase="LIVE FEED"
-          title="MISSION CONTROL"
-          icon={Activity}
-          color="text-cyan-400"
-          className="mb-8 md:mb-12"
-        />
+        <div className="relative mb-8 md:mb-12">
+          <FunPhaseDivider
+            phase=""
+            title="MISSION CONTROL"
+            icon={Activity}
+            color="text-cyan-400"
+            className="mb-0"
+          />
+
+          {/* Overlapping Purple Card */}
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-30 transform rotate-2">
+            <div className="bg-gradient-to-r from-fuchsia-500 to-pink-500 px-5 py-2 rounded-xl border border-white/30 shadow-xl backdrop-blur-sm">
+              <p className="font-sans font-black text-sm md:text-base text-white uppercase tracking-widest whitespace-nowrap">
+                Track the Fairy
+              </p>
+            </div>
+          </div>
+        </div>
 
         {/* 4. DASHBOARD LAYOUT */}
-        <div className="flex flex-col gap-4 md:gap-6 mb-12">
+        <div className="relative flex flex-col gap-4 md:gap-6 mb-12">
+          {/* Ambient Glow Orbs - Background */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
+            <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-cyan-500/15 rounded-full blur-[120px]" />
+            <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-fuchsia-500/10 rounded-full blur-[100px]" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-amber-500/8 rounded-full blur-[150px]" />
+          </div>
 
           {/* PRIMARY DISPLAY: LIVE MAP (Full Width) */}
-          <div className="w-full h-64 md:h-96">
+          <div id="tracker-map" className="w-full h-64 md:h-96">
             <NeonPanel label="Global Positioning" borderColor="border-cyan-500" bgColor="bg-slate-950" height="h-full">
               <LiveMapWidget />
             </NeonPanel>
@@ -1034,9 +1076,11 @@ function Tracker() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 auto-rows-[120px] md:auto-rows-[160px]">
 
             {/* Slot 1: Speed */}
-            <NeonPanel label="Speed" borderColor="border-amber-400" bgColor="bg-slate-900" height="h-full">
-              <SpeedWidget />
-            </NeonPanel>
+            <div id="tracker-speed">
+              <NeonPanel label="Speed" borderColor="border-amber-400" bgColor="bg-slate-900" height="h-full">
+                <SpeedWidget />
+              </NeonPanel>
+            </div>
 
             {/* Slot 2: Teeth */}
             <NeonPanel label="Teeth Collected" borderColor="border-fuchsia-500" bgColor="bg-[#1a0b2e]" height="h-full">
@@ -1044,12 +1088,12 @@ function Tracker() {
             </NeonPanel>
 
             {/* Slot 3: Signal */}
-            <NeonPanel label="Fairy Link" borderColor="border-purple-400" bgColor="bg-slate-900" height="h-full">
+            <NeonPanel label="Fairy Link" borderColor="border-lime-400" bgColor="bg-slate-900" height="h-full">
               <SignalWidget />
             </NeonPanel>
 
             {/* Slot 4: Radar */}
-            <NeonPanel label="Radar" borderColor="border-cyan-500" bgColor="bg-slate-950" height="h-full">
+            <NeonPanel label="Radar" borderColor="border-cyan-400" bgColor="bg-slate-950" height="h-full">
               <RadarWidget />
             </NeonPanel>
 
@@ -1057,27 +1101,29 @@ function Tracker() {
         </div>
 
         {/* 5. MISSION STAGES */}
-        <FunPhaseDivider
-          phase="Phase 1"
-          title="Night Flight"
-          warning="For Savannah Only!"
-          icon={CustomMoonIcon}
-          color="text-yellow-400"
-          badgeText="ACTIVE"
-        />
+        <div id="tracker-videos">
+          <FunPhaseDivider
+            phase="Phase 1"
+            title="Night Flight"
+            warning="For Savannah Only!"
+            icon={CustomMoonIcon}
+            color="text-yellow-400"
+            badgeText="ACTIVE"
+          />
 
-        <div className="grid grid-cols-1 gap-8 md:gap-12 mb-8 md:mb-12 px-1 md:px-2">
-          {nightStages.map((stage, index) => (
-            <StageCard
-              key={stage.id}
-              stage={stage}
-              isActive={stage.type === 'active'}
-              isLocked={stage.type === 'locked'}
-              isCompleted={stage.type === 'completed'}
-              onClick={() => handleUnlock(stage)}
-              index={index}
-            />
-          ))}
+          <div className="grid grid-cols-1 gap-8 md:gap-12 mb-8 md:mb-12 px-1 md:px-2">
+            {nightStages.map((stage, index) => (
+              <StageCard
+                key={stage.id}
+                stage={stage}
+                isActive={stage.type === 'active'}
+                isLocked={stage.type === 'locked'}
+                isCompleted={stage.type === 'completed'}
+                onClick={() => handleUnlock(stage)}
+                index={index}
+              />
+            ))}
+          </div>
         </div>
 
         <div ref={morningRef} className={`relative transition-all duration-1000 ${isNextBatchAvailable ? 'opacity-50 grayscale' : 'opacity-100'}`}>
@@ -1088,7 +1134,7 @@ function Tracker() {
               <div className="bg-black/80 backdrop-blur-sm border border-white/20 px-6 py-4 rounded-xl flex items-center gap-4 shadow-2xl">
                 <Lock className="text-slate-400" />
                 <div className="text-left">
-                  <div className="font-header text-white uppercase tracking-widest text-lg">LOCKED UNTIL SUNRISE</div>
+                  <div className="font-chrome text-white uppercase tracking-widest text-lg">LOCKED UNTIL SUNRISE</div>
                   <div className="font-mono text-slate-400 text-xs">Phase 2 requires daylight</div>
                 </div>
               </div>
@@ -1098,6 +1144,7 @@ function Tracker() {
           <FunPhaseDivider
             phase="Phase 2"
             title="Morning Report"
+            warning="For Savannah Only!"
             icon={Sun}
             color="text-amber-400"
             badgeText={isNextBatchAvailable ? "LOCKED" : "UNLOCKED"}
