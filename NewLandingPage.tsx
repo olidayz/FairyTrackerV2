@@ -215,7 +215,7 @@ const NewLandingPage = () => {
 
                                     {/* Main Headline */}
                                     <div className="space-y-3">
-                                        <h1 className="font-chrome text-4xl md:text-5xl lg:text-6xl text-white uppercase leading-[0.9] tracking-normal">
+                                        <h1 className="font-chrome text-5xl md:text-5xl lg:text-6xl text-white leading-[0.9] tracking-normal">
                                             Gift Them a<br />
                                             <span className="text-transparent bg-clip-text bg-gradient-to-br from-white via-cyan-300 to-cyan-500">Night To Remember</span>
                                         </h1>
@@ -368,12 +368,17 @@ const NewLandingPage = () => {
                                                 {/* Chat Bubble - Inside card, bottom right */}
                                                 <div className="absolute bottom-4 right-4 z-20 max-w-[260px]">
                                                     <div className="bg-white rounded-2xl p-3 shadow-xl">
-                                                        <p className="font-sans text-slate-700 text-xs leading-relaxed">
-                                                            "{stage.message}"
-                                                        </p>
+                                                        <div className="flex items-start gap-2">
+                                                            <div className="w-7 h-7 rounded-full overflow-hidden ring-2 ring-cyan-400 flex-shrink-0">
+                                                                <img src="/PFP FULL SIZE KIKI 1.png" className="w-full h-full object-cover" alt="Kiki" />
+                                                            </div>
+                                                            <p className="font-sans text-slate-700 text-xs leading-relaxed flex-1">
+                                                                "{stage.message}"
+                                                            </p>
+                                                        </div>
                                                     </div>
-                                                    <div className="absolute -top-1 -right-1 text-sm">✨</div>
                                                 </div>
+
 
                                                 {/* Active Ring */}
                                                 {isActive && (
@@ -409,7 +414,7 @@ const NewLandingPage = () => {
                     <div className="container mx-auto max-w-5xl">
 
                         {/* Section Header with Badge */}
-                        <div className="text-center mb-12">
+                        <div className="text-center mb-6">
                             <div className="relative inline-block mb-4">
                                 <h2 className="font-chrome text-5xl md:text-6xl text-white uppercase tracking-normal">
                                     How It Works
@@ -425,7 +430,7 @@ const NewLandingPage = () => {
                         </div>
 
                         {/* PART 1: Form - Inline Text */}
-                        <div className="text-center mb-12">
+                        <div className="text-center mb-6">
                             <p className="text-slate-300 text-lg">
                                 Fill out the form with your <span className="text-white font-semibold">child's name</span> + <span className="text-white font-semibold">your email</span>. We generate your tracker page.
                             </p>
@@ -465,20 +470,10 @@ const NewLandingPage = () => {
                                                 position={[48.8566, 2.3522]}
                                                 icon={L.divIcon({
                                                     className: 'custom-fairy-preview',
-                                                    html: `<div style="width: 28px; height: 28px; border-radius: 50%; border: 2px solid #22d3ee; box-shadow: 0 0 12px #22d3ee; background: url('/fairy-head.png') center/cover; overflow: hidden;"></div>`,
+                                                    html: `<div style="width: 28px; height: 28px; border-radius: 50%; border: 2px solid #22d3ee; box-shadow: 0 0 12px #22d3ee; background: url('/PFP FULL SIZE KIKI 1.png') center/cover; overflow: hidden;"></div>`,
                                                     iconSize: [28, 28],
                                                     iconAnchor: [14, 14]
                                                 })}
-                                            />
-                                            {/* Flight path line */}
-                                            <Polyline
-                                                positions={[[51.5, -0.1], [48.8, 2.4], [40.4, -3.7], [35.7, 139.7]]}
-                                                pathOptions={{
-                                                    color: '#22d3ee',
-                                                    weight: 2,
-                                                    opacity: 0.6,
-                                                    dashArray: '5, 10'
-                                                }}
                                             />
                                         </MapContainer>
                                     </div>
@@ -721,7 +716,7 @@ const NewLandingPage = () => {
                     </div>
                     <div className="container mx-auto max-w-6xl">
                         {/* Section Header */}
-                        <div className="text-center mb-12">
+                        <div className="text-center mb-6">
                             <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-fuchsia-950/50 border border-fuchsia-500/30 rounded-full mb-4">
                                 <span className="text-xs font-bold text-fuchsia-300 uppercase tracking-widest">✨ Sneak Peek</span>
                             </div>

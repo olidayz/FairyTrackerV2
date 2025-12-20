@@ -12,7 +12,7 @@ import {
   Ruler, Move
 } from 'lucide-react';
 import { StageCard } from './components/StageCard';
-import { MissionModal } from './components/MissionModal';
+// MissionModal removed - flip card handles reveals now
 import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 
@@ -152,7 +152,7 @@ const NeonPanel = ({
   return (
     <div className={`relative group ${className} ${height} mt-6`}>
       {/* Floating Title Badge - Centered ON TOP of card */}
-      <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-30">
+      <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-30">
         <div className={`bg-gradient-to-r ${getGradient()} px-3 py-1.5 rounded-lg transform -rotate-1 ${getBadgeGlow()} border border-white/50 group-hover:rotate-0 transition-transform`}>
           <h4 className="font-chrome text-xs md:text-sm text-white uppercase tracking-wide whitespace-nowrap">
             {label}
@@ -761,13 +761,13 @@ const MissionHeaderCard = () => (
       <div className="relative flex flex-col items-center">
 
         {/* "Journey to" - Smaller label */}
-        <span className="font-chrome text-2xl md:text-3xl lg:text-4xl text-white uppercase leading-none tracking-normal text-center mb-0">
+        <span className="font-chrome text-3xl md:text-4xl lg:text-5xl text-white uppercase leading-none tracking-normal text-center mb-0">
           Journey to
         </span>
 
         {/* SAVANNAH - Main name with scan line */}
         <div className="relative -mt-1 md:-mt-3">
-          <span className="font-chrome text-white text-6xl sm:text-7xl md:text-[9rem] tracking-wide uppercase"
+          <span className="font-chrome text-white text-7xl sm:text-8xl md:text-[9rem] tracking-wide uppercase"
             style={{
               textShadow: '0 0 40px rgba(34,211,238,0.8), 0 0 80px rgba(34,211,238,0.4), 0 4px 0 rgba(0,0,0,0.5)'
             }}>
@@ -782,50 +782,52 @@ const MissionHeaderCard = () => (
         <div className="absolute inset-0 blur-2xl bg-gradient-to-r from-cyan-500/40 via-fuchsia-500/30 to-amber-500/40 scale-150 animate-pulse -z-10" />
       </div>
 
-      {/* === MISSION UPDATES - Compact Horizontal === */}
-      <div className="relative mt-10 w-full max-w-xl mx-auto px-4 z-20">
+      {/* === MISSION UPDATES - Subtle Box === */}
+      <div className="relative mt-6 w-full max-w-2xl mx-auto px-4 z-20">
 
-        {/* Floating Title Badge */}
-        <div className="absolute -top-3 left-8 z-30">
-          <div className="bg-gradient-to-r from-fuchsia-400 to-pink-500 px-3 py-1 rounded-lg transform -rotate-1 shadow-xl border-2 border-white/50">
-            <span className="font-chrome text-xs text-white uppercase tracking-wide">Mission Updates</span>
+        {/* Floating Badge - Centered Hanging Over Top */}
+        <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-30">
+          <div className="bg-gradient-to-r from-fuchsia-400 to-pink-500 px-4 h-7 rounded-lg shadow-lg border-2 border-white/50 flex items-center">
+            <span className="font-chrome text-xs text-white uppercase tracking-wide leading-none">Mission Updates</span>
           </div>
         </div>
 
-        {/* Fun "3 Available" Callout - Floating Right */}
-        <div className="absolute -top-3 right-8 z-30">
-          <div className="bg-cyan-500 px-3 py-1 rounded-full transform rotate-2 shadow-lg border border-white/40 animate-bounce">
-            <span className="text-[10px] font-bold text-white">✨ 3 Available</span>
-          </div>
-        </div>
+        {/* Subtle Box Container */}
+        <div className="bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-white/10 px-6 py-3 pt-5">
 
-        {/* Card Body */}
-        <div className="rounded-2xl bg-gradient-to-b from-slate-900/90 to-slate-950/90 ring-2 ring-fuchsia-500/30 shadow-xl px-6 py-5 pt-6">
+          {/* Timeline Row */}
+          <div className="relative h-12">
 
-          {/* Timeline Row - Single Line */}
-          <div className="relative flex items-center h-8">
-
-            {/* Track */}
-            <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-1.5 bg-slate-800 rounded-full">
-              <div className="h-full w-1/2 bg-gradient-to-r from-cyan-500 to-cyan-400 rounded-full shadow-[0_0_10px_rgba(34,211,238,0.4)]" />
+            {/* Track - Rainbow gradient with glow */}
+            <div className="absolute inset-x-0 top-4 h-2.5 bg-slate-800 rounded-full overflow-hidden">
+              <div className="h-full w-1/2 bg-gradient-to-r from-cyan-500 to-cyan-400 rounded-full shadow-[0_0_15px_rgba(34,211,238,0.6)] animate-pulse" />
             </div>
 
-            {/* Kiki at 50% */}
-            <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-10">
-              <div className="w-7 h-7 rounded-full border-2 border-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.5)] overflow-hidden bg-slate-900">
+            {/* Kiki marker at 50% with glow ring */}
+            <div className="absolute left-1/2 -translate-x-1/2 top-4 -translate-y-1/2 z-10">
+              <div className="w-9 h-9 rounded-full border-3 border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.7),0_0_30px_rgba(34,211,238,0.3)] overflow-hidden bg-slate-900 ring-2 ring-white/30">
                 <img src="/PFP FULL SIZE KIKI 1.png" className="w-full h-full object-cover object-top" alt="Kiki" />
               </div>
             </div>
 
-            {/* Labels */}
-            <span className="absolute left-0 text-[8px] font-sans text-slate-400 uppercase tracking-wider">Lift Off</span>
-            <span className="absolute left-1/2 -translate-x-1/2 top-full mt-1 text-[8px] font-sans text-cyan-400 uppercase tracking-wider">Flying</span>
-            <span className="absolute right-0 text-[8px] font-sans text-slate-500 uppercase tracking-wider">Picked Up</span>
+            {/* Labels - Below the track */}
+            <div className="absolute inset-x-0 top-11 flex justify-between items-center">
+              <span className="text-[10px] font-sans font-bold text-slate-400 uppercase tracking-wider">Lift Off</span>
+              <div className="bg-amber-400 px-3 h-5 rounded-full shadow-lg border border-white/40 flex items-center">
+                <span className="text-[9px] font-bold text-black leading-none">3 New Updates</span>
+              </div>
+              <span className="text-[10px] font-sans font-bold text-slate-500 uppercase tracking-wider">Picked Up</span>
+            </div>
+
+
           </div>
+
 
         </div>
 
       </div>
+
+
     </div>
 
   </div>
@@ -956,7 +958,7 @@ const StartMissionCard = ({ onClick }: { onClick?: () => void }) => (
 function Tracker() {
   const [currentStage, setCurrentStage] = useState(2);
   const [maxUnlockedStage, setMaxUnlockedStage] = useState(3);
-  const [modalOpen, setModalOpen] = useState(false);
+  // Modal state removed - flip card handles reveals
   const [selectedStage, setSelectedStage] = useState<Stage | null>(null);
 
   const morningRef = useRef<HTMLDivElement>(null);
@@ -977,9 +979,9 @@ function Tracker() {
 
   const handleUnlock = (stage: Stage) => {
     // ALLOW ALL CLICKS - "NO MORE LOCKS"
+    // Flip card handles the reveal now - no modal needed
     setCurrentStage(stage.id);
     setSelectedStage(stage);
-    setModalOpen(true);
   };
 
   const unlockNextBatch = () => {
@@ -999,26 +1001,6 @@ function Tracker() {
   return (
     <div className="min-h-screen bg-[#02040a] text-white font-sans selection:bg-cyan-500/30 pb-20 overflow-x-hidden">
 
-      {/* Modal Overlay */}
-      {modalOpen && selectedStage && (
-        <MissionModal
-          stage={selectedStage}
-          onClose={() => setModalOpen(false)}
-          isLastStage={selectedStage.id === 6}
-          onNext={() => {
-            const nextStageId = selectedStage.id + 1;
-            if (nextStageId <= 6) {
-              const nextStage = STAGES.find(s => s.id === nextStageId);
-              if (nextStage) {
-                setSelectedStage(nextStage);
-                setCurrentStage(nextStageId);
-              }
-            } else {
-              setModalOpen(false);
-            }
-          }}
-        />
-      )}
 
       {/* Fixed Background */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
@@ -1113,33 +1095,50 @@ function Tracker() {
 
           <div className="grid grid-cols-1 gap-8 md:gap-12 mb-8 md:mb-12 px-1 md:px-2">
             {nightStages.map((stage, index) => (
-              <StageCard
-                key={stage.id}
-                stage={stage}
-                isActive={stage.type === 'active'}
-                isLocked={stage.type === 'locked'}
-                isCompleted={stage.type === 'completed'}
-                onClick={() => handleUnlock(stage)}
-                index={index}
-              />
+              <div key={stage.id} id={`stage-${stage.id}`}>
+                <StageCard
+                  stage={stage}
+                  isActive={stage.type === 'active'}
+                  isLocked={stage.type === 'locked'}
+                  isCompleted={stage.type === 'completed'}
+                  onClick={() => handleUnlock(stage)}
+                  index={index}
+                  isLastStage={stage.id === 3}
+                  onNext={() => {
+                    const nextId = stage.id + 1;
+                    const nextEl = document.getElementById(`stage-${nextId}`);
+                    if (nextEl) nextEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }}
+                />
+              </div>
             ))}
           </div>
+
         </div>
 
         <div ref={morningRef} className={`relative transition-all duration-1000 ${isNextBatchAvailable ? 'opacity-50 grayscale' : 'opacity-100'}`}>
 
           {/* LOCK OVERLAY */}
           {isNextBatchAvailable && (
-            <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
-              <div className="bg-black/80 backdrop-blur-sm border border-white/20 px-6 py-4 rounded-xl flex items-center gap-4 shadow-2xl">
-                <Lock className="text-slate-400" />
-                <div className="text-left">
-                  <div className="font-chrome text-white uppercase tracking-widest text-lg">LOCKED UNTIL SUNRISE</div>
-                  <div className="font-mono text-slate-400 text-xs">Phase 2 requires daylight</div>
+            <div className="absolute inset-x-0 top-32 z-50 flex justify-center">
+              <div className="bg-black/80 backdrop-blur-sm border border-white/20 px-6 py-4 rounded-xl flex flex-col items-center gap-4 shadow-2xl">
+                <div className="flex items-center gap-4">
+                  <Lock className="text-slate-400" />
+                  <div className="text-left">
+                    <div className="font-chrome text-white uppercase tracking-widest text-lg">LOCKED UNTIL SUNRISE</div>
+                    <div className="font-mono text-slate-400 text-xs">Phase 2 requires daylight</div>
+                  </div>
                 </div>
+                <button
+                  onClick={unlockNextBatch}
+                  className="mt-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-mono rounded-lg border border-slate-500 transition-colors"
+                >
+                  🔓 Parent Unlock
+                </button>
               </div>
             </div>
           )}
+
 
           <FunPhaseDivider
             phase="Phase 2"
@@ -1152,17 +1151,26 @@ function Tracker() {
 
           <div className="grid grid-cols-1 gap-8 md:gap-12 px-1 md:px-2">
             {morningStages.map((stage, index) => (
-              <StageCard
-                key={stage.id}
-                stage={stage}
-                isActive={stage.type === 'active'}
-                isLocked={stage.type === 'locked'}
-                isCompleted={stage.type === 'completed'}
-                onClick={() => handleUnlock(stage)}
-                index={index + 3}
-              />
+              <div key={stage.id} id={`stage-${stage.id}`}>
+                <StageCard
+                  stage={stage}
+                  isActive={stage.type === 'active'}
+                  isLocked={isNextBatchAvailable}
+
+                  isCompleted={stage.type === 'completed'}
+                  onClick={() => handleUnlock(stage)}
+                  index={index + 3}
+                  isLastStage={stage.id === 6}
+                  onNext={() => {
+                    const nextId = stage.id + 1;
+                    const nextEl = document.getElementById(`stage-${nextId}`);
+                    if (nextEl) nextEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }}
+                />
+              </div>
             ))}
           </div>
+
         </div>
 
       </div>
