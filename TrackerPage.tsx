@@ -1053,12 +1053,42 @@ const RecentlyCollectedWidget = () => {
 function Tracker() {
   const { token } = useParams<{ token: string }>();
   const [currentStage, setCurrentStage] = useState(2);
-  const [maxUnlockedStage, setMaxUnlockedStage] = useState(3);
   const [selectedStage, setSelectedStage] = useState<Stage | null>(null);
   const [userName, setUserName] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Night/Morning unlock system
+  // true = Night mode (morning locked), false = Morning mode (morning unlocked)
+  const [isNextBatchAvailable, setIsNextBatchAvailable] = useState(true);
+  const [timeRemaining, setTimeRemaining] = useState(6 * 60 * 60); // 6 hours in seconds
 
   const morningRef = useRef<HTMLDivElement>(null);
+
+  // Timer-based auto-unlock (6 hours)
+  useEffect(() => {
+    // Don't run timer if already unlocked
+    if (!isNextBatchAvailable) return;
+    
+    const interval = setInterval(() => {
+      setTimeRemaining(prev => {
+        if (prev <= 1) {
+          setIsNextBatchAvailable(false); // AUTO-UNLOCK after 6 hours
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, [isNextBatchAvailable]);
+
+  // Format time remaining as HH:MM:SS
+  const formatTime = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   useEffect(() => {
     const fetchTrackerData = async () => {
@@ -1108,19 +1138,17 @@ function Tracker() {
     setSelectedStage(stage);
   };
 
+  // Manual parent unlock - bypasses 6-hour wait
   const unlockNextBatch = () => {
-    if (maxUnlockedStage < 6) {
-      setMaxUnlockedStage(6);
-      setCurrentStage(4);
-      setTimeout(() => {
-        morningRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 100);
-    }
+    setIsNextBatchAvailable(false);
+    setTimeRemaining(0);
+    setTimeout(() => {
+      morningRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
   };
 
   const nightStages = STAGES.slice(0, 3);
   const morningStages = STAGES.slice(3, 6);
-  const isNextBatchAvailable = maxUnlockedStage === 3;
 
   return (
     <div className="min-h-screen bg-[#02040a] text-white font-sans selection:bg-cyan-500/30 pb-20 overflow-x-hidden">
@@ -1245,19 +1273,30 @@ function Tracker() {
           {/* LOCK OVERLAY */}
           {isNextBatchAvailable && (
             <div className="absolute inset-x-0 top-32 z-50 flex justify-center">
-              <div className="bg-black/80 backdrop-blur-sm border border-white/20 px-6 py-4 rounded-xl flex flex-col items-center gap-4 shadow-2xl">
+              <div className="bg-black/90 backdrop-blur-md border border-fuchsia-500/30 px-8 py-6 rounded-2xl flex flex-col items-center gap-4 shadow-2xl">
                 <div className="flex items-center gap-4">
-                  <Lock className="text-slate-400" />
+                  <div className="w-12 h-12 rounded-full bg-fuchsia-500/20 border border-fuchsia-500/50 flex items-center justify-center">
+                    <Lock className="text-fuchsia-400" size={24} />
+                  </div>
                   <div className="text-left">
-                    <div className="font-chrome text-white uppercase tracking-widest text-lg">LOCKED UNTIL SUNRISE</div>
-                    <div className="font-mono text-slate-400 text-xs">Phase 2 requires daylight</div>
+                    <div className="font-chrome text-white uppercase tracking-widest text-lg">MORNING UPDATES LOCKED</div>
+                    <div className="font-sans text-slate-400 text-sm">The fairy is still on her journey!</div>
                   </div>
                 </div>
+                
+                {/* Countdown Timer */}
+                <div className="flex flex-col items-center gap-1 py-3 px-6 bg-slate-900/80 rounded-xl border border-cyan-500/30">
+                  <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest">Unlocks In</span>
+                  <span className="font-mono text-3xl text-white tracking-wider drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]">
+                    {formatTime(timeRemaining)}
+                  </span>
+                </div>
+                
                 <button
                   onClick={unlockNextBatch}
-                  className="mt-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-mono rounded-lg border border-slate-500 transition-colors"
+                  className="mt-2 px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-sans font-bold rounded-xl border border-slate-600 hover:border-slate-500 transition-all flex items-center gap-2"
                 >
-                  🔓 Parent Unlock
+                  <Unlock size={16} /> Parent Unlock
                 </button>
               </div>
             </div>
