@@ -159,12 +159,14 @@ const NewLandingPage = () => {
         }))
         : defaultReviews.map((r, i) => ({ ...r, ...colorSchemes[i % colorSchemes.length] }));
 
-    const storyStages = [
+    const defaultFairyPhoto = "/Fairy photo booth pic.webp";
+    
+    const storyStages: Array<{stage: number; title: string; location: string; image: string; video?: string; message: string; color: string}> = [
         {
             stage: 1,
             title: "The Departure",
             location: "North Star Portal",
-            image: landingContent.images?.fairy_photo || "/Fairy photo booth pic.webp",
+            image: landingContent.images?.stage_1_photo || defaultFairyPhoto,
             message: "I've just taken flight from the North Star! The wind is in my wings and I'm heading your way. Keep that tooth safe! ✨",
             color: "from-cyan-400 to-blue-500"
         },
@@ -172,7 +174,7 @@ const NewLandingPage = () => {
             stage: 2,
             title: "Mid-Flight Magic",
             location: "Sparkle Mountains",
-            video: "https://videos.pexels.com/video-files/856973/856973-hd_1920_1080_25fps.mp4",
+            image: landingContent.images?.stage_2_photo || defaultFairyPhoto,
             message: "Just passed over the Sparkle Mountains. The view is breath-taking! I can see your neighborhood lights from here. 🏔️",
             color: "from-fuchsia-400 to-purple-500"
         },
@@ -180,7 +182,7 @@ const NewLandingPage = () => {
             stage: 3,
             title: "Cloud Surfing",
             location: "Silver Lining Lane",
-            video: "https://videos.pexels.com/video-files/2491284/2491284-hd_1920_1080_24fps.mp4",
+            image: landingContent.images?.stage_3_photo || defaultFairyPhoto,
             message: "Hitching a ride on a silver lining! Almost there. Is everyone tucked in tight? The magic works best when you're dreaming! ☁️",
             color: "from-amber-400 to-orange-500"
         },
@@ -188,7 +190,7 @@ const NewLandingPage = () => {
             stage: 4,
             title: "Final Approach",
             location: "Your Neighborhood",
-            video: "https://videos.pexels.com/video-files/3129671/3129671-uhd_2560_1440_30fps.mp4",
+            image: landingContent.images?.stage_4_photo || defaultFairyPhoto,
             message: "I'm circling your street now! Just look for the faint trail of stardust. I'll be at your window in just a few minutes! 🏠",
             color: "from-lime-400 to-green-500"
         },
@@ -196,7 +198,7 @@ const NewLandingPage = () => {
             stage: 5,
             title: "Mission Complete",
             location: "Your Pillow",
-            video: "https://videos.pexels.com/video-files/857251/857251-hd_1920_1080_25fps.mp4",
+            image: landingContent.images?.stage_5_photo || defaultFairyPhoto,
             message: "Mission successful! The tooth has been collected and a special surprise is waiting for you. Safe travels back to Fairy HQ! 🦷",
             color: "from-red-400 to-pink-500"
         },
@@ -204,7 +206,7 @@ const NewLandingPage = () => {
             stage: 6,
             title: "Home Bound",
             location: "Fairy HQ",
-            video: "https://videos.pexels.com/video-files/856973/856973-hd_1920_1080_25fps.mp4",
+            image: landingContent.images?.stage_6_photo || defaultFairyPhoto,
             message: "I'm back home now, tucked into my own petal bed. I'll see you again for the next one! Sweet dreams! 🌸",
             color: "from-indigo-400 to-blue-600"
         }
@@ -737,7 +739,7 @@ const NewLandingPage = () => {
                                     {/* Full height image with overlay */}
                                     <div className="relative" style={{ height: '320px' }}>
                                         <img
-                                            src={landingContent.images?.fairy_photo || "/Fairy photo booth pic.webp"}
+                                            src={landingContent.images?.fairy_updates_photo || defaultFairyPhoto}
                                             alt="Kiki the Tooth Fairy"
                                             className="w-full h-full object-cover object-top"
                                         />
@@ -1155,7 +1157,7 @@ const NewLandingPage = () => {
                                 {/* Image Frame */}
                                 <div className="relative aspect-square rounded-[2rem] overflow-hidden border-4 border-white/20 shadow-2xl">
                                     <img
-                                        src={landingContent.images?.fairy_photo || "/Fairy photo booth pic.webp"}
+                                        src={landingContent.images?.meet_kiki_photo || defaultFairyPhoto}
                                         alt="Kiki the Tooth Fairy"
                                         className="w-full h-full object-cover"
                                     />
