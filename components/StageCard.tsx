@@ -39,6 +39,7 @@ export const StageCard: React.FC<StageCardProps> = ({
    const backRef = useRef<HTMLDivElement>(null);
    const videoRef = useRef<HTMLVideoElement>(null);
    const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+   const [containerHeight, setContainerHeight] = useState<number | 'auto'>('auto');
 
    const isInverted = index % 2 !== 0;
 
@@ -65,6 +66,14 @@ export const StageCard: React.FC<StageCardProps> = ({
       if (isFlipped) {
          setBackHidden(false);
          setIsAnimating(true);
+         
+         setTimeout(() => {
+            if (backRef.current) {
+               const backHeight = backRef.current.scrollHeight;
+               setContainerHeight(backHeight);
+            }
+         }, 50);
+         
          hideTimeoutRef.current = setTimeout(() => {
             setFrontHidden(true);
             setIsAnimating(false);
@@ -74,6 +83,7 @@ export const StageCard: React.FC<StageCardProps> = ({
          setFrontHidden(false);
          setIsAnimating(true);
          setShowContent(false);
+         setContainerHeight('auto');
          hideTimeoutRef.current = setTimeout(() => {
             setBackHidden(true);
             setIsAnimating(false);
@@ -87,10 +97,12 @@ export const StageCard: React.FC<StageCardProps> = ({
    return (
       <div className={`relative w-full mb-16 md:mb-24 ${isFlipped ? 'z-50' : 'z-10'}`}>
          <div 
-            className="relative w-full"
+            className="relative w-full transition-all duration-700 ease-out"
             style={{ 
                perspective: '1500px',
-               WebkitPerspective: '1500px'
+               WebkitPerspective: '1500px',
+               height: containerHeight === 'auto' ? 'auto' : `${containerHeight}px`,
+               minHeight: containerHeight === 'auto' ? 'auto' : `${containerHeight}px`
             }}
          >
             <div
