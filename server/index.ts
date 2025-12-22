@@ -10,6 +10,15 @@ import { seedDatabase } from './seed';
 const app = express();
 const PORT = process.env.NODE_ENV === 'production' ? 5000 : (process.env.PORT || 3001);
 
+app.use((req, res, next) => {
+  const host = req.get('host') || '';
+  if (host.includes('tracker.kikithetoothfairy.co')) {
+    const newUrl = `https://kikithetoothfairy.co${req.originalUrl}`;
+    return res.redirect(301, newUrl);
+  }
+  next();
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
