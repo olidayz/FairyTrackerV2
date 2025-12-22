@@ -121,7 +121,7 @@ export const StageCard: React.FC<StageCardProps> = ({
 
                   {/* Title - Top center, hanging */}
                   <div className={`absolute -top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ${showContent ? 'opacity-100' : 'opacity-0'}`}>
-                     <h2 className="font-chrome text-2xl md:text-3xl text-white uppercase drop-shadow-lg bg-slate-900/80 backdrop-blur-sm px-4 py-2 rounded-xl border-2 border-white/20">
+                     <h2 className="font-chrome text-base sm:text-xl md:text-3xl text-white uppercase drop-shadow-lg bg-slate-900/80 backdrop-blur-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl border-2 border-white/20 whitespace-nowrap">
                         {stage.title}
                      </h2>
                   </div>

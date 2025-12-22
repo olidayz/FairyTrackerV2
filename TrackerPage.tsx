@@ -696,7 +696,7 @@ const FunPhaseDivider = ({
       )}
 
       {/* ROW 2: MAIN TITLE */}
-      <h2 className="font-chrome text-5xl md:text-7xl text-white uppercase tracking-normal leading-normal drop-shadow-[0_4px_0_rgba(0,0,0,1)] scale-y-110 py-2 md:py-4">
+      <h2 className="font-chrome text-3xl sm:text-5xl md:text-7xl text-white uppercase tracking-tight sm:tracking-normal leading-tight drop-shadow-[0_4px_0_rgba(0,0,0,1)] scale-y-110 py-2 md:py-4 whitespace-nowrap">
         <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-cyan-100 pb-1 inline-block">
           {title}
         </span>
@@ -705,8 +705,8 @@ const FunPhaseDivider = ({
       {/* ROW 3: OVERLAPPING WARNING CALLOUT */}
       {warning && (
         <div className="relative z-20 -mt-4 md:-mt-6 transform rotate-[-2deg] hover:rotate-0 transition-transform duration-300">
-          <div className="inline-block px-5 py-1.5 bg-fuchsia-600 text-white border-2 border-fuchsia-400 shadow-[0_4px_20px_rgba(232,121,249,0.5)] rounded-lg">
-            <span className="font-sans font-bold text-sm md:text-base tracking-[0.2em] uppercase drop-shadow-md">
+          <div className="inline-block px-3 sm:px-5 py-1.5 bg-fuchsia-600 text-white border-2 border-fuchsia-400 shadow-[0_4px_20px_rgba(232,121,249,0.5)] rounded-lg">
+            <span className="font-sans font-bold text-xs sm:text-sm md:text-base tracking-wide sm:tracking-[0.2em] uppercase drop-shadow-md whitespace-nowrap">
               {warning}
             </span>
           </div>
