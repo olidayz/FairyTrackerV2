@@ -753,7 +753,7 @@ const HudGauge = ({ icon: Icon, label, value, color, delay }: any) => (
 );
 
 
-const MissionHeaderCard = ({ isComplete = false, userName = 'Friend' }: { isComplete?: boolean; userName?: string }) => (
+const MissionHeaderCard = ({ isComplete = false, userName = 'Your Child' }: { isComplete?: boolean; userName?: string }) => (
   <div className="relative w-full flex flex-col items-center justify-center mb-10 pt-8 pb-4">
 
     {/* === PERSONALIZED HEADER === */}
@@ -850,7 +850,7 @@ const MissionHeaderCard = ({ isComplete = false, userName = 'Friend' }: { isComp
 );
 
 // === REDESIGNED START MISSION CARD (FINAL FIXED LAYOUT) ===
-const StartMissionCard = ({ onClick, isMorning = false, userName = 'Friend' }: { onClick?: () => void; isMorning?: boolean; userName?: string }) => (
+const StartMissionCard = ({ onClick, isMorning = false, userName = 'Your Child' }: { onClick?: () => void; isMorning?: boolean; userName?: string }) => (
   <div onClick={onClick} className="relative w-full max-w-7xl mx-auto group cursor-pointer mb-48 mt-8 md:mb-32 md:mt-12">
 
     {/* Glow behind main card */}
@@ -1093,7 +1093,7 @@ function Tracker() {
   useEffect(() => {
     const fetchTrackerData = async () => {
       if (!token) {
-        setUserName('Friend');
+        setUserName('Your Child');
         setIsLoading(false);
         return;
       }
@@ -1102,13 +1102,13 @@ function Tracker() {
         const response = await fetch(`/api/tracker/${token}`);
         if (response.ok) {
           const data = await response.json();
-          setUserName(data.userName || 'Friend');
+          setUserName(data.userName || 'Your Child');
         } else {
-          setUserName('Friend');
+          setUserName('Your Child');
         }
       } catch (error) {
         console.error('Failed to fetch tracker data:', error);
-        setUserName('Friend');
+        setUserName('Your Child');
       } finally {
         setIsLoading(false);
       }
