@@ -98,8 +98,81 @@ export const emailTemplates = pgTable('email_templates', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+// Landing Page CMS Tables
+export const landingHero = pgTable('landing_hero', {
+  id: serial('id').primaryKey(),
+  headline: varchar('headline', { length: 255 }),
+  subheadline: text('subheadline'),
+  badgeText: varchar('badge_text', { length: 100 }),
+  ctaText: varchar('cta_text', { length: 100 }),
+  backgroundImageUrl: text('background_image_url'),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const fairyUpdates = pgTable('fairy_updates', {
+  id: serial('id').primaryKey(),
+  title: varchar('title', { length: 255 }).notNull(),
+  description: text('description'),
+  imageUrl: text('image_url'),
+  iconType: varchar('icon_type', { length: 50 }),
+  sortOrder: integer('sort_order').default(0),
+  isActive: boolean('is_active').default(true),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const kikiProfile = pgTable('kiki_profile', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 100 }).default('Kiki'),
+  title: varchar('title', { length: 255 }),
+  bio: text('bio'),
+  photoUrl: text('photo_url'),
+  stats: text('stats'),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const reviews = pgTable('reviews', {
+  id: serial('id').primaryKey(),
+  reviewerName: varchar('reviewer_name', { length: 255 }).notNull(),
+  reviewerLocation: varchar('reviewer_location', { length: 255 }),
+  reviewText: text('review_text').notNull(),
+  rating: integer('rating').default(5),
+  photoUrl: text('photo_url'),
+  isVerified: boolean('is_verified').default(false),
+  isFeatured: boolean('is_featured').default(false),
+  sortOrder: integer('sort_order').default(0),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const faqs = pgTable('faqs', {
+  id: serial('id').primaryKey(),
+  question: text('question').notNull(),
+  answer: text('answer').notNull(),
+  category: varchar('category', { length: 100 }),
+  sortOrder: integer('sort_order').default(0),
+  isActive: boolean('is_active').default(true),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const copySections = pgTable('copy_sections', {
+  id: serial('id').primaryKey(),
+  key: varchar('key', { length: 100 }).notNull().unique(),
+  label: varchar('label', { length: 255 }).notNull(),
+  content: text('content'),
+  page: varchar('page', { length: 100 }),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 export type SiteAsset = typeof siteAssets.$inferSelect;
 export type StageDefinition = typeof stageDefinitions.$inferSelect;
 export type StageContent = typeof stageContent.$inferSelect;
 export type EmailTemplate = typeof emailTemplates.$inferSelect;
 export type InsertEmailTemplate = typeof emailTemplates.$inferInsert;
+export type LandingHero = typeof landingHero.$inferSelect;
+export type FairyUpdate = typeof fairyUpdates.$inferSelect;
+export type KikiProfile = typeof kikiProfile.$inferSelect;
+export type Review = typeof reviews.$inferSelect;
+export type FAQ = typeof faqs.$inferSelect;
+export type CopySection = typeof copySections.$inferSelect;
