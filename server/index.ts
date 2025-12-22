@@ -14,7 +14,7 @@ app.use(routes);
 const distPath = path.resolve(process.cwd(), 'dist');
 app.use(express.static(distPath));
 
-app.get('*', (req, res) => {
+app.get('/*splat', (req, res) => {
   res.sendFile(path.join(distPath, 'index.html'));
 });
 

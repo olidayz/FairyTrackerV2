@@ -51,11 +51,26 @@ router.post('/api/signup', async (req: Request, res: Response) => {
     if (error.code === '23505') {
       const existingUser = await storage.getUserByEmail(req.body.email);
       if (existingUser) {
-        const session = await storage.createTrackerSession(existingUser.id);
+        const newSession = await storage.createTrackerSession(existingUser.id);
+        
+        const stages = await storage.getStageDefinitions();
+        const now = new Date();
+        for (const stage of stages) {
+          let availableAt = new Date(now);
+          if (stage.dayPart === 'morning') {
+            availableAt.setHours(availableAt.getHours() + 6);
+          }
+          await storage.createStageEntry({
+            trackerSessionId: newSession.id,
+            stageDefinitionId: stage.id,
+            availabilityTimestamp: availableAt,
+          });
+        }
+        
         return res.json({
           success: true,
-          trackerToken: session.token,
-          trackerUrl: `/tracker/${session.token}`,
+          trackerToken: newSession.trackerToken,
+          trackerUrl: `/tracker/${newSession.trackerToken}`,
         });
       }
     }

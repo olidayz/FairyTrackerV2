@@ -850,7 +850,7 @@ const MissionHeaderCard = ({ isComplete = false, userName = 'Friend' }: { isComp
 );
 
 // === REDESIGNED START MISSION CARD (FINAL FIXED LAYOUT) ===
-const StartMissionCard = ({ onClick, isMorning = false }: { onClick?: () => void; isMorning?: boolean }) => (
+const StartMissionCard = ({ onClick, isMorning = false, userName = 'Friend' }: { onClick?: () => void; isMorning?: boolean; userName?: string }) => (
   <div onClick={onClick} className="relative w-full max-w-7xl mx-auto group cursor-pointer mb-48 mt-8 md:mb-32 md:mt-12">
 
     {/* Glow behind main card */}
@@ -873,7 +873,7 @@ const StartMissionCard = ({ onClick, isMorning = false }: { onClick?: () => void
         <div className="w-full flex justify-center md:w-auto md:inline-flex mb-3">
           <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-slate-900 border border-slate-700 shadow-lg group-hover:border-slate-500 transition-colors">
             <span className="font-sans text-[10px] md:text-xs text-cyan-400 font-bold tracking-widest uppercase">
-              For Savannah Only
+              For {userName} Only
             </span>
           </div>
         </div>
@@ -1140,7 +1140,7 @@ function Tracker() {
         <MissionHeaderCard isComplete={!isNextBatchAvailable} userName={userName} />
 
         {/* 2. ISOLATED START CARD */}
-        <StartMissionCard onClick={unlockNextBatch} isMorning={!isNextBatchAvailable} />
+        <StartMissionCard onClick={unlockNextBatch} isMorning={!isNextBatchAvailable} userName={userName} />
 
         {/* 3. TITLE ROW */}
         <div className="relative mb-8 md:mb-12">
@@ -1211,7 +1211,7 @@ function Tracker() {
           <FunPhaseDivider
             phase="Phase 1"
             title="Night Flight"
-            warning="For Savannah Only!"
+            warning={`For ${userName} Only!`}
             icon={CustomMoonIcon}
             color="text-yellow-400"
             badgeText="ACTIVE"
@@ -1267,7 +1267,7 @@ function Tracker() {
           <FunPhaseDivider
             phase="Phase 2"
             title="Morning Report"
-            warning="For Savannah Only!"
+            warning={`For ${userName} Only!`}
             icon={Sun}
             color="text-amber-400"
             badgeText={isNextBatchAvailable ? "LOCKED" : "UNLOCKED"}
