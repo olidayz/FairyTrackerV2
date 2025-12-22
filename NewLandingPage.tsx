@@ -630,7 +630,7 @@ const NewLandingPage = () => {
                         <div className="text-center mb-8">
                             <div className="relative inline-block mb-4">
                                 <h2 className="font-chrome text-5xl md:text-6xl text-white uppercase tracking-normal">
-                                    How It Works
+                                    6-Stage Mission
                                 </h2>
                                 <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 transform rotate-2">
                                     <div className="bg-gradient-to-r from-fuchsia-500 to-pink-500 px-3 py-1 rounded-lg border border-white/30 shadow-xl backdrop-blur-sm">
