@@ -68,6 +68,7 @@ interface Stage {
   videoThumbnail: string;
   selfieImage: string;
   objectImage: string;
+  videoUrl?: string | null;
 }
 
 interface CMSStageContent {
@@ -1210,6 +1211,7 @@ function Tracker() {
       subtext: cmsContent.statusText || stage.subtext,
       message: replaceNamePlaceholder(rawMessage),
       videoThumbnail: cmsContent.imageUrl || stage.videoThumbnail,
+      videoUrl: cmsContent.videoUrl || null,
     };
   });
 

@@ -13,6 +13,7 @@ interface StageCardProps {
       videoThumbnail?: string;
       selfieImage?: string;
       color?: string;
+      videoUrl?: string | null;
    };
    isActive: boolean;
    isLocked: boolean;
@@ -29,9 +30,11 @@ export const StageCard: React.FC<StageCardProps> = ({
    const [isFlipped, setIsFlipped] = useState(false);
    const [isHovered, setIsHovered] = useState(false);
    const [showContent, setShowContent] = useState(false);
+   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
 
    const frontRef = useRef<HTMLDivElement>(null);
    const backRef = useRef<HTMLDivElement>(null);
+   const videoRef = useRef<HTMLVideoElement>(null);
 
    const isInverted = index % 2 !== 0;
 
@@ -130,21 +133,58 @@ export const StageCard: React.FC<StageCardProps> = ({
                   <div className="flex-1 flex flex-col p-6 md:p-8 z-10 gap-4 h-full">
 
                      {/* 1. HERO SECTION: Video (Dominant) */}
-                     <div className={`relative w-full aspect-video rounded-3xl overflow-hidden ring-4 ${theme.ring} shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-all duration-700 ease-out bg-slate-800 cursor-pointer group shrink-0 ${showContent ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-4 scale-95'}`}>
-                        <img src={stage.videoThumbnail || stage.cardImage} alt="Video" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+                     <div 
+                        className={`relative w-full aspect-video rounded-3xl overflow-hidden ring-4 ${theme.ring} shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-all duration-700 ease-out bg-slate-800 cursor-pointer group shrink-0 ${showContent ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-4 scale-95'}`}
+                        onClick={() => {
+                           if (stage.videoUrl && videoRef.current) {
+                              if (isVideoPlaying) {
+                                 videoRef.current.pause();
+                                 setIsVideoPlaying(false);
+                              } else {
+                                 videoRef.current.play();
+                                 setIsVideoPlaying(true);
+                              }
+                           }
+                        }}
+                     >
+                        {/* Show video if videoUrl exists */}
+                        {stage.videoUrl ? (
+                           <video
+                              ref={videoRef}
+                              src={stage.videoUrl}
+                              className="w-full h-full object-cover"
+                              playsInline
+                              muted
+                              loop
+                              onEnded={() => setIsVideoPlaying(false)}
+                           />
+                        ) : (
+                           <img src={stage.videoThumbnail || stage.cardImage} alt="Video" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none" />
 
-                        {/* Play Button */}
-                        <div className="absolute inset-0 flex items-center justify-center">
-                           <button className="w-14 h-14 md:w-16 md:h-16 bg-white/90 hover:bg-white rounded-full flex items-center justify-center pl-1 shadow-2xl hover:scale-110 transition-transform ring-4 ring-white/30">
-                              <Play size={24} className="text-slate-900 fill-slate-900" />
-                           </button>
-                        </div>
+                        {/* Play Button - only show when video exists and not playing */}
+                        {stage.videoUrl && !isVideoPlaying && (
+                           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                              <button className="w-14 h-14 md:w-16 md:h-16 bg-white/90 hover:bg-white rounded-full flex items-center justify-center pl-1 shadow-2xl hover:scale-110 transition-transform ring-4 ring-white/30">
+                                 <Play size={24} className="text-slate-900 fill-slate-900" />
+                              </button>
+                           </div>
+                        )}
+                        
+                        {/* Play button for image-only (no video) */}
+                        {!stage.videoUrl && (
+                           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                              <button className="w-14 h-14 md:w-16 md:h-16 bg-white/90 hover:bg-white rounded-full flex items-center justify-center pl-1 shadow-2xl hover:scale-110 transition-transform ring-4 ring-white/30">
+                                 <Play size={24} className="text-slate-900 fill-slate-900" />
+                              </button>
+                           </div>
+                        )}
 
                         {/* Live Badge */}
-                        <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-red-500 px-2 py-1 rounded-full shadow-lg">
+                        <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-red-500 px-2 py-1 rounded-full shadow-lg pointer-events-none">
                            <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
-                           <span className="text-[9px] font-bold text-white uppercase">Live</span>
+                           <span className="text-[9px] font-bold text-white uppercase">{isVideoPlaying ? 'Playing' : 'Live'}</span>
                         </div>
                      </div>
 
