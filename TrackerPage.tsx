@@ -84,6 +84,7 @@ interface CMSStageContent {
     frontImageUrl?: string | null;
     locationText?: string | null;
     statusText?: string | null;
+    selfieImageUrl?: string | null;
   } | null;
 }
 
@@ -1212,6 +1213,7 @@ function Tracker() {
       message: replaceNamePlaceholder(rawMessage),
       videoThumbnail: cmsContent.imageUrl || stage.videoThumbnail,
       videoUrl: cmsContent.videoUrl || null,
+      selfieImage: cmsContent.selfieImageUrl || stage.selfieImage,
     };
   });
 

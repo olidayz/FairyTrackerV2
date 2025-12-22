@@ -89,6 +89,7 @@ interface StageContent {
   frontImageUrl: string;
   locationText: string;
   statusText: string;
+  selfieImageUrl: string;
 }
 
 interface EmailTemplate {
@@ -1436,8 +1437,10 @@ const StageContentEditor = ({ stage, content, onSave, onCancel }: {
     frontImageUrl: content?.frontImageUrl || '',
     locationText: content?.locationText || '',
     statusText: content?.statusText || '',
+    selfieImageUrl: content?.selfieImageUrl || '',
   });
   const [isUploading, setIsUploading] = useState(false);
+  const [isSelfieUploading, setIsSelfieUploading] = useState(false);
 
   useEffect(() => {
     setFormData({
@@ -1447,6 +1450,7 @@ const StageContentEditor = ({ stage, content, onSave, onCancel }: {
       frontImageUrl: content?.frontImageUrl || '',
       locationText: content?.locationText || '',
       statusText: content?.statusText || '',
+      selfieImageUrl: content?.selfieImageUrl || '',
     });
   }, [stage.id, content]);
 
@@ -1602,13 +1606,52 @@ const StageContentEditor = ({ stage, content, onSave, onCancel }: {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Image URL (Back of Card)</label>
-          <input
-            type="text"
-            value={formData.imageUrl}
-            onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-            className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
-          />
+          <label className="block text-sm font-medium mb-1">Selfie Image (Back of Card)</label>
+          <div className="flex gap-2 items-center">
+            <input
+              type="text"
+              value={formData.selfieImageUrl}
+              onChange={(e) => setFormData({ ...formData, selfieImageUrl: e.target.value })}
+              className="flex-1 px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+              placeholder="Image URL or upload below"
+            />
+            <label className={`px-4 py-2 rounded-lg cursor-pointer transition-colors ${isSelfieUploading ? 'bg-slate-600' : 'bg-amber-600 hover:bg-amber-700'}`}>
+              {isSelfieUploading ? 'Uploading...' : 'Upload Selfie'}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  setIsSelfieUploading(true);
+                  try {
+                    const urlRes = await fetch('/api/uploads/request-url', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ name: file.name, size: file.size, contentType: file.type }),
+                    });
+                    if (!urlRes.ok) throw new Error('Failed to get upload URL');
+                    const { uploadURL, objectPath } = await urlRes.json();
+                    const uploadRes = await fetch(uploadURL, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
+                    if (!uploadRes.ok) throw new Error('Failed to upload');
+                    setFormData({ ...formData, selfieImageUrl: objectPath });
+                  } catch (error) {
+                    console.error('Selfie upload failed:', error);
+                    alert('Failed to upload selfie image');
+                  } finally {
+                    setIsSelfieUploading(false);
+                  }
+                }}
+                className="hidden"
+                disabled={isSelfieUploading}
+              />
+            </label>
+          </div>
+          {formData.selfieImageUrl && (
+            <div className="mt-2">
+              <img src={formData.selfieImageUrl} alt="Selfie Preview" className="h-20 w-20 object-cover rounded-lg border border-slate-600" />
+            </div>
+          )}
         </div>
 
         <div>
