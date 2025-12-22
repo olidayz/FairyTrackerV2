@@ -85,7 +85,7 @@ const NewLandingPage = () => {
     // Stage content from CMS (same as tracker)
     const [stageContent, setStageContent] = useState<Array<{
         id: number;
-        content: { messageText?: string | null } | null;
+        content: { messageText?: string | null; title?: string | null } | null;
     }>>([]);
     
     useEffect(() => {
@@ -217,10 +217,16 @@ const NewLandingPage = () => {
         return content?.messageText || defaultMessage;
     };
     
+    // Helper to get CMS title for a stage
+    const getStageTitle = (stageId: number, defaultTitle: string) => {
+        const content = stageContent.find(s => s.id === stageId)?.content;
+        return content?.title || defaultTitle;
+    };
+    
     const storyStages: Array<{stage: number; title: string; location: string; image: string; isVideo: boolean; message: string; color: string}> = [
         {
             stage: 1,
-            title: landingContent.stageTitles?.stage_1_photo || "The Departure",
+            title: getStageTitle(1, "The Departure"),
             location: "North Star Portal",
             image: landingContent.images?.stage_1_photo || defaultFairyPhoto,
             isVideo: landingContent.mediaTypes?.stage_1_photo === 'video',
@@ -229,7 +235,7 @@ const NewLandingPage = () => {
         },
         {
             stage: 2,
-            title: landingContent.stageTitles?.stage_2_photo || "Mid-Flight Magic",
+            title: getStageTitle(2, "Mid-Flight Magic"),
             location: "Sparkle Mountains",
             image: landingContent.images?.stage_2_photo || defaultFairyPhoto,
             isVideo: landingContent.mediaTypes?.stage_2_photo === 'video',
@@ -238,7 +244,7 @@ const NewLandingPage = () => {
         },
         {
             stage: 3,
-            title: landingContent.stageTitles?.stage_3_photo || "Cloud Surfing",
+            title: getStageTitle(3, "Cloud Surfing"),
             location: "Silver Lining Lane",
             image: landingContent.images?.stage_3_photo || defaultFairyPhoto,
             isVideo: landingContent.mediaTypes?.stage_3_photo === 'video',
@@ -247,7 +253,7 @@ const NewLandingPage = () => {
         },
         {
             stage: 4,
-            title: landingContent.stageTitles?.stage_4_photo || "Final Approach",
+            title: getStageTitle(4, "Final Approach"),
             location: "Your Neighborhood",
             image: landingContent.images?.stage_4_photo || defaultFairyPhoto,
             isVideo: landingContent.mediaTypes?.stage_4_photo === 'video',
@@ -256,7 +262,7 @@ const NewLandingPage = () => {
         },
         {
             stage: 5,
-            title: landingContent.stageTitles?.stage_5_photo || "Mission Complete",
+            title: getStageTitle(5, "Mission Complete"),
             location: "Your Pillow",
             image: landingContent.images?.stage_5_photo || defaultFairyPhoto,
             isVideo: landingContent.mediaTypes?.stage_5_photo === 'video',
@@ -265,7 +271,7 @@ const NewLandingPage = () => {
         },
         {
             stage: 6,
-            title: landingContent.stageTitles?.stage_6_photo || "Home Bound",
+            title: getStageTitle(6, "Home Bound"),
             location: "Fairy HQ",
             image: landingContent.images?.stage_6_photo || defaultFairyPhoto,
             isVideo: landingContent.mediaTypes?.stage_6_photo === 'video',

@@ -85,6 +85,7 @@ interface CMSStageContent {
     locationText?: string | null;
     statusText?: string | null;
     selfieImageUrl?: string | null;
+    title?: string | null;
   } | null;
 }
 
@@ -1207,6 +1208,7 @@ function Tracker() {
     
     return {
       ...stage,
+      title: cmsContent.title || stage.title,
       cardImage: cmsContent.frontImageUrl || stage.cardImage,
       location: cmsContent.locationText || stage.location,
       subtext: cmsContent.statusText || stage.subtext,

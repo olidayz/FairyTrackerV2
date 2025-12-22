@@ -90,6 +90,7 @@ interface StageContent {
   locationText: string;
   statusText: string;
   selfieImageUrl: string;
+  title: string;
 }
 
 interface EmailTemplate {
@@ -1438,6 +1439,7 @@ const StageContentEditor = ({ stage, content, onSave, onCancel }: {
     locationText: content?.locationText || '',
     statusText: content?.statusText || '',
     selfieImageUrl: content?.selfieImageUrl || '',
+    title: content?.title || '',
   });
   const [isUploading, setIsUploading] = useState(false);
   const [isSelfieUploading, setIsSelfieUploading] = useState(false);
@@ -1451,6 +1453,7 @@ const StageContentEditor = ({ stage, content, onSave, onCancel }: {
       locationText: content?.locationText || '',
       statusText: content?.statusText || '',
       selfieImageUrl: content?.selfieImageUrl || '',
+      title: content?.title || '',
     });
   }, [stage.id, content]);
 
@@ -1499,6 +1502,17 @@ const StageContentEditor = ({ stage, content, onSave, onCancel }: {
         <div className="p-4 bg-slate-800/50 border border-cyan-500/30 rounded-lg">
           <h4 className="text-sm font-semibold text-cyan-400 mb-3">Front Card Content</h4>
           <div className="grid gap-3">
+            <div>
+              <label className="block text-sm font-medium mb-1">Stage Title (Front of Card)</label>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                placeholder="e.g. ADVENTURE BEGINS"
+              />
+              <p className="text-xs text-slate-400 mt-1">This title appears on the front of the card and on the landing page</p>
+            </div>
             <div>
               <label className="block text-sm font-medium mb-1">Front Card Image</label>
               <div className="flex gap-2 items-center">
