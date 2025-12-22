@@ -1,6 +1,7 @@
 import { db } from './db';
-import { stageDefinitions, stageContent, emailTemplates, landingImages } from '../shared/schema';
+import { stageDefinitions, stageContent, emailTemplates, landingImages, blogPosts } from '../shared/schema';
 import { seedStageDefinitions, seedStageContent, seedEmailTemplates, seedLandingImages } from './seed-data';
+import { seedBlogPosts } from './seed-blog-data';
 
 export async function seedDatabase() {
   try {
@@ -65,6 +66,19 @@ export async function seedDatabase() {
       });
     }
     console.log('[Seed] Landing images seeded');
+
+    for (const post of seedBlogPosts) {
+      await db.insert(blogPosts).values({
+        slug: post.slug,
+        title: post.title,
+        excerpt: post.excerpt,
+        content: post.content,
+        featuredImageUrl: post.featuredImageUrl,
+        status: post.status,
+        publishedAt: new Date()
+      });
+    }
+    console.log('[Seed] Blog posts seeded');
 
     console.log('[Seed] Database seeding complete!');
   } catch (error) {
