@@ -1480,28 +1480,29 @@ const StageContentEditor = ({ stage, content, onSave, onCancel }: {
                 </div>
               )}
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-medium mb-1">Location</label>
-                <input
-                  type="text"
-                  value={formData.locationText}
-                  onChange={(e) => setFormData({ ...formData, locationText: e.target.value })}
-                  className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
-                  placeholder="e.g. North Star Portal"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Status</label>
-                <input
-                  type="text"
-                  value={formData.statusText}
-                  onChange={(e) => setFormData({ ...formData, statusText: e.target.value })}
-                  className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
-                  placeholder="e.g. En Route"
-                />
-              </div>
-            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-sm font-medium mb-1">Location (Back of Card)</label>
+            <input
+              type="text"
+              value={formData.locationText}
+              onChange={(e) => setFormData({ ...formData, locationText: e.target.value })}
+              className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+              placeholder="e.g. North Star Portal"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Status (Back of Card)</label>
+            <input
+              type="text"
+              value={formData.statusText}
+              onChange={(e) => setFormData({ ...formData, statusText: e.target.value })}
+              className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+              placeholder="e.g. En Route"
+            />
           </div>
         </div>
 
