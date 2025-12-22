@@ -1,0 +1,147 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --font-header: "Archivo Black", sans-serif;
+  --font-toy: "Archivo Black", sans-serif;
+  --font-fastmode: "Fastmode", sans-serif;
+  --font-kinetic: "CSQinetic", sans-serif;
+  --font-chrome: "MDNIchrome Ultra", sans-serif;
+  --font-chrome-oblique: "MDNIchrome Oblique", sans-serif;
+
+  --color-cp-black: #050505;
+  --color-cp-bg: #0a0a0a;
+  --color-cp-card: #111111;
+  --color-cp-teal: #00B0C0;
+  --color-cp-tealDark: #007A85;
+  --color-cp-pink: #F43F5E;
+  --color-cp-purple: #8B5CF6;
+  --color-cp-yellow: #FACC15;
+  --color-cp-gray: #262626;
+  --color-cp-lightGray: #404040;
+  --color-cp-text: #e5e5e5;
+  --color-cp-dimText: #737373;
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-wiggle: wiggle 2s ease-in-out infinite;
+  --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-shimmer: shimmer 3s linear infinite;
+  --animate-holo-pulse: holoPulse 4s ease-in-out infinite;
+  --animate-scan: scan 3s linear infinite;
+  --animate-marquee: marquee 10s linear infinite;
+  --animate-gradient-move: gradientMove 5s ease infinite;
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(-2deg); }
+    50% { transform: rotate(2deg); }
+  }
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  @keyframes holoPulse {
+    0%, 100% { opacity: 0.1; }
+    50% { opacity: 0.3; }
+  }
+  @keyframes scan {
+    0% { top: -5%; }
+    100% { top: 105%; }
+  }
+  @keyframes marquee {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-50%); }
+  }
+  @keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+}
+
+body {
+  background-color: #050505;
+  color: #e5e5e5;
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  overflow-x: hidden;
+}
+
+.bg-dots {
+  background-image: radial-gradient(#262626 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+@font-face {
+  font-family: 'Fastmode';
+  src: url('/Fastmode.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'CSQinetic';
+  src: url('/CSQinetic-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'MDNIchrome Ultra';
+  src: url('/MDNichromeTest-Black.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'MDNIchrome Oblique';
+  src: url('/MDNichromeTest-BlackOblique.otf') format('opentype');
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00B0C0;
+}
+
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+  transition: transform 5s ease-in-out;
+}
+
+.fairy-path {
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 8px #22d3ee) drop-shadow(0 0 15px #22d3ee);
+  animation: pulsePath 2s infinite alternate;
+}
+
+@keyframes pulsePath {
+  0% {
+    stroke-opacity: 0.6;
+    stroke-width: 1px;
+  }
+  100% {
+    stroke-opacity: 1;
+    stroke-width: 2.5px;
+  }
+}
