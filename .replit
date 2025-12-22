@@ -49,5 +49,5 @@ channel = "stable-25_05"
 
 [deployment]
 deploymentTarget = "vm"
-run = ["npx", "tsx", "server/index.ts"]
-build = ["bash", "-c", "npm install && npm run build && npm run db:push"]
+run = ["npm", "run", "start"]
+build = ["npm", "run", "build:prod"]
