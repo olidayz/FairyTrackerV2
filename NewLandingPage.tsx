@@ -467,23 +467,30 @@ const NewLandingPage = () => {
                                                 {(() => {
                                                     const mediaSrc = stage.video || stage.image;
                                                     const isVideo = mediaSrc && (mediaSrc.endsWith('.webm') || mediaSrc.endsWith('.mp4') || mediaSrc.endsWith('.mov'));
-                                                    const videoType = mediaSrc?.endsWith('.webm') ? 'video/webm' : mediaSrc?.endsWith('.mov') ? 'video/quicktime' : 'video/mp4';
+                                                    const shouldLoad = isActive || isNext || isPrev;
+                                                    
+                                                    if (!shouldLoad) {
+                                                        return (
+                                                            <div className="absolute inset-0 w-full h-full bg-slate-800" />
+                                                        );
+                                                    }
                                                     
                                                     return isVideo ? (
                                                         <video
                                                             key={mediaSrc}
-                                                            autoPlay
+                                                            src={mediaSrc}
+                                                            autoPlay={isActive}
                                                             muted
                                                             loop
                                                             playsInline
+                                                            preload={isActive ? "auto" : "metadata"}
                                                             className="absolute inset-0 w-full h-full object-cover transition-transform duration-[8s] group-hover/card:scale-110"
-                                                        >
-                                                            <source src={mediaSrc} type={videoType} />
-                                                        </video>
+                                                        />
                                                     ) : (
                                                         <img
                                                             src={stage.image}
                                                             alt={stage.title}
+                                                            loading={isActive ? "eager" : "lazy"}
                                                             className="absolute inset-0 w-full h-full object-cover transition-transform duration-[8s] group-hover/card:scale-110"
                                                         />
                                                     );
