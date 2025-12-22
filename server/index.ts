@@ -8,7 +8,7 @@ import { registerObjectStorageRoutes } from './replit_integrations/object_storag
 import { seedDatabase } from './seed';
 
 const app = express();
-const PORT = process.env.NODE_ENV === 'production' ? 5000 : (process.env.PORT || 3001);
+const PORT = parseInt(process.env.NODE_ENV === 'production' ? '5000' : (process.env.PORT || '3001'), 10);
 
 app.use((req, res, next) => {
   const host = req.get('host') || '';
