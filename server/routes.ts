@@ -1,5 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { storage } from './storage';
+import { db } from './db';
+import { emailTemplates } from '../shared/schema';
 
 const router = Router();
 
@@ -148,6 +150,16 @@ router.get('/api/tracker/:token', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('[API] Tracker fetch error:', error);
     res.status(500).json({ error: 'Failed to fetch tracker data' });
+  }
+});
+
+router.get('/api/email-templates', async (req: Request, res: Response) => {
+  try {
+    const templates = await db.select().from(emailTemplates);
+    res.json(templates);
+  } catch (error) {
+    console.error('[API] Email templates fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch email templates' });
   }
 });
 

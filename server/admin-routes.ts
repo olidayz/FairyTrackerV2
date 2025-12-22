@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { db } from './db';
-import { blogPosts, stageDefinitions, stageContent, siteAssets } from '../shared/schema';
+import { blogPosts, stageDefinitions, stageContent, siteAssets, emailTemplates } from '../shared/schema';
 import { eq } from 'drizzle-orm';
 
 const router = Router();
@@ -140,6 +140,74 @@ router.get('/api/admin/site-assets', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('[Admin] Failed to fetch site assets:', error);
     res.status(500).json({ error: 'Failed to fetch site assets' });
+  }
+});
+
+router.get('/api/admin/email-templates', async (req: Request, res: Response) => {
+  try {
+    const templates = await db.select().from(emailTemplates);
+    res.json(templates);
+  } catch (error) {
+    console.error('[Admin] Failed to fetch email templates:', error);
+    res.status(500).json({ error: 'Failed to fetch email templates' });
+  }
+});
+
+router.post('/api/admin/email-templates', async (req: Request, res: Response) => {
+  try {
+    const { slug, name, subject, preheader, headline, bodyText, ctaText, ctaUrl, footerText } = req.body;
+    const [template] = await db.insert(emailTemplates).values({
+      slug,
+      name,
+      subject,
+      preheader,
+      headline,
+      bodyText,
+      ctaText,
+      ctaUrl,
+      footerText,
+    }).returning();
+    res.json(template);
+  } catch (error) {
+    console.error('[Admin] Failed to create email template:', error);
+    res.status(500).json({ error: 'Failed to create email template' });
+  }
+});
+
+router.put('/api/admin/email-templates/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { slug, name, subject, preheader, headline, bodyText, ctaText, ctaUrl, footerText } = req.body;
+    const [template] = await db.update(emailTemplates)
+      .set({
+        slug,
+        name,
+        subject,
+        preheader,
+        headline,
+        bodyText,
+        ctaText,
+        ctaUrl,
+        footerText,
+        updatedAt: new Date(),
+      })
+      .where(eq(emailTemplates.id, parseInt(id)))
+      .returning();
+    res.json(template);
+  } catch (error) {
+    console.error('[Admin] Failed to update email template:', error);
+    res.status(500).json({ error: 'Failed to update email template' });
+  }
+});
+
+router.delete('/api/admin/email-templates/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    await db.delete(emailTemplates).where(eq(emailTemplates.id, parseInt(id)));
+    res.json({ success: true });
+  } catch (error) {
+    console.error('[Admin] Failed to delete email template:', error);
+    res.status(500).json({ error: 'Failed to delete email template' });
   }
 });
 

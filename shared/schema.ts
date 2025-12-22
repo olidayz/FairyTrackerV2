@@ -80,6 +80,23 @@ export type TrackerSession = typeof trackerSessions.$inferSelect;
 export type InsertTrackerSession = typeof trackerSessions.$inferInsert;
 export type BlogPost = typeof blogPosts.$inferSelect;
 export type InsertBlogPost = typeof blogPosts.$inferInsert;
+export const emailTemplates = pgTable('email_templates', {
+  id: serial('id').primaryKey(),
+  slug: varchar('slug', { length: 100 }).notNull().unique(),
+  name: varchar('name', { length: 255 }).notNull(),
+  subject: varchar('subject', { length: 500 }).notNull(),
+  preheader: varchar('preheader', { length: 255 }),
+  headline: varchar('headline', { length: 255 }),
+  bodyText: text('body_text'),
+  ctaText: varchar('cta_text', { length: 100 }),
+  ctaUrl: varchar('cta_url', { length: 500 }),
+  footerText: text('footer_text'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 export type SiteAsset = typeof siteAssets.$inferSelect;
 export type StageDefinition = typeof stageDefinitions.$inferSelect;
 export type StageContent = typeof stageContent.$inferSelect;
+export type EmailTemplate = typeof emailTemplates.$inferSelect;
+export type InsertEmailTemplate = typeof emailTemplates.$inferInsert;
