@@ -997,7 +997,7 @@ const RecentlyCollectedWidget = () => {
     <div className="w-full mt-16 mb-12 overflow-hidden relative">
       <FunPhaseDivider
         phase=""
-        title="Global Collection"
+        title="TOOTH PICKUPS"
         warning="Real-time Data"
         icon={Activity}
         color="text-cyan-400"
