@@ -39,9 +39,7 @@ async function checkAndSendPendingEmails() {
     for (const { session, user } of pendingSessions) {
       if (!session.morningEmailScheduledFor) continue;
       
-      const baseUrl = process.env.REPLIT_DEV_DOMAIN 
-        ? `https://${process.env.REPLIT_DEV_DOMAIN}` 
-        : 'https://kiki-tracker.replit.app';
+      const baseUrl = process.env.SITE_URL || `https://${process.env.REPLIT_DEV_DOMAIN}` || 'https://kikithetoothfairy.co';
       const trackerUrl = `${baseUrl}/tracker/${session.trackerToken}`;
       const childName = session.childName || user.name;
 

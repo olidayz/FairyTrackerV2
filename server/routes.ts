@@ -45,9 +45,7 @@ router.post('/api/signup', async (req: Request, res: Response) => {
 
     console.log(`[Signup] User ${name} signed up with token ${session.trackerToken}`);
 
-    const baseUrl = process.env.REPLIT_DEV_DOMAIN 
-      ? `https://${process.env.REPLIT_DEV_DOMAIN}` 
-      : 'https://kiki-tracker.replit.app';
+    const baseUrl = process.env.SITE_URL || `https://${process.env.REPLIT_DEV_DOMAIN}` || 'https://kikithetoothfairy.co';
     const fullTrackerUrl = `${baseUrl}/tracker/${session.trackerToken}`;
     
     // Schedule morning email for 6 hours from now
@@ -104,9 +102,7 @@ router.post('/api/signup', async (req: Request, res: Response) => {
           });
         }
         
-        const baseUrl = process.env.REPLIT_DEV_DOMAIN 
-          ? `https://${process.env.REPLIT_DEV_DOMAIN}` 
-          : 'https://kiki-tracker.replit.app';
+        const baseUrl = process.env.SITE_URL || `https://${process.env.REPLIT_DEV_DOMAIN}` || 'https://kikithetoothfairy.co';
         const fullTrackerUrl = `${baseUrl}/tracker/${newSession.trackerToken}`;
         
         // Schedule morning email for 6 hours from now

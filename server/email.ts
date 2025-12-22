@@ -224,13 +224,10 @@ interface EmailContent {
 }
 
 const SENDER_NAME = 'Kiki the Tooth Fairy';
-const LOGO_URL = 'https://kiki-tracker.replit.app/kiki-logo.png';
 
 function getLogoUrl(): string {
-  if (process.env.REPLIT_DEV_DOMAIN) {
-    return `https://${process.env.REPLIT_DEV_DOMAIN}/kiki-logo.png`;
-  }
-  return LOGO_URL;
+  const baseUrl = process.env.SITE_URL || `https://${process.env.REPLIT_DEV_DOMAIN}` || 'https://kikithetoothfairy.co';
+  return `${baseUrl}/kiki-logo.png`;
 }
 
 export function getSenderName(): string {
