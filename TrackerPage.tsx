@@ -1264,8 +1264,8 @@ function Tracker() {
 
         {/* 4. DASHBOARD LAYOUT */}
         <div className="relative flex flex-col gap-4 md:gap-6 mb-12">
-          {/* Ambient Glow Orbs - Background */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
+          {/* Ambient Glow Orbs - Background - hidden on mobile to prevent iOS Safari black screen */}
+          <div className="hidden lg:block absolute inset-0 pointer-events-none overflow-hidden -z-10">
             <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-cyan-500/15 rounded-full blur-[120px]" />
             <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-fuchsia-500/10 rounded-full blur-[100px]" />
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-amber-500/8 rounded-full blur-[150px]" />
