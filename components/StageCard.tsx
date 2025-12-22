@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { LucideIcon, Play, Radio, X, Clock } from 'lucide-react';
+import { LucideIcon, Play, Radio, X, Clock, ArrowDown, CircleCheck } from 'lucide-react';
 
 interface StageCardProps {
    stage: {
@@ -50,7 +50,7 @@ export const StageCard: React.FC<StageCardProps> = ({
       }
    }, [isFlipped]);
 
-   const handleFlip = () => { if (!isLocked) setIsFlipped(true); };
+   const handleFlip = () => setIsFlipped(true);
    const handleFlipBack = () => setIsFlipped(false);
 
    return (
@@ -108,7 +108,7 @@ export const StageCard: React.FC<StageCardProps> = ({
                className={`w-full ${!isFlipped ? 'absolute inset-0 pointer-events-none' : ''}`}
                style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
             >
-               <div className={`rounded-[2rem] bg-gradient-to-b from-slate-900/90 to-slate-950/90 ring-4 ${theme.ring}/60 overflow-visible shadow-[0_20px_50px_rgba(0,0,0,0.4)] relative`}>
+               <div className={`rounded-[2rem] bg-gradient-to-b from-slate-900/90 to-slate-950/90 ring-4 ${theme.ring}/60 overflow-visible shadow-[0_20px_50px_rgba(0,0,0,0.4)] relative h-full flex flex-col`}>
                   <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-white/5 to-transparent pointer-events-none rounded-t-[2rem]" />
 
                   {/* Close Button - Hangs on corner */}
@@ -119,7 +119,6 @@ export const StageCard: React.FC<StageCardProps> = ({
                      <X size={20} />
                   </button>
 
-
                   {/* Title - Top center, hanging */}
                   <div className={`absolute -top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ${showContent ? 'opacity-100' : 'opacity-0'}`}>
                      <h2 className="font-chrome text-2xl md:text-3xl text-white uppercase drop-shadow-lg bg-slate-900/80 backdrop-blur-sm px-4 py-2 rounded-xl border-2 border-white/20">
@@ -127,126 +126,113 @@ export const StageCard: React.FC<StageCardProps> = ({
                      </h2>
                   </div>
 
-                  {/* Layout: Vertical HUD */}
-                  <div className="relative min-h-[520px] md:min-h-[460px] flex flex-col items-center p-6 md:p-8 z-10 gap-6">
+                  {/* Layout: Full Height Flex Container */}
+                  <div className="flex-1 flex flex-col p-6 md:p-8 z-10 gap-4 h-full">
 
-                     {/* 1. TOP SECTION: Video Hero + Overlapping Message */}
-                     <div className="relative w-full max-w-2xl group">
-                        {/* Video - Centered and Large */}
-                        <div className={`relative w-full aspect-video rounded-3xl overflow-hidden ring-4 ${theme.ring} shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-all duration-700 ease-out bg-slate-800 cursor-pointer ${showContent ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-4 scale-95'}`}>
-                           <img src={stage.videoThumbnail || stage.cardImage} alt="Video" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20" />
+                     {/* 1. HERO SECTION: Video (Dominant) */}
+                     <div className={`relative w-full aspect-video rounded-3xl overflow-hidden ring-4 ${theme.ring} shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-all duration-700 ease-out bg-slate-800 cursor-pointer group shrink-0 ${showContent ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-4 scale-95'}`}>
+                        <img src={stage.videoThumbnail || stage.cardImage} alt="Video" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
 
-                           {/* Play Button */}
-                           <div className="absolute inset-0 flex items-center justify-center">
-                              <button className="w-14 h-14 md:w-16 md:h-16 bg-white/90 hover:bg-white rounded-full flex items-center justify-center pl-1 shadow-2xl hover:scale-110 transition-transform ring-4 ring-white/30">
-                                 <Play size={24} className="text-slate-900 fill-slate-900" />
-                              </button>
-                           </div>
-
-                           {/* Live Badge */}
-                           <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-red-500 px-2 py-1 rounded-full shadow-lg">
-                              <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
-                              <span className="text-[9px] font-bold text-white uppercase">Live</span>
-                           </div>
+                        {/* Play Button */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                           <button className="w-14 h-14 md:w-16 md:h-16 bg-white/90 hover:bg-white rounded-full flex items-center justify-center pl-1 shadow-2xl hover:scale-110 transition-transform ring-4 ring-white/30">
+                              <Play size={24} className="text-slate-900 fill-slate-900" />
+                           </button>
                         </div>
 
-                        {/* Message - Overlaps bottom center of video */}
-                        <div className={`absolute -bottom-6 md:-bottom-6 bottom-[-3rem] left-1/2 -translate-x-1/2 w-full max-w-sm px-4 transition-all duration-500 delay-200 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-                           <div className="bg-white/95 backdrop-blur-sm rounded-2xl px-4 py-3 shadow-2xl transform -rotate-1 border border-white/20">
-                              <div className="flex items-start gap-3">
-                                 <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-cyan-400 flex-shrink-0">
-                                    <img src="/PFP FULL SIZE KIKI 1.png" className="w-full h-full object-cover" alt="Kiki" />
-                                 </div>
-                                 <div className="flex-1">
-                                    <p className="font-sans text-slate-700 text-sm leading-snug line-clamp-3">
-                                       "{stage.message}"
-                                    </p>
-                                 </div>
+                        {/* Live Badge */}
+                        <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-red-500 px-2 py-1 rounded-full shadow-lg">
+                           <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                           <span className="text-[9px] font-bold text-white uppercase">Live</span>
+                        </div>
+                     </div>
+
+                     {/* 2. MESSAGE CARD: Separate Row */}
+                     <div className={`w-full relative group/message transition-all duration-700 delay-100 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                        <div className={`w-full bg-slate-900/80 backdrop-blur-xl rounded-2xl ring-4 ${theme.ring}/40 shadow-sm p-4 flex items-center gap-4`}>
+                           <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-cyan-400 flex-shrink-0 shadow-[0_0_10px_rgba(34,211,238,0.5)]">
+                              <img src="/PFP FULL SIZE KIKI 1.png" className="w-full h-full object-cover" alt="Kiki" />
+                           </div>
+                           <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-0.5">
+                                 <span className="text-[10px] font-chrome text-cyan-400 uppercase tracking-widest">Kiki</span>
+                              </div>
+                              <p className="font-sans text-white text-sm leading-snug font-medium">
+                                 "{stage.message}"
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+
+                     {/* 3. LOWER SECTION: Split Data Deck */}
+                     <div className={`grid grid-cols-2 gap-4 w-full min-h-[250px] transition-all duration-700 delay-200 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+
+                        {/* LEFT: Large Selfie (Mobile: 9:16, Desktop: Square) */}
+                        <div className="relative group/selfie aspect-[9/16] md:aspect-square h-full w-full">
+                           {/* Floating Badge */}
+                           <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-30">
+                              <div className="bg-gradient-to-r from-amber-400 to-orange-500 px-3 py-1 rounded-lg shadow-[0_0_15px_rgba(251,191,36,0.4)] border border-white/40 whitespace-nowrap transform -rotate-1 group-hover:rotate-0 transition-transform">
+                                 <h4 className="font-chrome text-[10px] text-white uppercase tracking-widest">Selfie</h4>
                               </div>
                            </div>
+
+                           {/* Card Body */}
+                           <div className="w-full h-full bg-slate-900/80 backdrop-blur-xl rounded-2xl ring-4 ring-amber-400/40 shadow-[0_0_30px_rgba(251,191,36,0.15)] overflow-hidden">
+                              <img src={stage.selfieImage || stage.cardImage} alt="Selfie" className="w-full h-full object-cover" />
+                           </div>
+                        </div>
+
+                        {/* RIGHT: Stacked Data (50%) */}
+                        <div className="flex flex-col gap-3 h-full">
+
+                           {/* Status Widget */}
+                           <div className="flex-1 relative group/status min-h-0">
+                              <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-30">
+                                 <div className="bg-gradient-to-r from-fuchsia-400 to-purple-500 px-2 py-0.5 rounded-md shadow-lg border border-white/40 whitespace-nowrap">
+                                    <h4 className="font-chrome text-[9px] text-white uppercase tracking-wide">Status</h4>
+                                 </div>
+                              </div>
+                              <div className="w-full h-full bg-slate-900/80 backdrop-blur-xl rounded-2xl ring-4 ring-fuchsia-500/50 shadow-sm overflow-hidden flex items-center justify-center">
+                                 <span className="font-chrome text-white text-sm md:text-2xl uppercase tracking-widest text-center px-2 leading-tight">
+                                    {stage.subtext}
+                                 </span>
+                              </div>
+                           </div>
+
+                           {/* Map Widget */}
+                           <div className="flex-1 relative group/map min-h-0">
+                              <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-30">
+                                 <div className="bg-gradient-to-r from-cyan-400 to-blue-500 px-2 py-0.5 rounded-md shadow-lg border border-white/40 whitespace-nowrap">
+                                    <h4 className="font-chrome text-[9px] text-white uppercase tracking-wide">Location</h4>
+                                 </div>
+                              </div>
+                              <div className="w-full h-full bg-slate-900/80 backdrop-blur-xl rounded-2xl ring-4 ring-cyan-500/50 shadow-sm overflow-hidden flex items-center justify-center relative">
+                                 <div className="absolute inset-0 bg-[radial-gradient(#22d3ee_1px,transparent_1px)] [background-size:10px_10px] opacity-20" />
+                                 <span className="font-chrome text-white text-sm md:text-2xl uppercase tracking-widest text-center px-2 relative z-10 leading-tight">
+                                    {stage.location}
+                                 </span>
+                              </div>
+                           </div>
+
                         </div>
                      </div>
 
-                     {/* 2. BOTTOM SECTION: Mission Control Style Boxes */}
-                     <div className={`w-full max-w-2xl mx-auto mt-16 md:mt-8 flex flex-col md:flex-row items-center md:items-start gap-6 transition-all duration-700 delay-300 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-
-                         {/* Left Column: Map + Status stacked */}
-                         <div className="w-full md:w-auto flex flex-row md:flex-col gap-3">
-                            {/* Box 1: Live Map - Rectangular */}
-                            <div className="flex-1 relative group/map">
-                               {/* Floating Badge */}
-                               <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-30">
-                                  <div className="bg-gradient-to-r from-cyan-400 to-blue-500 px-3 py-1 rounded-lg shadow-[0_0_20px_rgba(34,211,238,0.5)] border border-white/50 whitespace-nowrap">
-                                     <h4 className="font-chrome text-[10px] text-white uppercase tracking-wide">Location</h4>
-                                  </div>
-                               </div>
-
-                               {/* Card Body - Rectangular */}
-                               <div className="w-full h-[122px] md:w-32 md:h-32 bg-slate-900/80 backdrop-blur-xl rounded-[1.5rem] ring-4 ring-cyan-500/50 shadow-[0_0_30px_rgba(34,211,238,0.2)] overflow-hidden flex items-center justify-center">
-                                  <div className="relative w-full h-full bg-slate-800/50">
-                                     <div className="absolute inset-0 bg-gradient-to-br from-cyan-900/20 to-slate-900/40" />
-                                     <div className="absolute inset-0 flex items-center justify-center">
-                                        <div className="w-4 h-4 bg-cyan-400 rounded-full animate-ping opacity-50" />
-                                        <div className="absolute w-2.5 h-2.5 bg-cyan-400 rounded-full shadow-[0_0_10px_rgba(34,211,238,0.8)]" />
-                                     </div>
-                                     <div className="absolute bottom-1 left-0 right-0 text-center">
-                                        <span className="text-[8px] font-bold text-cyan-400 uppercase tracking-tighter opacity-80">Sync Active</span>
-                                     </div>
-                                  </div>
-                               </div>
-                            </div>
-
-                            {/* Box 2: Status */}
-                            <div className="flex-1 relative group/status">
-                               {/* Floating Badge */}
-                               <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-30">
-                                  <div className="bg-gradient-to-r from-fuchsia-400 to-purple-500 px-3 py-1 rounded-lg shadow-[0_0_20px_rgba(192,38,211,0.5)] border border-white/50 whitespace-nowrap">
-                                     <h4 className="font-chrome text-[10px] text-white uppercase tracking-wide">Status</h4>
-                                  </div>
-                               </div>
-
-                               {/* Card Body */}
-                               <div className="w-full h-[122px] md:w-32 md:h-32 bg-slate-900/80 backdrop-blur-xl rounded-[1.5rem] ring-4 ring-fuchsia-500/50 shadow-[0_0_30px_rgba(192,38,211,0.2)] overflow-hidden flex items-center justify-center">
-                                  <div className="flex items-center gap-2">
-                                     <div className="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse" />
-                                     <span className="text-sm font-bold text-white uppercase">In Progress</span>
-                                  </div>
-                               </div>
-                            </div>
-                         </div>
-
-
-                         {/* Box 3: Fairy Selfie - Same total height as left column */}
-                         <div className="w-full md:flex-1 relative group/selfie">
-                            {/* Floating Badge */}
-                            <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-30">
-                               <div className="bg-gradient-to-r from-amber-400 to-orange-500 px-4 py-1.5 rounded-lg transform rotate-1 shadow-[0_0_20px_rgba(251,191,36,0.5)] border border-white/40 whitespace-nowrap">
-                                  <h4 className="font-chrome text-xs text-white uppercase tracking-widest">Fairy Selfie</h4>
-                               </div>
-                            </div>
-
-                            {/* Card Body - Fixed height matching left column total */}
-                            <div className="aspect-video md:aspect-auto md:h-[268px] bg-slate-900/80 backdrop-blur-xl rounded-[1.5rem] ring-4 ring-amber-400/40 shadow-[0_0_30px_rgba(251,191,36,0.2)] overflow-hidden">
-                               <img src={stage.selfieImage || stage.cardImage} alt="Selfie" className="w-full h-full object-cover" />
-                            </div>
-                         </div>
-
+                     {/* Scroll to Next Update Indicator - Hangs off bottom */}
+                     <div
+                        className={`absolute -bottom-6 left-1/2 -translate-x-1/2 z-50 cursor-pointer transition-all duration-500 delay-500 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}
+                        onClick={onNext}
+                     >
+                        <div className="animate-[bounce_2s_ease-in-out_infinite]">
+                           <div className={`${isLastStage ? 'bg-gradient-to-r from-amber-400 to-orange-500' : 'bg-gradient-to-r from-lime-400 to-green-500'} px-6 py-2.5 rounded-xl shadow-lg border-2 border-white/30 hover:scale-105 transition-transform flex items-center justify-center gap-2 group/btn`}>
+                              <span className="font-chrome text-white text-xs uppercase tracking-wider leading-none">
+                                 {isLastStage ? 'Mission Complete' : 'Next Update'}
+                              </span>
+                              {!isLastStage && <ArrowDown size={14} className="text-white group-hover/btn:translate-y-0.5 transition-transform" />}
+                              {isLastStage && <CircleCheck size={14} className="text-white" />}
+                           </div>
+                        </div>
                      </div>
-
-                      {/* Scroll to Next Update Indicator - Hangs off bottom */}
-                      <div 
-                         className={`absolute -bottom-5 left-1/2 -translate-x-1/2 z-50 cursor-pointer transition-all duration-500 delay-500 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}
-                         onClick={onNext}
-                      >
-                         <div className="animate-[bounce_2s_ease-in-out_infinite]">
-                            <div className={`${isLastStage ? 'bg-gradient-to-r from-amber-400 to-orange-500' : 'bg-gradient-to-r from-lime-400 to-green-500'} px-4 py-1.5 rounded-lg shadow-lg border-2 border-white/30 hover:scale-105 transition-transform flex items-center justify-center`}>
-                               <span className="font-chrome text-white text-[11px] uppercase tracking-wide leading-none">
-                                  {isLastStage ? 'Check back in the morning ☀️' : 'Next Update ↓'}
-                               </span>
-                            </div>
-                         </div>
-                      </div>
                   </div>
                </div>
             </div>

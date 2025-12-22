@@ -12,6 +12,7 @@ import {
   Ruler, Move
 } from 'lucide-react';
 import { StageCard } from './components/StageCard';
+import Footer from './components/Footer';
 // MissionModal removed - flip card handles reveals now
 import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline } from 'react-leaflet';
 import L from 'leaflet';
@@ -80,9 +81,9 @@ const IMG_SELFIE_2 = "https://images.unsplash.com/photo-1438761681033-6461ffad8d
 const IMG_TOOTH = "https://cdn-icons-png.flaticon.com/512/2865/2865586.png";
 
 const STAGES: Stage[] = [
-  { id: 1, title: "LEAVING FAIRYLAND", type: "completed", icon: Plane, message: "I'm on my way! The stardust wind is strong tonight, but my wings are ready!", subtext: "DEP: 20:00", location: "Fairyland Gate", cardImage: IMG_NIGHT_SKY, videoThumbnail: IMG_NIGHT_SKY, selfieImage: IMG_SELFIE_1, objectImage: IMG_TOOTH },
-  { id: 2, title: "ATMOSPHERE ENTRY", type: "active", icon: Wind, message: "Almost there! I can see your roof from way up here. It looks like a tiny Lego house!", subtext: "MACH 5", location: "Stratosphere", cardImage: IMG_CLOUDS, videoThumbnail: IMG_CLOUDS, selfieImage: IMG_SELFIE_2, objectImage: IMG_TOOTH },
-  { id: 3, title: "SCANNING TARGET", type: "locked", icon: Search, message: "Found a signal! My glitter-radar is beeping like crazy near your pillow.", subtext: "SECTOR 7", location: "Bedroom Sector", cardImage: IMG_BEDROOM, videoThumbnail: IMG_BEDROOM, selfieImage: IMG_SELFIE_1, objectImage: IMG_TOOTH },
+  { id: 1, title: "ADVENTURE BEGINS", type: "completed", icon: Plane, message: "I'm on my way! The stardust wind is strong tonight, but my wings are ready!", subtext: "DEP: 20:00", location: "Fairyland Gate", cardImage: IMG_NIGHT_SKY, videoThumbnail: IMG_NIGHT_SKY, selfieImage: IMG_SELFIE_1, objectImage: IMG_TOOTH },
+  { id: 2, title: "OFF WE\u00A0GO", type: "active", icon: Wind, message: "Almost there! I can see your roof from way up here. It looks like a tiny Lego house!", subtext: "MACH 5", location: "Stratosphere", cardImage: IMG_CLOUDS, videoThumbnail: IMG_CLOUDS, selfieImage: IMG_SELFIE_2, objectImage: IMG_TOOTH },
+  { id: 3, title: "PYRAMID PIT\u00A0STOP", type: "locked", icon: Search, message: "Found a signal! My glitter-radar is beeping like crazy near your pillow.", subtext: "SECTOR 7", location: "Bedroom Sector", cardImage: IMG_BEDROOM, videoThumbnail: IMG_BEDROOM, selfieImage: IMG_SELFIE_1, objectImage: IMG_TOOTH },
   { id: 4, title: "TOOTH SECURED", type: "locked", icon: Smile, message: "Got it! Wow, this is a shiny one. You must have brushed really well!", subtext: "ITEM: MOLAR", location: "Pillow Fort", cardImage: IMG_PILLOW, videoThumbnail: IMG_PILLOW, selfieImage: IMG_SELFIE_2, objectImage: IMG_TOOTH },
   { id: 5, title: "GIFT DEPLOYMENT", type: "locked", icon: Gift, message: "A golden coin for a golden tooth. Don't spend it all in one place!", subtext: "PAYMENT: SENT", location: "Under Pillow", cardImage: IMG_GIFT, videoThumbnail: IMG_GIFT, selfieImage: IMG_SELFIE_1, objectImage: IMG_TOOTH },
   { id: 6, title: "RETURN FLIGHT", type: "locked", icon: Home, message: "Heading back to the castle now. See you next time you lose a tooth!", subtext: "RTB: ASAP", location: "Starry Path", cardImage: IMG_SUNRISE, videoThumbnail: IMG_SUNRISE, selfieImage: IMG_SELFIE_2, objectImage: IMG_TOOTH }
@@ -226,7 +227,10 @@ const TeethCollectionWidget = () => {
   const [count, setCount] = useState(1003469);
 
   useEffect(() => {
-    const interval = setInterval(() => setCount(prev => prev + 1), 5000);
+    // Gradual increment: add 1-5 teeth every 3 seconds for visible activity
+    const interval = setInterval(() => {
+      setCount(prev => prev + Math.floor(Math.random() * 5) + 1);
+    }, 3000);
     return () => clearInterval(interval);
   }, []);
 
@@ -267,16 +271,16 @@ const TeethCollectionWidget = () => {
 const SignalWidget = () => (
   <div className="w-full h-full flex flex-col items-center justify-center pt-2 relative">
     {/* FULL WIDTH FULL LENGTH BARS - LIME/GREEN THEME */}
-    <div className="flex items-end justify-center w-full h-full gap-[2px] px-1 pb-4">
+    <div className="flex items-end justify-center w-full h-full gap-[2px] px-1 pb-0">
       {[...Array(16)].map((_, i) => {
-        const height = 20 + Math.random() * 80;
+        const height = 30 + Math.random() * 70;
         return (
           <div
             key={i}
-            className="flex-1 bg-lime-400/80 rounded-sm shadow-[0_0_4px_rgba(163,230,53,0.4)]"
+            className="flex-1 bg-lime-400/80 rounded-t-sm shadow-[0_0_4px_rgba(163,230,53,0.4)]"
             style={{
               height: `${height}%`,
-              opacity: i % 2 === 0 ? 0.9 : 0.5,
+              opacity: i % 2 === 0 ? 0.9 : 0.6,
               animation: `pulse ${0.3 + Math.random()}s infinite alternate`
             }}
           />
@@ -450,8 +454,8 @@ const LiveMapWidget = () => {
     const handleResize = () => {
       const isDesktop = window.innerWidth >= 768; // md breakpoint
       setMapView({
-        center: isDesktop ? [28, -40] : [42, -40],
-        zoom: isDesktop ? 1.8 : 1.0
+        center: [35, 10], // Unified center for both
+        zoom: isDesktop ? 2.0 : 1.3
       });
     };
 
@@ -493,14 +497,17 @@ const LiveMapWidget = () => {
   }, []); // Empty dependency array - logic is self-contained or uses refs if needed (but here state updates are functional)
 
   // Custom Fairy Icon
+  // Custom Fairy Icon (Friendly Tech)
   const fairyIcon = L.divIcon({
     className: 'custom-fairy-icon',
     html: `<div style="position: relative; width: 48px; height: 48px;">
-              <div style="position: absolute; inset: -6px; background: radial-gradient(circle, rgba(34,211,238,0.4) 0%, transparent 70%); animation: pulse 2s ease-in-out infinite;"></div>
-              <div style="position: absolute; inset: 0; width: 48px; height: 48px; border-radius: 50%; border: 2px solid #22d3ee; box-shadow: 0 0 15px #22d3ee, inset 0 0 10px rgba(34,211,238,0.5); overflow: hidden; background: #0f172a;">
+              <!-- Soft Glow Pulse -->
+              <div style="position: absolute; inset: -4px; background: rgba(34,211,238,0.4); border-radius: 50%; filter: blur(4px); animation: pulse 2s ease-in-out infinite;"></div>
+              
+              <!-- Main Circle -->
+              <div style="position: relative; width: 100%; height: 100%; border-radius: 50%; border: 2px solid #fff; overflow: hidden; box-shadow: 0 0 15px #22d3ee, inset 0 0 10px rgba(34,211,238,0.5); background: #0f172a; z-index: 10;">
                 <img src="/PFP FULL SIZE KIKI 1.png" style="width: 100%; height: 100%; object-fit: cover;" alt="Fairy" />
               </div>
-              <div style="position: absolute; top: -2px; right: 4px; width: 4px; height: 4px; background: #ffffff; border-radius: 50%; box-shadow: 0 0 8px #ffffff; animation: twinkle 1.5s infinite;"></div>
             </div>`,
     iconSize: [48, 48],
     iconAnchor: [24, 24],
@@ -513,6 +520,10 @@ const LiveMapWidget = () => {
         @keyframes twinkle {
           0%, 100% { opacity: 0.3; transform: scale(0.8); }
           50% { opacity: 1; transform: scale(1.2); }
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
         .fairy-path {
           stroke-dasharray: 10;
@@ -531,13 +542,21 @@ const LiveMapWidget = () => {
         zoom={mapView.zoom}
         zoomSnap={0.1}
         scrollWheelZoom={false}
+        dragging={false}
+        doubleClickZoom={false}
+        touchZoom={false}
         style={{ height: '100%', width: '100%', background: '#020617' }}
         zoomControl={false}
         attributionControl={false}
+        maxBounds={[[-90, -180], [90, 180]]}
+        maxBoundsViscosity={1.0}
       >
         <MapUpdater center={mapView.center} zoom={mapView.zoom} />
         <TileLayer
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          className="map-tiles"
+          noWrap={true}
+          style={{ filter: 'grayscale(100%) invert(100%) sepia(100%) saturate(400%) hue-rotate(130deg) brightness(1.2) contrast(1.1) drop-shadow(0 0 10px rgba(34,211,238,0.3))' }}
         />
 
         {/* NEON FAIRY TRAIL - Single line relying on CSS for glow/pulse */}
@@ -647,7 +666,7 @@ const FunPhaseDivider = ({
   icon: Icon,
   color,
   badgeText,
-  className = "my-6 md:my-10"
+  className = "my-6 mdummy-10"
 }: {
   phase: string,
   title: string,
@@ -664,14 +683,9 @@ const FunPhaseDivider = ({
 
     <div className="relative flex flex-col items-center justify-center z-10 px-4 text-center">
 
-      {/* ROW 1: PHASE BADGE & ICON - Only show if phase is not empty */}
+      {/* ROW 1: PHASE BADGE - Only show if phase is not empty */}
       {phase && (
         <div className="flex items-center gap-2 mb-1">
-          <div className={`
-                      p-1.5 rounded-lg bg-[#0b1221] border border-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.4)]
-                  `}>
-            <Icon size={16} className={`${color} drop-shadow-[0_0_8px_currentColor]`} fill="currentColor" />
-          </div>
           <div className="px-3 py-1 bg-slate-800 border border-cyan-500/50 rounded-full shadow-[0_0_10px_rgba(34,211,238,0.2)]">
             <span className="font-sans text-xs md:text-sm text-cyan-300 font-bold tracking-[0.2em] uppercase">
               {phase}
@@ -692,7 +706,7 @@ const FunPhaseDivider = ({
         <div className="relative z-20 -mt-4 md:-mt-6 transform rotate-[-2deg] hover:rotate-0 transition-transform duration-300">
           <div className="inline-block px-5 py-1.5 bg-fuchsia-600 text-white border-2 border-fuchsia-400 shadow-[0_4px_20px_rgba(232,121,249,0.5)] rounded-lg">
             <span className="font-sans font-bold text-sm md:text-base tracking-[0.2em] uppercase drop-shadow-md">
-              ⚠️ {warning} ⚠️
+              {warning}
             </span>
           </div>
         </div>
@@ -738,14 +752,14 @@ const HudGauge = ({ icon: Icon, label, value, color, delay }: any) => (
 );
 
 
-const MissionHeaderCard = () => (
+const MissionHeaderCard = ({ isComplete = false }: { isComplete?: boolean }) => (
   <div className="relative w-full flex flex-col items-center justify-center mb-10 pt-8 pb-4">
 
     {/* === PERSONALIZED HEADER === */}
     <div className="w-full flex justify-between items-center px-2 md:px-6 mb-8">
       {/* Left: Date */}
       <div className="flex items-center gap-2">
-        <span className="text-xs md:text-sm font-sans text-white/50 tracking-wide">December 19, 2025</span>
+        <span className="text-xs md:text-sm font-sans text-white/50 tracking-wide">{new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
       </div>
 
       {/* Right: Pickup */}
@@ -785,43 +799,44 @@ const MissionHeaderCard = () => (
       {/* === MISSION UPDATES - Subtle Box === */}
       <div className="relative mt-6 w-full max-w-2xl mx-auto px-4 z-20">
 
-        {/* Floating Badge - Centered Hanging Over Top */}
-        <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-30">
-          <div className="bg-gradient-to-r from-fuchsia-400 to-pink-500 px-4 h-7 rounded-lg shadow-lg border-2 border-white/50 flex items-center">
-            <span className="font-chrome text-xs text-white uppercase tracking-wide leading-none">Mission Updates</span>
+        {/* Floating Badge - Centered Hanging Over Top - Dynamic text */}
+        <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center">
+          <div className={`px-4 h-7 rounded-lg shadow-lg border-2 border-white/50 flex items-center ${isComplete ? 'bg-gradient-to-r from-lime-400 to-green-500' : 'bg-gradient-to-r from-fuchsia-400 to-pink-500'}`}>
+            <span className="font-chrome text-xs text-white uppercase tracking-wide leading-none">
+              {isComplete ? 'Journey Complete' : 'Journey Underway'}
+            </span>
+          </div>
+          {/* 3 New Updates - Overlapping the badge above */}
+          <div className="bg-amber-400 px-3 h-5 rounded-full shadow-lg border border-white/40 flex items-center -mt-1 transform rotate-2">
+            <span className="text-[9px] font-bold text-black leading-none">3 New Updates</span>
           </div>
         </div>
 
-        {/* Subtle Box Container */}
-        <div className="bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-white/10 px-6 py-3 pt-5">
+        {/* Subtle Box Container - Extra top padding for badges */}
+        <div className="bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-white/10 px-6 py-3 pt-10">
 
           {/* Timeline Row */}
-          <div className="relative h-12">
+          <div className="relative h-10">
 
             {/* Track - Rainbow gradient with glow */}
-            <div className="absolute inset-x-0 top-4 h-2.5 bg-slate-800 rounded-full overflow-hidden">
-              <div className="h-full w-1/2 bg-gradient-to-r from-cyan-500 to-cyan-400 rounded-full shadow-[0_0_15px_rgba(34,211,238,0.6)] animate-pulse" />
+            <div className="absolute inset-x-0 top-2 h-2.5 bg-slate-800 rounded-full overflow-hidden">
+              <div className={`h-full ${isComplete ? 'w-full' : 'w-1/2'} bg-gradient-to-r from-cyan-500 to-cyan-400 rounded-full shadow-[0_0_15px_rgba(34,211,238,0.6)] ${isComplete ? '' : 'animate-pulse'} transition-all duration-1000`} />
             </div>
 
-            {/* Kiki marker at 50% with glow ring */}
-            <div className="absolute left-1/2 -translate-x-1/2 top-4 -translate-y-1/2 z-10">
+            {/* Kiki marker - moves to end when complete */}
+            <div className={`absolute ${isComplete ? 'right-0 translate-x-1/2' : 'left-1/2 -translate-x-1/2'} top-2 -translate-y-1/2 z-10 transition-all duration-1000`}>
               <div className="w-9 h-9 rounded-full border-3 border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.7),0_0_30px_rgba(34,211,238,0.3)] overflow-hidden bg-slate-900 ring-2 ring-white/30">
                 <img src="/PFP FULL SIZE KIKI 1.png" className="w-full h-full object-cover object-top" alt="Kiki" />
               </div>
             </div>
 
-            {/* Labels - Below the track */}
-            <div className="absolute inset-x-0 top-11 flex justify-between items-center">
+            {/* Labels - Directly below the track, left and right aligned */}
+            <div className="absolute inset-x-0 top-8 flex justify-between items-center">
               <span className="text-[10px] font-sans font-bold text-slate-400 uppercase tracking-wider">Lift Off</span>
-              <div className="bg-amber-400 px-3 h-5 rounded-full shadow-lg border border-white/40 flex items-center">
-                <span className="text-[9px] font-bold text-black leading-none">3 New Updates</span>
-              </div>
-              <span className="text-[10px] font-sans font-bold text-slate-500 uppercase tracking-wider">Picked Up</span>
+              <span className={`text-[10px] font-sans font-bold uppercase tracking-wider ${isComplete ? 'text-lime-400' : 'text-slate-500'}`}>Picked Up</span>
             </div>
 
-
           </div>
-
 
         </div>
 
@@ -834,7 +849,7 @@ const MissionHeaderCard = () => (
 );
 
 // === REDESIGNED START MISSION CARD (FINAL FIXED LAYOUT) ===
-const StartMissionCard = ({ onClick }: { onClick?: () => void }) => (
+const StartMissionCard = ({ onClick, isMorning = false }: { onClick?: () => void; isMorning?: boolean }) => (
   <div onClick={onClick} className="relative w-full max-w-7xl mx-auto group cursor-pointer mb-48 mt-8 md:mb-32 md:mt-12">
 
     {/* Glow behind main card */}
@@ -857,7 +872,7 @@ const StartMissionCard = ({ onClick }: { onClick?: () => void }) => (
         <div className="w-full flex justify-center md:w-auto md:inline-flex mb-3">
           <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-slate-900 border border-slate-700 shadow-lg group-hover:border-slate-500 transition-colors">
             <span className="font-sans text-[10px] md:text-xs text-cyan-400 font-bold tracking-widest uppercase">
-              SAVANNAH'S MISSION
+              For Savannah Only
             </span>
           </div>
         </div>
@@ -865,14 +880,14 @@ const StartMissionCard = ({ onClick }: { onClick?: () => void }) => (
         {/* 2. Title - Compact on Mobile */}
         <h2 className="font-chrome-oblique text-5xl sm:text-6xl md:text-7xl text-white uppercase tracking-normal leading-[0.9] drop-shadow-2xl text-center md:text-left w-full md:w-auto mb-1">
           <span className="text-transparent bg-clip-text bg-gradient-to-br from-white via-cyan-100 to-cyan-500 pt-1 pb-3 md:pb-8 md:pr-4 inline-block leading-[0.85] md:leading-[0.9]">
-            MISSION<br />STARTED
+            {isMorning ? <>FAIRY VISIT<br />COMPLETE</> : <>MAGIC<br />UNDERWAY</>}
           </span>
         </h2>
 
         {/* 3. Button - Landing Page Style */}
         <div className="w-full flex justify-center md:inline-block relative z-30 mb-8 md:mb-0">
-          <button className="relative group/btn overflow-hidden bg-[#a3e635] hover:bg-[#bef264] text-black px-10 py-5 rounded-xl font-sans font-extrabold text-lg uppercase tracking-tight shadow-[0_0_20px_rgba(163,230,53,0.3)] transition-all transform hover:-translate-y-1 active:translate-y-1 border-b-[4px] border-[#4d7c0f] active:border-b-0 flex items-center justify-center gap-2">
-            <span className="relative z-10">See My Updates</span>
+          <button className="relative group/btn overflow-hidden bg-[#a3e635] hover:bg-[#bef264] text-black px-10 py-5 rounded-xl font-sans font-extrabold text-lg uppercase tracking-tight shadow-[0_0_20px_rgba(163,230,53,0.3)] transition-all transform hover:-translate-y-1 active:translate-y-1 border-b-[4px] border-[#4d7c0f] active:border-b-0 flex items-center justify-center gap-2 whitespace-nowrap">
+            <span className="relative z-10">{isMorning ? 'See What the Fairy Did' : 'See my Fairy Updates'}</span>
             <ChevronsRight size={22} className="relative z-10 group-hover/btn:translate-x-1 transition-transform" />
           </button>
         </div>
@@ -927,21 +942,22 @@ const StartMissionCard = ({ onClick }: { onClick?: () => void }) => (
             </div>
 
             {/* Stats Bar - Vertical */}
-            <div className="absolute top-4 bottom-4 right-4 md:top-6 md:bottom-6 md:right-6 w-20 md:w-28 bg-black/60 backdrop-blur-md rounded-2xl p-2 border border-white/10 flex flex-col justify-evenly items-center shadow-xl">
+            {/* Stats Bar - Vertical */}
+            <div className="absolute top-4 bottom-4 right-4 md:top-6 md:bottom-6 md:right-6 w-24 md:w-32 bg-black/60 backdrop-blur-md rounded-2xl p-2 border border-white/10 flex flex-col justify-evenly items-center shadow-xl">
               <div className="text-center">
                 <div className="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Height</div>
-                <div className="font-sans font-bold text-base md:text-xl text-white">4.2"</div>
+                <div className="font-sans font-bold text-base md:text-xl text-white">8"</div>
               </div>
               <div className="w-3/4 h-px bg-white/10" />
               <div className="text-center">
-                <div className="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Wing</div>
-                <div className="font-sans font-bold text-base md:text-xl text-white">6.8"</div>
+                <div className="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Wing Span</div>
+                <div className="font-sans font-bold text-base md:text-xl text-white">9"</div>
               </div>
               <div className="w-3/4 h-px bg-white/10" />
               <div className="text-center">
-                <div className="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Speed</div>
-                <div className="font-sans font-bold text-base md:text-xl text-white">831</div>
-                <div className="text-[8px] text-slate-500 font-bold">MPH</div>
+                <div className="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Top Speed</div>
+                <div className="font-sans font-bold text-base md:text-xl text-white leading-none">2000</div>
+                <div className="text-[8px] text-slate-500 font-bold text-center mt-0.5">MPH</div>
               </div>
             </div>
           </div>
@@ -951,6 +967,84 @@ const StartMissionCard = ({ onClick }: { onClick?: () => void }) => (
   </div>
 
 );
+
+
+// === RECENTLY COLLECTED WIDGET ===
+const RECENT_COLLECTIONS = [
+  { name: "Sophia", location: "London, UK", time: "2m ago" },
+  { name: "Liam", location: "New York, USA", time: "5m ago" },
+  { name: "Yuki", location: "Tokyo, JP", time: "12m ago" },
+  { name: "Mateo", location: "Madrid, ES", time: "18m ago" },
+  { name: "Chloe", location: "Paris, FR", time: "24m ago" },
+  { name: "Noah", location: "Toronto, CA", time: "31m ago" },
+  { name: "Zara", location: "Dubai, UAE", time: "45m ago" },
+];
+
+const RecentlyCollectedWidget = () => {
+  // Card color palette matching NewLandingPage reviews
+  const cardColors = [
+    { bg: 'bg-gradient-to-br from-cyan-500 to-blue-600', glow: 'shadow-[0_0_40px_rgba(34,211,238,0.3)]' },
+    { bg: 'bg-gradient-to-br from-fuchsia-500 to-pink-600', glow: 'shadow-[0_0_40px_rgba(232,121,249,0.3)]' },
+    { bg: 'bg-gradient-to-br from-amber-400 to-orange-500', glow: 'shadow-[0_0_40px_rgba(251,191,36,0.3)]' },
+    { bg: 'bg-gradient-to-br from-lime-400 to-green-500', glow: 'shadow-[0_0_40px_rgba(163,230,53,0.3)]' },
+    { bg: 'bg-gradient-to-br from-violet-500 to-purple-600', glow: 'shadow-[0_0_40px_rgba(139,92,246,0.3)]' },
+    { bg: 'bg-gradient-to-br from-rose-400 to-red-500', glow: 'shadow-[0_0_40px_rgba(251,113,133,0.3)]' },
+    { bg: 'bg-gradient-to-br from-teal-400 to-cyan-500', glow: 'shadow-[0_0_40px_rgba(45,212,191,0.3)]' },
+  ];
+
+  return (
+    <div className="w-full mt-16 mb-12 overflow-hidden relative">
+      <FunPhaseDivider
+        phase=""
+        title="Global Collection"
+        warning="Real-time Data"
+        icon={Activity}
+        color="text-cyan-400"
+      />
+
+      {/* Marquee Container with Fade Edges */}
+      <div className="relative w-full overflow-visible py-4" style={{ maskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)' }}>
+        <div className="flex w-max animate-marquee hover:[animation-play-state:paused]" style={{ animationDuration: '40s' }}>
+          {/* Triple list for seamless loop on wide screens */}
+          {[...RECENT_COLLECTIONS, ...RECENT_COLLECTIONS, ...RECENT_COLLECTIONS].map((item, i) => {
+            const colorIndex = i % cardColors.length;
+            const colors = cardColors[colorIndex];
+            return (
+              <div key={i} className="mx-3 md:mx-4">
+                {/* Square card with clean border */}
+                <div className={`${colors.bg} ${colors.glow} rounded-2xl border-4 border-white/50 transition-all duration-300 hover:scale-105`}>
+                  <div className="relative w-32 h-32 md:w-40 md:h-40 flex flex-col items-center justify-center p-4 overflow-hidden">
+                    {/* Shine overlay */}
+                    <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/25 to-transparent pointer-events-none rounded-t-xl" />
+
+                    {/* Tooth icon */}
+                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/20 border-3 border-white/50 flex items-center justify-center shadow-lg mb-2">
+                      <span className="text-2xl md:text-3xl filter drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]">🦷</span>
+                    </div>
+
+                    {/* Text */}
+                    <div className="text-center relative z-10">
+                      <div className="text-white font-chrome text-sm md:text-base tracking-wide drop-shadow-md">{item.name}</div>
+                      <div className="text-white/80 font-sans text-[10px] md:text-xs uppercase tracking-wider truncate flex items-center justify-center gap-1">
+                        <MapPin size={8} className="text-white/70" />
+                        {item.location}
+                      </div>
+                    </div>
+
+                    {/* Time Badge */}
+                    <div className="absolute top-2 right-2">
+                      <span className="text-[8px] md:text-[10px] text-white font-bold bg-black/20 px-1.5 py-0.5 rounded-full backdrop-blur-sm">{item.time}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 
 // === MAIN APP ===
@@ -1013,16 +1107,16 @@ function Tracker() {
       <div className="relative z-10 container mx-auto px-4 py-4 md:py-8 max-w-5xl">
 
         {/* 1. HEADER SECTION */}
-        <MissionHeaderCard />
+        <MissionHeaderCard isComplete={!isNextBatchAvailable} />
 
         {/* 2. ISOLATED START CARD */}
-        <StartMissionCard onClick={unlockNextBatch} />
+        <StartMissionCard onClick={unlockNextBatch} isMorning={!isNextBatchAvailable} />
 
         {/* 3. TITLE ROW */}
         <div className="relative mb-8 md:mb-12">
           <FunPhaseDivider
             phase=""
-            title="MISSION CONTROL"
+            title="FLIGHT CENTER"
             icon={Activity}
             color="text-cyan-400"
             className="mb-0"
@@ -1049,7 +1143,7 @@ function Tracker() {
 
           {/* PRIMARY DISPLAY: LIVE MAP (Full Width) */}
           <div id="tracker-map" className="w-full h-64 md:h-96">
-            <NeonPanel label="Global Positioning" borderColor="border-cyan-500" bgColor="bg-slate-950" height="h-full">
+            <NeonPanel label="Fairy Location" borderColor="border-cyan-500" bgColor="bg-slate-950" height="h-full">
               <LiveMapWidget />
             </NeonPanel>
           </div>
@@ -1172,6 +1266,12 @@ function Tracker() {
           </div>
 
         </div>
+
+        {/* 6. RECENTLY COLLECTED FOOTER */}
+        <RecentlyCollectedWidget />
+
+        {/* 7. STANDARD FOOTER */}
+        <Footer />
 
       </div>
     </div>

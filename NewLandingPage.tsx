@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Star, ChevronsRight, ArrowRight } from 'lucide-react';
+import { Star, ChevronsRight, ArrowRight, Menu, X } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -25,6 +25,27 @@ const NewLandingPage = () => {
     const [headerVisible, setHeaderVisible] = useState(true);
     const [lastScrollY, setLastScrollY] = useState(0);
     const trackerIframeRef = useRef<HTMLIFrameElement>(null);
+    const [touchStart, setTouchStart] = useState<number | null>(null);
+    const [touchEnd, setTouchEnd] = useState<number | null>(null);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [fairyPosition, setFairyPosition] = useState(0);
+
+    // Fairy positions for animation (North America path)
+    const fairyPath = [
+        [47.6, -122.3], // Seattle
+        [40.7, -111.9], // Salt Lake
+        [39.7, -104.9], // Denver
+        [41.9, -87.6],  // Chicago
+        [40.7, -74.0],  // New York
+    ];
+
+    // Animate fairy every 5 seconds
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setFairyPosition(prev => (prev + 1) % fairyPath.length);
+        }, 5000);
+        return () => clearInterval(interval);
+    }, []);
 
     // Function to scroll iframe to a specific section
     const scrollToSection = (sectionId: string) => {
@@ -127,7 +148,7 @@ const NewLandingPage = () => {
         }
     ];
 
-    const handleEnter = () => navigate('/tracker');
+    const handleEnter = () => document.getElementById('start-mission')?.scrollIntoView({ behavior: 'smooth' });
 
     return (
         <div className="min-h-screen bg-[#0a1020] text-white font-sans selection:bg-cyan-500/30 overflow-x-hidden">
@@ -152,41 +173,43 @@ const NewLandingPage = () => {
                 }} />
             </div>
 
-            {/* ========== FLOATING HEADER ========== */}
             <header className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${headerVisible ? 'translate-y-0' : '-translate-y-full'}`}>
                 <div className="mx-4 mt-4">
-                    <div className="max-w-5xl mx-auto bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-3 shadow-2xl">
+                    <div className="max-w-5xl mx-auto bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-2xl px-4 md:px-6 py-3 shadow-2xl">
                         <div className="flex items-center justify-between">
 
-                            {/* Left: Nav Links */}
-                            <nav className="hidden lg:flex items-center gap-6">
-                                <a href="#meet-kiki" className="text-sm text-slate-300 hover:text-white transition-colors">
-                                    Meet Kiki
-                                </a>
-                                <a href="#how-it-works" className="text-sm text-slate-300 hover:text-white transition-colors">
-                                    How it Works
-                                </a>
-                                <a href="#faq" className="text-sm text-slate-300 hover:text-white transition-colors">
-                                    FAQ
-                                </a>
-                            </nav>
+                            {/* Left: Hamburger (mobile) or Nav Links (desktop) */}
+                            <div className="flex items-center gap-4">
+                                <button
+                                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                                    className="lg:hidden p-2 text-slate-300 hover:text-white transition-colors"
+                                >
+                                    {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                                </button>
+                                <nav className="hidden lg:flex items-center gap-6">
+                                    <a href="#meet-kiki" className="text-sm text-slate-300 hover:text-white transition-colors">
+                                        Meet Kiki
+                                    </a>
+                                    <a href="#how-it-works" className="text-sm text-slate-300 hover:text-white transition-colors">
+                                        How it Works
+                                    </a>
+                                    <a href="#faq" className="text-sm text-slate-300 hover:text-white transition-colors">
+                                        FAQ
+                                    </a>
+                                </nav>
+                            </div>
 
                             {/* Center: Logo */}
                             <div className="absolute left-1/2 -translate-x-1/2">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center">
-                                        <span className="text-xl">🧚‍♀️</span>
-                                    </div>
-                                    <span className="font-chrome text-white text-lg uppercase tracking-tight hidden md:block">
-                                        Tooth Fairy Tracker
-                                    </span>
+                                <div className="w-16 h-16 rounded-xl overflow-hidden">
+                                    <img src="/kiki-logo.png" alt="Kiki" className="w-full h-full object-cover" />
                                 </div>
                             </div>
 
                             {/* Right: CTA */}
                             <button
                                 onClick={handleEnter}
-                                className="bg-gradient-to-r from-cyan-400 to-blue-500 text-white px-5 py-2.5 rounded-xl font-bold text-sm uppercase tracking-tight shadow-lg hover:shadow-cyan-500/30 transition-all hover:-translate-y-0.5"
+                                className="relative overflow-hidden bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-700 text-white px-4 md:px-5 py-2.5 rounded-xl font-sans font-extrabold text-xs md:text-sm uppercase tracking-tight shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_25px_rgba(59,130,246,0.6)] transition-all transform hover:-translate-y-0.5 active:translate-y-0.5 border-b-[3px] border-indigo-900 active:border-b-0"
                             >
                                 Start Tracking
                             </button>
@@ -194,6 +217,25 @@ const NewLandingPage = () => {
                         </div>
                     </div>
                 </div>
+
+                {/* Mobile Menu Dropdown */}
+                {mobileMenuOpen && (
+                    <div className="lg:hidden mx-4 mt-2">
+                        <div className="bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl">
+                            <nav className="flex flex-col gap-4">
+                                <a href="#meet-kiki" onClick={() => setMobileMenuOpen(false)} className="text-slate-300 hover:text-white transition-colors py-2">
+                                    Meet Kiki
+                                </a>
+                                <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="text-slate-300 hover:text-white transition-colors py-2">
+                                    How it Works
+                                </a>
+                                <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="text-slate-300 hover:text-white transition-colors py-2">
+                                    FAQ
+                                </a>
+                            </nav>
+                        </div>
+                    </div>
+                )}
             </header>
 
             <div className="relative z-10 pt-24">
@@ -202,49 +244,61 @@ const NewLandingPage = () => {
                 <section className="relative py-12 md:py-16 px-4 overflow-hidden">
                     <div className="container mx-auto max-w-7xl">
 
-                        <div className="grid lg:grid-cols-[1fr_1.2fr] gap-12 lg:gap-20 items-center">
+                        <div className="grid lg:grid-cols-[1fr_1.2fr] gap-4 lg:gap-0 items-center">
 
                             {/* LEFT SIDE: Text Content */}
                             <div className="relative z-10 text-center lg:text-left">
                                 <div className="space-y-6">
                                     {/* Status Badge */}
-                                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-cyan-950/50 border border-cyan-500/30 rounded-full">
-                                        <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse" />
-                                        <span className="text-xs font-sans font-bold text-cyan-300 tracking-widest uppercase">System Active</span>
+                                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-fuchsia-500 to-pink-500 rounded-xl transform -rotate-1 shadow-xl border-2 border-white/50">
+                                        <span className="text-[11px] font-sans font-bold text-white tracking-wide">The World's #1 Tooth Fairy Experience</span>
                                     </div>
 
                                     {/* Main Headline */}
                                     <div className="space-y-3">
-                                        <h1 className="font-chrome text-5xl md:text-5xl lg:text-6xl text-white leading-[0.9] tracking-normal">
-                                            Gift Them a<br />
-                                            <span className="text-transparent bg-clip-text bg-gradient-to-br from-white via-cyan-300 to-cyan-500">Night To Remember</span>
+                                        <h1 className="font-chrome text-5xl md:text-5xl lg:text-6xl text-white leading-[0.95] tracking-normal">
+                                            Track the Tooth Fairy,<br />
+                                            <span className="text-white">Bring the Magic to Life</span>
                                         </h1>
-                                        <p className="text-slate-400 text-lg md:text-xl max-w-md leading-relaxed font-sans">
-                                            The most magical Tooth Fairy experience for families. Real-time tracking and cinematic proof delivered to their pillow.
+                                        <p className="text-slate-400 text-lg md:text-xl leading-relaxed font-sans">
+                                            A magical experience where the Tooth Fairy sends videos and updates as she flies to pick up their tooth.
                                         </p>
                                     </div>
 
                                     {/* CTA Buttons */}
-                                    <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start pt-2">
+                                    <div className="flex flex-row items-center gap-3 justify-center lg:justify-start pt-2">
                                         <button
                                             onClick={handleEnter}
-                                            className="relative group/btn overflow-hidden bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600 text-white px-8 py-4 rounded-xl font-sans font-extrabold text-base uppercase tracking-tight shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all transform hover:-translate-y-1 active:translate-y-1 border-b-[4px] border-[#1e40af] active:border-b-0 flex items-center justify-center gap-2"
+                                            className="relative group/btn overflow-hidden bg-gradient-to-r from-teal-400 via-cyan-500 to-blue-600 text-white px-7 py-4 md:px-8 md:py-5 rounded-xl font-sans font-extrabold text-sm md:text-base uppercase tracking-tight shadow-[0_0_25px_rgba(34,211,238,0.5)] transition-all transform hover:-translate-y-1 active:translate-y-1 border-b-[4px] border-cyan-800 active:border-b-0 flex items-center justify-center gap-2"
                                         >
-                                            <span className="relative z-10">Start the Journey</span>
-                                            <ChevronsRight size={20} className="relative z-10 group-hover/btn:translate-x-1 transition-transform" />
+                                            <span className="relative z-10 whitespace-nowrap">Start the Journey</span>
+                                            <ChevronsRight size={18} className="relative z-10 group-hover/btn:translate-x-1 transition-transform" />
                                         </button>
 
                                         <button
                                             onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
-                                            className="px-8 py-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all font-sans font-bold text-base uppercase tracking-tight flex items-center justify-center gap-2"
+                                            className="px-7 py-4 md:px-8 md:py-5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all font-sans font-bold text-sm md:text-base uppercase tracking-tight flex items-center justify-center gap-2"
                                         >
-                                            How It Works
-                                            <ArrowRight size={18} />
+                                            <span className="whitespace-nowrap">How It Works</span>
+                                            <ArrowRight size={16} className="md:w-[18px] md:h-[18px]" />
                                         </button>
                                     </div>
 
+                                    {/* No Credit Card - simple styling with dots */}
+                                    <div className="flex items-center justify-center lg:justify-start gap-4 text-slate-400 text-sm">
+                                        <span className="flex items-center gap-2">
+                                            <span className="w-2 h-2 rounded-full bg-lime-500"></span>
+                                            No credit card required
+                                        </span>
+                                        <span>•</span>
+                                        <span className="flex items-center gap-2">
+                                            <span className="text-slate-500">⏻</span>
+                                            No Download
+                                        </span>
+                                    </div>
+
                                     {/* Social Proof */}
-                                    <div className="flex items-center justify-center lg:justify-start pt-4">
+                                    <div className="flex items-center justify-center lg:justify-start pt-1">
                                         <div className="relative bg-gradient-to-r from-slate-800/80 to-slate-900/80 backdrop-blur-sm px-5 py-3 rounded-2xl border border-white/10 shadow-lg hover:shadow-[0_0_30px_rgba(34,211,238,0.2)] transition-all group">
                                             <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500/20 to-fuchsia-500/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity" />
                                             <div className="relative flex items-center gap-4">
@@ -276,7 +330,26 @@ const NewLandingPage = () => {
                             </div>
 
                             {/* RIGHT SIDE: Stage Cards Stack */}
-                            <div className="relative h-[550px] md:h-[600px] flex items-center justify-center" style={{ perspective: '1500px' }}>
+                            <div
+                                className="relative h-[280px] md:h-[600px] flex items-center justify-center touch-pan-y mt-8 md:mt-0"
+                                style={{ perspective: '1500px' }}
+                                onTouchStart={(e) => setTouchStart(e.targetTouches[0].clientX)}
+                                onTouchMove={(e) => setTouchEnd(e.targetTouches[0].clientX)}
+                                onTouchEnd={() => {
+                                    if (!touchStart || !touchEnd) return;
+                                    const distance = touchStart - touchEnd;
+                                    const isSwipe = Math.abs(distance) > 50;
+                                    if (isSwipe) {
+                                        if (distance > 0) {
+                                            setActiveStage(prev => prev === 6 ? 1 : prev + 1);
+                                        } else {
+                                            setActiveStage(prev => prev === 1 ? 6 : prev - 1);
+                                        }
+                                    }
+                                    setTouchStart(null);
+                                    setTouchEnd(null);
+                                }}
+                            >
                                 {/* Decorative Anchor Shape (Option 4) */}
                                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] max-w-[800px] pointer-events-none z-0">
                                     <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-purple-500/5 rounded-full blur-[100px] transform -rotate-12 scale-110" />
@@ -312,12 +385,12 @@ const NewLandingPage = () => {
                                     return (
                                         <div
                                             key={stage.stage}
-                                            className="absolute w-full max-w-[600px] transition-all duration-700 ease-out cursor-pointer group/card"
+                                            className={`absolute w-[90%] md:w-full max-w-[600px] transition-all duration-700 ease-out cursor-pointer group/card`}
                                             style={{ transform, zIndex, opacity }}
                                             onClick={() => setActiveStage(stage.stage)}
                                         >
                                             {/* Card Container */}
-                                            <div className={`relative w-full aspect-[4/3] rounded-3xl overflow-hidden transition-all duration-500 shadow-[0_25px_50px_rgba(0,0,0,0.5)] ring-4`} style={{
+                                            <div className={`relative w-full aspect-[16/10] md:aspect-[4/3] rounded-2xl md:rounded-3xl overflow-hidden transition-all duration-500 shadow-[0_25px_50px_rgba(0,0,0,0.5)] ring-2 md:ring-4`} style={{
                                                 '--tw-ring-color': stage.color.includes('cyan') ? '#22d3ee' : stage.color.includes('fuchsia') ? '#e879f9' : stage.color.includes('amber') ? '#fbbf24' : stage.color.includes('lime') ? '#a3e635' : stage.color.includes('red') ? '#f87171' : '#818cf8'
                                             } as React.CSSProperties}>
 
@@ -365,37 +438,36 @@ const NewLandingPage = () => {
                                                     </div>
                                                 </div>
 
-                                                {/* Chat Bubble - Inside card, bottom right */}
-                                                <div className="absolute bottom-4 right-4 z-20 max-w-[260px]">
-                                                    <div className="bg-white rounded-2xl p-3 shadow-xl">
-                                                        <div className="flex items-start gap-2">
-                                                            <div className="w-7 h-7 rounded-full overflow-hidden ring-2 ring-cyan-400 flex-shrink-0">
-                                                                <img src="/PFP FULL SIZE KIKI 1.png" className="w-full h-full object-cover" alt="Kiki" />
-                                                            </div>
-                                                            <p className="font-sans text-slate-700 text-xs leading-relaxed flex-1">
-                                                                "{stage.message}"
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-
                                                 {/* Active Ring */}
                                                 {isActive && (
                                                     <div className="absolute inset-0 rounded-3xl ring-4 ring-white/60 pointer-events-none" />
                                                 )}
                                             </div>
+
+                                            {/* Chat Bubble - Outside card container so it can hang */}
+                                            <div className="relative -mt-4 mx-auto max-w-[70%] z-30">
+                                                <div className="bg-white rounded-2xl p-2 md:p-3 shadow-xl border-2 border-white/50">
+                                                    <div className="flex items-start gap-2">
+                                                        <div className="w-6 h-6 md:w-7 md:h-7 rounded-full overflow-hidden ring-2 ring-cyan-400 flex-shrink-0">
+                                                            <img src="/PFP FULL SIZE KIKI 1.png" className="w-full h-full object-cover" alt="Kiki" />
+                                                        </div>
+                                                        <p className="font-sans text-slate-700 text-[10px] md:text-xs leading-relaxed flex-1 line-clamp-2">
+                                                            "{stage.message}"
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     );
                                 })}
 
-                                {/* Stage Dots - minimal */}
-                                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-40 flex gap-2">
+                                {/* Stage Dots - Inside the relative container */}
+                                <div className="absolute -bottom-6 md:bottom-6 left-1/2 -translate-x-1/2 z-40 flex gap-2">
                                     {storyStages.map((stage, idx) => (
                                         <button
                                             key={idx}
                                             onClick={() => setActiveStage(idx + 1)}
-                                            className={`w-2 h-2 rounded-full transition-all duration-300 hover:scale-150 ${activeStage === idx + 1 ? `bg-white scale-125` : 'bg-white/40'}`}
+                                            className={`w-2 h-2 rounded-full transition-all duration-300 ${activeStage === idx + 1 ? `bg-white scale-110 shadow-[0_0_10px_rgba(255,255,255,0.8)]` : 'bg-white/40 hover:bg-white/60'}`}
                                         />
                                     ))}
                                 </div>
@@ -414,7 +486,7 @@ const NewLandingPage = () => {
                     <div className="container mx-auto max-w-5xl">
 
                         {/* Section Header with Badge */}
-                        <div className="text-center mb-6">
+                        <div className="text-center mb-8">
                             <div className="relative inline-block mb-4">
                                 <h2 className="font-chrome text-5xl md:text-6xl text-white uppercase tracking-normal">
                                     How It Works
@@ -427,13 +499,92 @@ const NewLandingPage = () => {
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Description Text - Now under title */}
+                            <p className="text-slate-300 text-lg mt-6">
+                                Tell us your child's name and email, and we'll create their personalized tracker right away.
+                            </p>
                         </div>
 
-                        {/* PART 1: Form - Inline Text */}
-                        <div className="text-center mb-6">
-                            <p className="text-slate-300 text-lg">
-                                Fill out the form with your <span className="text-white font-semibold">child's name</span> + <span className="text-white font-semibold">your email</span>. We generate your tracker page.
-                            </p>
+                        {/* STEP SEQUENCE - Cleaner Design */}
+                        <div className="mb-10">
+                            {/* Desktop: Clean horizontal steps */}
+                            <div className="hidden md:grid grid-cols-4 gap-6 max-w-3xl mx-auto">
+                                {/* Step 1 */}
+                                <div className="flex flex-col items-center text-center">
+                                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center shadow-lg border-2 border-white/30">
+                                        <span className="font-chrome text-2xl text-white">1</span>
+                                    </div>
+                                    <h4 className="font-bold text-white mt-3 text-sm">Enter Child's Name</h4>
+                                    <p className="text-slate-400 text-xs mt-1">Quick 10-second signup</p>
+                                </div>
+
+                                {/* Step 2 */}
+                                <div className="flex flex-col items-center text-center">
+                                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-fuchsia-400 to-pink-500 flex items-center justify-center shadow-lg border-2 border-white/30">
+                                        <span className="font-chrome text-2xl text-white">2</span>
+                                    </div>
+                                    <h4 className="font-bold text-white mt-3 text-sm">Get Your Tracker Link</h4>
+                                    <p className="text-slate-400 text-xs mt-1">Delivered instantly by email</p>
+                                </div>
+
+                                {/* Step 3 */}
+                                <div className="flex flex-col items-center text-center">
+                                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center shadow-lg border-2 border-white/30">
+                                        <span className="font-chrome text-2xl text-white">3</span>
+                                    </div>
+                                    <h4 className="font-bold text-white mt-3 text-sm">Track the Fairy's Journey</h4>
+                                    <p className="text-slate-400 text-xs mt-1">Live map + nighttime updates</p>
+                                </div>
+
+                                {/* Step 4 */}
+                                <div className="flex flex-col items-center text-center">
+                                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg border-2 border-white/30">
+                                        <span className="font-chrome text-2xl text-white">4</span>
+                                    </div>
+                                    <h4 className="font-bold text-white mt-3 text-sm">Wake Up to Magic</h4>
+                                    <p className="text-slate-400 text-xs mt-1">Morning updates reveal what happened</p>
+                                </div>
+                            </div>
+
+                            <div className="md:hidden grid grid-cols-2 gap-3">
+                                <div className="flex items-center gap-3 bg-slate-900/50 rounded-xl p-3 border border-white/10">
+                                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center shrink-0 border border-white/30">
+                                        <span className="font-chrome text-lg text-white">1</span>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-white text-xs">Enter Name</h4>
+                                        <p className="text-slate-400 text-[10px]">10-sec signup</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3 bg-slate-900/50 rounded-xl p-3 border border-white/10">
+                                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-fuchsia-400 to-pink-500 flex items-center justify-center shrink-0 border border-white/30">
+                                        <span className="font-chrome text-lg text-white">2</span>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-white text-xs">Get Tracker Link</h4>
+                                        <p className="text-slate-400 text-[10px]">Instant email</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3 bg-slate-900/50 rounded-xl p-3 border border-white/10">
+                                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center shrink-0 border border-white/30">
+                                        <span className="font-chrome text-lg text-white">3</span>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-white text-xs">Track Journey</h4>
+                                        <p className="text-slate-400 text-[10px]">Live map + updates</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3 bg-slate-900/50 rounded-xl p-3 border border-white/10">
+                                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shrink-0 border border-white/30">
+                                        <span className="font-chrome text-lg text-white">4</span>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-white text-xs">Wake Up to Magic</h4>
+                                        <p className="text-slate-400 text-[10px]">Morning reveals all</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         {/* PART 2: Two Side-by-Side Cards with Hero-Style Titles */}
@@ -449,11 +600,11 @@ const NewLandingPage = () => {
                                 </div>
                                 {/* Card Body with Ring Accent */}
                                 <div className="rounded-[2rem] bg-gradient-to-b from-slate-900/90 to-slate-950/90 ring-4 ring-cyan-500/40 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
-                                    {/* Leaflet Map Preview */}
-                                    <div style={{ height: '192px', width: '100%' }}>
+                                    {/* Full height map with overlay */}
+                                    <div className="relative" style={{ height: '320px' }}>
                                         <MapContainer
-                                            center={[40, 10]}
-                                            zoom={1.3}
+                                            center={[39, -98]}
+                                            zoom={3}
                                             zoomSnap={0.1}
                                             scrollWheelZoom={false}
                                             dragging={false}
@@ -461,41 +612,48 @@ const NewLandingPage = () => {
                                             attributionControl={false}
                                             style={{ height: '100%', width: '100%', background: '#020617' }}
                                         >
-                                            <MapUpdater center={[40, 10]} zoom={1.3} />
+                                            <MapUpdater center={[39, -98]} zoom={3} />
                                             <TileLayer
                                                 url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
                                             />
-                                            {/* Static fairy marker for preview */}
+                                            {/* Animated fairy marker */}
                                             <Marker
-                                                position={[48.8566, 2.3522]}
+                                                position={fairyPath[fairyPosition] as [number, number]}
                                                 icon={L.divIcon({
                                                     className: 'custom-fairy-preview',
-                                                    html: `<div style="width: 28px; height: 28px; border-radius: 50%; border: 2px solid #22d3ee; box-shadow: 0 0 12px #22d3ee; background: url('/PFP FULL SIZE KIKI 1.png') center/cover; overflow: hidden;"></div>`,
+                                                    html: `<div style="width: 28px; height: 28px; border-radius: 50%; border: 2px solid #22d3ee; box-shadow: 0 0 12px #22d3ee; background: url('/PFP FULL SIZE KIKI 1.png') center/cover; overflow: hidden; transition: all 0.5s ease;"></div>`,
                                                     iconSize: [28, 28],
                                                     iconAnchor: [14, 14]
                                                 })}
                                             />
                                         </MapContainer>
-                                    </div>
-                                    {/* Content */}
-                                    <div className="p-6">
-                                        <p className="text-slate-400 text-sm mb-4">
-                                            A customized experience where they can:
-                                        </p>
-                                        <ul className="space-y-2 text-slate-300 text-sm">
-                                            <li className="flex items-start gap-2">
-                                                <span className="text-cyan-400">✓</span>
-                                                <span>See the fairy move on a <span className="text-white">live map</span></span>
-                                            </li>
-                                            <li className="flex items-start gap-2">
-                                                <span className="text-cyan-400">✓</span>
-                                                <span>Watch her <span className="text-white">speed stats</span></span>
-                                            </li>
-                                            <li className="flex items-start gap-2">
-                                                <span className="text-cyan-400">✓</span>
-                                                <span>View her <span className="text-white">Fairy ID</span> & <span className="text-white">mission progress</span></span>
-                                            </li>
-                                        </ul>
+
+                                        {/* Gradient overlay + Text content */}
+                                        <div className="absolute inset-x-0 bottom-0 z-[500] bg-gradient-to-t from-slate-900 via-slate-900/95 to-transparent pt-20 pb-6 px-6">
+                                            <div className="flex items-center gap-2 mb-3">
+                                                <span className="text-2xl">🗺️</span>
+                                                <p className="text-white text-base font-semibold">
+                                                    A personalized tracking experience
+                                                </p>
+                                            </div>
+                                            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+                                                <ul className="space-y-2 text-slate-300 text-sm">
+                                                    <li className="flex items-start gap-2">
+                                                        <span className="text-cyan-400">✓</span>
+                                                        <span>See the fairy move on a <span className="text-white font-medium">live map</span></span>
+                                                    </li>
+                                                    <li className="flex items-start gap-2">
+                                                        <span className="text-cyan-400">✓</span>
+                                                        <span>Watch her <span className="text-white font-medium">speed stats</span> update</span>
+                                                    </li>
+                                                    <li className="flex items-start gap-2">
+                                                        <span className="text-cyan-400">✓</span>
+                                                        <span>View her <span className="text-white font-medium">Fairy ID</span> & <span className="text-white font-medium">mission progress</span></span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -510,30 +668,30 @@ const NewLandingPage = () => {
                                 </div>
                                 {/* Card Body with Ring Accent */}
                                 <div className="rounded-[2rem] bg-gradient-to-b from-slate-900/90 to-slate-950/90 ring-4 ring-fuchsia-500/40 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
-                                    {/* Kiki Visual - Stage 1 Image (URL encoded) */}
-                                    <div className="relative overflow-hidden" style={{ height: '200px' }}>
+                                    {/* Full height image with overlay */}
+                                    <div className="relative" style={{ height: '320px' }}>
                                         <img
                                             src="/Fairy%20photo%20booth%20pic.webp"
                                             alt="Kiki the Tooth Fairy"
                                             className="w-full h-full object-cover object-top"
                                         />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent" />
-                                    </div>
-                                    {/* Content */}
-                                    <div className="p-6">
-                                        <p className="text-slate-300 text-sm mb-4">
-                                            <span className="text-white font-semibold">6 updates</span> — each with a <span className="text-white">video</span>, <span className="text-white">message</span>, and <span className="text-white">selfie</span>.
-                                        </p>
-                                        <div className="flex gap-3">
-                                            <div className="flex-1 p-3 bg-slate-800/50 border border-cyan-500/20 rounded-xl text-center">
-                                                <span className="text-xl block mb-1">🌙</span>
-                                                <span className="text-cyan-300 font-semibold text-xs">3 before bed</span>
+
+                                        {/* Gradient overlay + Text content */}
+                                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-900 via-slate-900/95 to-transparent pt-20 pb-6 px-6">
+                                            <div className="flex items-center gap-2 mb-3">
+                                                <span className="text-2xl">✨</span>
+                                                <p className="text-white text-base font-semibold">
+                                                    6 updates — each with a video, message & selfie
+                                                </p>
                                             </div>
-                                            <div className="flex-1 p-3 bg-slate-800/50 border border-amber-500/20 rounded-xl text-center">
-                                                <span className="text-xl block mb-1">☀️</span>
-                                                <span className="text-amber-300 font-semibold text-xs">3 in morning</span>
+                                            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+                                                <p className="text-slate-300 text-sm leading-relaxed">
+                                                    <span className="text-cyan-400 font-medium">First 3</span> unlock before bedtime.
+                                                    <span className="text-amber-400 font-medium"> Final 3</span> unlock in the morning—so kids can see what the fairy did overnight.
+                                                </p>
                                             </div>
                                         </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -542,7 +700,7 @@ const NewLandingPage = () => {
                         {/* Bottom Note */}
                         <div className="text-center mt-8">
                             <p className="text-slate-500 text-xs">
-                                ✨ Parents control when each update is shown
+                                ✨ You control what your child sees—and can unlock morning stages anytime.
                             </p>
                         </div>
 
@@ -561,7 +719,7 @@ const NewLandingPage = () => {
                 </section>
 
                 {/* ========== SECTION 2.5: START MISSION (The Stack of Promises) ========== */}
-                <section className="relative py-24 px-4 overflow-hidden">
+                <section id="start-mission" className="relative py-24 px-4 overflow-hidden">
                     {/* Background Accents */}
                     <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-fuchsia-500/10 rounded-full blur-[120px] pointer-events-none" />
                     <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-cyan-500/10 rounded-full blur-[100px] pointer-events-none" />
@@ -682,7 +840,7 @@ const NewLandingPage = () => {
                                     {
                                         icon: "🛡️",
                                         title: "Parent-Led Experience",
-                                        desc: "You control what your child sees and when they see it.",
+                                        desc: "You control what your child sees—and can unlock morning stages anytime.",
                                         color: "from-lime-400 to-green-500",
                                         glow: "group-hover:shadow-lime-500/30"
                                     }
@@ -724,9 +882,9 @@ const NewLandingPage = () => {
                                 Inside the Tracker
                             </h2>
                             <div className="relative -mt-2 mb-6 inline-block">
-                                <div className="bg-gradient-to-r from-cyan-500 to-blue-500 px-4 py-1.5 rounded-lg transform rotate-1 border-2 border-white/30 shadow-lg">
+                                <div className="bg-gradient-to-r from-fuchsia-500 to-purple-600 px-4 py-1.5 rounded-lg transform rotate-1 border-2 border-white/30 shadow-lg">
                                     <p className="font-sans font-bold text-xs text-white uppercase tracking-wide">
-                                        See what your child experiences
+                                        A preview of the experience
                                     </p>
                                 </div>
                             </div>
@@ -782,83 +940,93 @@ const NewLandingPage = () => {
                             </div>
                         </div>
 
-                        {/* Horizontal Scroll Feature Cards */}
-                        <div className="relative">
-                            {/* Fade edges */}
-                            <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-[#02040a] to-transparent z-10 pointer-events-none" />
-                            <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#02040a] to-transparent z-10 pointer-events-none" />
-
-                            <div className="flex gap-6 overflow-x-auto pb-4 px-4 snap-x snap-mandatory scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                                {[
-                                    {
-                                        title: "Live Tracking Map",
-                                        desc: "Watch Kiki fly across the globe in real-time with smooth animations.",
-                                        gradient: "from-cyan-400 to-blue-600",
-                                        icon: "🗺️",
-                                        scrollTo: "tracker-map"
-                                    },
-                                    {
-                                        title: "Personal Video Updates",
-                                        desc: "She sends personalized video messages during her journey.",
-                                        gradient: "from-fuchsia-400 to-purple-600",
-                                        icon: "🎬",
-                                        scrollTo: "tracker-videos"
-                                    },
-                                    {
-                                        title: "Fairy ID Card",
-                                        desc: "A custom profile card featuring your child's name and mission.",
-                                        gradient: "from-amber-400 to-orange-600",
-                                        icon: "🪪",
-                                        scrollTo: "tracker-videos"
-                                    },
-                                    {
-                                        title: "Speed & Stats",
-                                        desc: "Track her flight speed, distance traveled, and current location.",
-                                        gradient: "from-lime-400 to-green-600",
-                                        icon: "⚡",
-                                        scrollTo: "tracker-speed"
-                                    },
-                                    {
-                                        title: "Morning Surprise",
-                                        desc: "Wake up to proof she visited – selfies, messages, and more.",
-                                        gradient: "from-pink-400 to-rose-600",
-                                        icon: "🌅",
-                                        scrollTo: "tracker-videos"
-                                    }
-                                ].map((feature, idx) => (
-                                    <div
-                                        key={idx}
-                                        className="flex-shrink-0 w-72 snap-center group cursor-pointer"
-                                        onClick={() => scrollToSection(feature.scrollTo)}
-                                    >
-                                        {/* Card */}
-                                        <div className="bg-slate-900/50 border border-white/10 rounded-[2rem] overflow-hidden hover:border-white/20 transition-all duration-300 hover:shadow-xl hover:scale-[1.02]">
-                                            {/* Mockup Area */}
-                                            <div className={`h-48 bg-gradient-to-br ${feature.gradient} flex items-center justify-center relative overflow-hidden`}>
-                                                {/* Placeholder visual */}
-                                                <div className="absolute inset-0 bg-black/20" />
-                                                <div className="relative z-10 text-6xl group-hover:scale-110 transition-transform duration-300">
-                                                    {feature.icon}
-                                                </div>
-                                                {/* Shine */}
-                                                <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/20 to-transparent" />
-                                            </div>
-                                            {/* Text */}
-                                            <div className="p-6">
-                                                <h3 className="font-bold text-white text-lg mb-2">{feature.title}</h3>
-                                                <p className="text-slate-400 text-sm leading-relaxed">{feature.desc}</p>
-                                            </div>
+                        {/* Bento Grid Feature Cards - Colorful like reviews */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {/* Large Featured Card - Live Tracking Map */}
+                            <div
+                                className="col-span-2 row-span-2 group cursor-pointer"
+                                onClick={() => scrollToSection('tracker-map')}
+                            >
+                                <div className="h-full bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl shadow-xl ring-2 ring-white/30 overflow-hidden hover:scale-[1.02] transition-all duration-300 relative">
+                                    <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
+                                    <div className="relative z-10 p-5 md:p-8 h-full flex flex-col justify-between min-h-[180px] md:min-h-[280px]">
+                                        <div>
+                                            <span className="text-4xl md:text-6xl mb-3 block">🗺️</span>
+                                            <h3 className="font-bold text-white text-lg md:text-2xl mb-1 md:mb-2">Live Tracking Map</h3>
+                                            <p className="text-white/80 text-sm md:text-base leading-relaxed">Watch Kiki fly across the globe in real-time.</p>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-white text-sm font-semibold mt-3">
+                                            <span>Explore</span>
+                                            <span className="group-hover:translate-x-1 transition-transform">→</span>
                                         </div>
                                     </div>
-                                ))}
+                                </div>
+                            </div>
+
+                            {/* Small Card - Video Updates */}
+                            <div
+                                className="group cursor-pointer"
+                                onClick={() => scrollToSection('tracker-videos')}
+                            >
+                                <div className="h-full bg-gradient-to-br from-fuchsia-500 to-purple-600 rounded-2xl shadow-xl ring-2 ring-white/30 overflow-hidden hover:scale-[1.02] transition-all duration-300 p-4 md:p-5 min-h-[100px] md:min-h-[140px] flex flex-col justify-between relative">
+                                    <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
+                                    <span className="text-lg md:text-3xl relative z-10">🎬</span>
+                                    <div className="relative z-10">
+                                        <h3 className="font-bold text-white text-sm md:text-base">Video Updates</h3>
+                                        <p className="text-white/70 text-[10px] md:text-xs mt-0.5">Vlog-Style Updates from the Fairy</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Small Card - Custom Page */}
+                            <div
+                                className="group cursor-pointer"
+                                onClick={() => document.getElementById('start-mission')?.scrollIntoView({ behavior: 'smooth' })}
+                            >
+                                <div className="h-full bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl shadow-xl ring-2 ring-white/30 overflow-hidden hover:scale-[1.02] transition-all duration-300 p-4 md:p-5 min-h-[100px] md:min-h-[140px] flex flex-col justify-between relative">
+                                    <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
+                                    <span className="text-lg md:text-3xl relative z-10">✨</span>
+                                    <div className="relative z-10">
+                                        <h3 className="font-bold text-white text-sm md:text-base">Made for Your Child</h3>
+                                        <p className="text-white/70 text-[10px] md:text-xs mt-0.5">A Page Personalized Just for Them</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Small Card - Speed & Stats */}
+                            <div
+                                className="group cursor-pointer"
+                                onClick={() => scrollToSection('tracker-speed')}
+                            >
+                                <div className="h-full bg-gradient-to-br from-lime-500 to-green-600 rounded-2xl shadow-xl ring-2 ring-white/30 overflow-hidden hover:scale-[1.02] transition-all duration-300 p-4 md:p-5 min-h-[100px] md:min-h-[140px] flex flex-col justify-between relative">
+                                    <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
+                                    <span className="text-lg md:text-3xl relative z-10">⚡</span>
+                                    <div className="relative z-10">
+                                        <h3 className="font-bold text-white text-sm md:text-base">Speed & Stats</h3>
+                                        <p className="text-white/70 text-[10px] md:text-xs mt-0.5">Live Mission Stats</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Small Card - Morning Surprise */}
+                            <div
+                                className="group cursor-pointer"
+                                onClick={() => scrollToSection('tracker-videos')}
+                            >
+                                <div className="h-full bg-gradient-to-br from-pink-500 to-rose-600 rounded-2xl shadow-xl ring-2 ring-white/30 overflow-hidden hover:scale-[1.02] transition-all duration-300 p-4 md:p-5 min-h-[100px] md:min-h-[140px] flex flex-col justify-between relative">
+                                    <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
+                                    <span className="text-lg md:text-3xl relative z-10">🌅</span>
+                                    <div className="relative z-10">
+                                        <h3 className="font-bold text-white text-sm md:text-base">Morning Reveal</h3>
+                                        <p className="text-white/70 text-[10px] md:text-xs mt-0.5">See What the Fairy Did Overnight</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        {/* Scroll hint */}
+                        {/* Hint text */}
                         <div className="flex justify-center mt-6">
-                            <p className="text-slate-500 text-sm flex items-center gap-2">
-                                <span>←</span> Click a card to explore <span>→</span>
-                            </p>
+                            <p className="text-slate-500 text-sm">Click any card to explore that feature</p>
                         </div>
                     </div>
                 </section>
@@ -885,7 +1053,7 @@ const NewLandingPage = () => {
                                     </div>
 
                                     {/* Title - Single line */}
-                                    <h2 className="font-chrome text-3xl md:text-4xl lg:text-5xl text-white uppercase tracking-normal">
+                                    <h2 className="font-chrome text-3xl md:text-4xl lg:text-5xl text-white tracking-wide">
                                         Meet Kiki the Tooth Fairy
                                     </h2>
 
@@ -893,9 +1061,6 @@ const NewLandingPage = () => {
                                     <div className="space-y-4 text-slate-300 text-lg leading-relaxed">
                                         <p>
                                             Kiki is the fairy your child will see in every video. She is cheerful, curious, and usually running (or flying) just a tiny bit late. She gets ready in her castle, gathers her things, and heads out on her nightly rounds.
-                                        </p>
-                                        <p>
-                                            She has a soft, friendly way of talking that feels perfect for bedtime. Kids warm up to her instantly, and parents appreciate how gentle and reassuring she is.
                                         </p>
                                         <p className="text-white font-medium">
                                             Kiki's whole goal is simple: She wants to turn every wiggly tooth into a big adventure your child will remember forever.
@@ -905,7 +1070,7 @@ const NewLandingPage = () => {
                             </div>
 
                             {/* The Image (overlaps the card) */}
-                            <div className="lg:absolute lg:left-0 lg:top-1/2 lg:-translate-y-1/2 lg:w-[550px] -mt-8 lg:mt-0 mx-auto max-w-[350px] lg:max-w-none transform lg:-rotate-3">
+                            <div className="lg:absolute lg:left-0 lg:top-1/2 lg:-translate-y-1/2 lg:w-[550px] mt-4 lg:mt-0 mx-auto max-w-[350px] lg:max-w-none transform lg:-rotate-3">
                                 {/* Glow behind image */}
                                 <div className="absolute -inset-4 bg-gradient-to-br from-cyan-400/40 via-teal-400/30 to-cyan-400/40 rounded-[2rem] blur-2xl" />
 
@@ -952,7 +1117,7 @@ const NewLandingPage = () => {
                         </div>
 
                         {/* Review Cards Carousel - 5 Card Stack */}
-                        <div className="relative h-[450px] flex items-center justify-center">
+                        <div className="relative h-[350px] md:h-[450px] flex items-center justify-center">
                             {reviews.map((review, index) => {
                                 const isActive = index === activeReview;
                                 const isPrev = index === (activeReview - 1 + reviews.length) % reviews.length;
@@ -989,13 +1154,13 @@ const NewLandingPage = () => {
                                 return (
                                     <div
                                         key={index}
-                                        className="absolute w-full max-w-xl transition-all duration-500 ease-out cursor-pointer hover:opacity-80"
+                                        className="absolute w-full max-w-sm md:max-w-xl transition-all duration-500 ease-out cursor-pointer hover:opacity-80"
                                         style={{ transform, opacity, zIndex }}
                                         onClick={() => setActiveReview(index)}
                                     >
                                         {/* Card with ring wrapper */}
                                         <div className={`${review.bg} ${review.glow} rounded-[2rem] shadow-2xl ring-4 ring-white/50`}>
-                                            <div className="relative p-10 rounded-[2rem] overflow-hidden">
+                                            <div className="relative p-6 md:p-10 rounded-[2rem] overflow-hidden">
                                                 {/* Shine */}
                                                 <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/25 to-transparent pointer-events-none rounded-t-[2rem]" />
 
@@ -1008,25 +1173,25 @@ const NewLandingPage = () => {
 
                                                 <div className="relative z-10 flex flex-col items-center gap-5">
                                                     {/* Avatar */}
-                                                    <div className="w-20 h-20 rounded-full bg-white/20 border-4 border-white/50 flex items-center justify-center shadow-lg">
-                                                        <span className="font-chrome text-3xl text-white">{review.name.charAt(0)}</span>
+                                                    <div className="w-14 h-14 md:w-20 md:h-20 rounded-full bg-white/20 border-4 border-white/50 flex items-center justify-center shadow-lg">
+                                                        <span className="font-chrome text-xl md:text-3xl text-white">{review.name.charAt(0)}</span>
                                                     </div>
 
                                                     {/* Name & Role */}
                                                     <div>
-                                                        <h4 className="font-bold text-white text-xl">{review.name}</h4>
-                                                        <p className="text-white/70 text-base">{review.role}</p>
+                                                        <h4 className="font-bold text-white text-base md:text-xl">{review.name}</h4>
+                                                        <p className="text-white/70 text-sm md:text-base">{review.role}</p>
                                                     </div>
 
                                                     {/* Review */}
-                                                    <p className="text-white text-xl md:text-2xl font-medium italic leading-relaxed">
+                                                    <p className="text-white text-base md:text-2xl font-medium italic leading-relaxed">
                                                         "{review.review}"
                                                     </p>
 
                                                     {/* Stars */}
-                                                    <div className="flex gap-2">
+                                                    <div className="flex gap-1 md:gap-2">
                                                         {[1, 2, 3, 4, 5].map(i => (
-                                                            <Star key={i} size={24} className="fill-white text-white drop-shadow-lg" />
+                                                            <Star key={i} size={18} className="md:w-6 md:h-6 fill-white text-white drop-shadow-lg" />
                                                         ))}
                                                     </div>
                                                 </div>
@@ -1073,7 +1238,7 @@ const NewLandingPage = () => {
                                     <span className="text-white">Tooth Fairy Tracker</span>
                                 </h2>
                                 {/* Badge under title - styled like How It Works */}
-                                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 transform rotate-2">
+                                <div className="absolute -bottom-6 md:-bottom-2 left-1/2 -translate-x-1/2 transform rotate-2">
                                     <div className="bg-gradient-to-r from-fuchsia-500 to-pink-500 px-3 py-1 rounded-lg border border-white/30 shadow-xl backdrop-blur-sm">
                                         <p className="font-sans font-black text-[9px] text-white uppercase tracking-widest whitespace-nowrap">
                                             ✨ Trusted by Families
@@ -1154,7 +1319,7 @@ const NewLandingPage = () => {
                                 <span>•</span>
                                 <span className="flex items-center gap-1.5">
                                     <span>⏱</span>
-                                    Takes 3 seconds
+                                    No Download
                                 </span>
                             </div>
                         </div>
@@ -1176,26 +1341,24 @@ const NewLandingPage = () => {
                             </h2>
                         </div>
 
-                        {/* Logo Grid - Pops more */}
-                        <div className="flex flex-wrap justify-center items-center gap-6 md:gap-10">
-                            {/* Placeholder Logos - Replace with actual press logos */}
+                        {/* Logo Grid */}
+                        <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16">
                             {[
-                                { name: "TechCrunch", width: "w-36" },
-                                { name: "Forbes", width: "w-28" },
-                                { name: "Parents", width: "w-32" },
-                                { name: "Mashable", width: "w-32" },
-                                { name: "The Verge", width: "w-32" }
-                            ].map((press, idx) => (
+                                { src: "/press-logo-gohtech.png", alt: "Gohtech" },
+                                { src: "/press-logo-ap.png", alt: "Associated Press" },
+                                { src: "/press-logo-forbes.png", alt: "Forbes" },
+                                { src: "/press-logo-techcrunch.png", alt: "TechCrunch" }
+                            ].map((logo, idx) => (
                                 <div
                                     key={idx}
-                                    className={`${press.width} h-12 bg-slate-800/60 border border-white/10 rounded-xl flex items-center justify-center hover:bg-slate-800 hover:border-white/20 transition-all cursor-pointer`}
+                                    className="w-24 h-12 flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity"
                                 >
-                                    <span className="text-white/70 text-sm font-bold tracking-wide">
-                                        {press.name}
-                                    </span>
+                                    <img src={logo.src} alt={logo.alt} className="max-h-full max-w-full object-contain" />
                                 </div>
                             ))}
                         </div>
+
+
                     </div>
                 </section>
 
@@ -1278,24 +1441,28 @@ const NewLandingPage = () => {
                                 <div className="space-y-4">
                                     {[
                                         {
-                                            q: "Is this really free?",
-                                            a: "Yes! The Tooth Fairy Tracker is completely free. No hidden costs, no subscriptions, no ads."
+                                            q: "How does the tracker work?",
+                                            a: "Bedtime updates unlock as soon as you sign up. Morning updates unlock later to feel like a real overnight journey—but parents can unlock them anytime."
                                         },
                                         {
-                                            q: "How long does it take to set up?",
-                                            a: "Just 3 seconds! Enter your child's name and you're ready to go."
+                                            q: "How will I know when Morning Updates are ready?",
+                                            a: "We'll send you an email when they're available. You can also unlock morning updates anytime directly on the tracker page."
                                         },
                                         {
-                                            q: "When should I start the tracker?",
-                                            a: "Start it about 30 minutes before bedtime for the full experience. Kiki sends her first updates right away!"
+                                            q: "Does my child need a phone or tablet?",
+                                            a: "No. Parents control everything. Kids simply watch the videos with you."
                                         },
                                         {
-                                            q: "Can grandparents watch too?",
-                                            a: "Absolutely! Share the tracking link with family so everyone can follow Kiki's journey together."
+                                            q: "Do you need my address or payment details?",
+                                            a: "No. The tracker is completely free, and we don't collect your address or payment information."
                                         },
                                         {
-                                            q: "Is my child's name stored anywhere?",
-                                            a: "No. We don't store any personal information. Everything stays on your device."
+                                            q: "What if my child loses a tooth at an inconvenient time?",
+                                            a: "No problem. The tracker stays active, and you can start the experience whenever it works for your family."
+                                        },
+                                        {
+                                            q: "Does this replace the coin under the pillow?",
+                                            a: "No. The tracker adds to the magic—the classic reward stays the same. Kiki never mentions what gift she left, so parents keep full control."
                                         }
                                     ].map((faq, idx) => (
                                         <details
@@ -1317,6 +1484,86 @@ const NewLandingPage = () => {
                         </div>
                     </div>
                 </section>
+
+                {/* ========== FOOTER ========== */}
+                <footer className="relative py-16 px-4 border-t border-white/10">
+                    {/* Background Glow */}
+                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-cyan-500/10 rounded-full blur-[150px] pointer-events-none" />
+
+                    <div className="container mx-auto max-w-6xl relative z-10">
+                        <div className="grid md:grid-cols-[1.5fr_1fr_1fr_1fr] gap-10 md:gap-8">
+
+                            {/* Logo & About Column */}
+                            <div className="space-y-5">
+                                {/* Logo */}
+                                <div className="flex items-center">
+                                    <img src="/kiki-logo.png" alt="Kiki" className="w-14 h-14 rounded-xl shadow-lg" />
+                                </div>
+
+                                {/* Tagline */}
+                                <p className="text-slate-400 text-sm leading-relaxed max-w-xs">
+                                    Making childhood magic real, one tooth at a time. The world's most magical Tooth Fairy experience.
+                                </p>
+
+                                {/* Social Links */}
+                                <div className="flex gap-3 pt-2">
+                                    <a
+                                        href="https://www.instagram.com/kikithetoothfairy/"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="w-10 h-10 rounded-xl bg-gradient-to-br from-fuchsia-500 to-purple-600 flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
+                                    >
+                                        <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+
+                            {/* Navigation Column */}
+                            <div>
+                                <h4 className="font-bold text-white text-sm uppercase tracking-wider mb-4">Explore</h4>
+                                <ul className="space-y-3">
+                                    <li><a href="#meet-kiki" className="text-slate-400 hover:text-white transition-colors text-sm">Meet Kiki</a></li>
+                                    <li><a href="#how-it-works" className="text-slate-400 hover:text-white transition-colors text-sm">How It Works</a></li>
+                                    <li><a href="#reviews" className="text-slate-400 hover:text-white transition-colors text-sm">Reviews</a></li>
+                                    <li><a href="/blog" className="text-slate-400 hover:text-white transition-colors text-sm">Blog</a></li>
+                                    <li><a href="/media-kit" className="text-slate-400 hover:text-white transition-colors text-sm">Media Kit</a></li>
+                                </ul>
+                            </div>
+
+                            {/* Support Column */}
+                            <div>
+                                <h4 className="font-bold text-white text-sm uppercase tracking-wider mb-4">Support</h4>
+                                <ul className="space-y-3">
+                                    <li><a href="/#faq" className="text-slate-400 hover:text-white transition-colors text-sm">FAQ</a></li>
+                                    <li><a href="/contact" className="text-slate-400 hover:text-white transition-colors text-sm">Contact Us</a></li>
+                                </ul>
+                            </div>
+
+                            {/* Legal Column */}
+                            <div>
+                                <h4 className="font-bold text-white text-sm uppercase tracking-wider mb-4">Legal</h4>
+                                <ul className="space-y-3">
+                                    <li><a href="/terms" className="text-slate-400 hover:text-white transition-colors text-sm">Terms of Service</a></li>
+                                    <li><a href="/privacy" className="text-slate-400 hover:text-white transition-colors text-sm">Privacy Policy</a></li>
+                                    <li><a href="/shipping" className="text-slate-400 hover:text-white transition-colors text-sm">Shipping Policy</a></li>
+                                    <li><a href="/refund" className="text-slate-400 hover:text-white transition-colors text-sm">Refund Policy</a></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        {/* Bottom Bar */}
+                        <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
+                            <p className="text-slate-500 text-sm">
+                                © {new Date().getFullYear()} Tooth Fairy Tracker. All rights reserved.
+                            </p>
+                            <p className="text-slate-500 text-xs flex items-center gap-2">
+                                Made with <span className="text-pink-500">♥</span> for magical families everywhere
+                            </p>
+                        </div>
+                    </div>
+                </footer>
 
             </div >
         </div >
