@@ -1180,18 +1180,35 @@ function Tracker() {
     }, 100);
   };
 
+  // Helper to capitalize first letter of name
+  const formatName = (name: string) => {
+    if (!name) return 'Your Child';
+    // If name is all caps, return as-is
+    if (name === name.toUpperCase()) return name;
+    // Otherwise capitalize first letter
+    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+  };
+
+  // Replace [Name] placeholder in message text
+  const replaceNamePlaceholder = (text: string | null | undefined) => {
+    if (!text) return text;
+    const formattedName = formatName(userName || 'Your Child');
+    return text.replace(/\[Name\]/gi, formattedName);
+  };
+
   // Merge CMS content with default stages
   const mergedStages = STAGES.map(stage => {
     const cmsContent = cmsStageContent.find(c => c.id === stage.id)?.content;
     if (!cmsContent) return stage;
     
+    const rawMessage = cmsContent.messageText || stage.message;
     
     return {
       ...stage,
       cardImage: cmsContent.frontImageUrl || stage.cardImage,
       location: cmsContent.locationText || stage.location,
       subtext: cmsContent.statusText || stage.subtext,
-      message: cmsContent.messageText || stage.message,
+      message: replaceNamePlaceholder(rawMessage),
       videoThumbnail: cmsContent.imageUrl || stage.videoThumbnail,
     };
   });
