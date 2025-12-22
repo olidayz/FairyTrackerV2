@@ -558,7 +558,6 @@ const NewLandingPage = () => {
 
                                                 {/* Gradient Overlay */}
                                                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/40" />
-                                                <div className={`absolute inset-0 bg-gradient-to-br ${stage.color} opacity-20 mix-blend-overlay`} />
 
                                                 {/* Title Banner with Location - Top */}
                                                 <div className="absolute top-4 left-4 right-4 z-20">
