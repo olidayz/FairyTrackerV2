@@ -79,8 +79,11 @@ export async function sendTrackingEmail(toEmail: string, childName: string, trac
       footerText: replaceVariables(template.footerText, variables),
     });
 
+    const senderEmail = fromEmail || 'onboarding@resend.dev';
+    const sender = `${SENDER_NAME} <${senderEmail}>`;
+    
     const { data, error } = await client.emails.send({
-      from: fromEmail || 'Kiki <onboarding@resend.dev>',
+      from: sender,
       to: [toEmail],
       subject: template.subject,
       html: bodyHtml,
@@ -123,8 +126,11 @@ export async function sendMorningUnlockEmail(toEmail: string, childName: string,
       footerText: replaceVariables(template.footerText, variables),
     });
 
+    const senderEmail = fromEmail || 'onboarding@resend.dev';
+    const sender = `${SENDER_NAME} <${senderEmail}>`;
+    
     const { data, error } = await client.emails.send({
-      from: fromEmail || 'Kiki <onboarding@resend.dev>',
+      from: sender,
       to: [toEmail],
       subject: template.subject,
       html: bodyHtml,
@@ -185,8 +191,11 @@ export async function sendAdminNotificationEmail(parentEmail: string, childName:
 </html>
 `;
 
+    const senderEmail = fromEmail || 'onboarding@resend.dev';
+    const sender = `${SENDER_NAME} <${senderEmail}>`;
+    
     const { data, error } = await client.emails.send({
-      from: fromEmail || 'Kiki <onboarding@resend.dev>',
+      from: sender,
       to: [adminEmail],
       subject: `New Signup: ${childName}`,
       html: bodyHtml,
@@ -214,6 +223,20 @@ interface EmailContent {
   footerText: string;
 }
 
+const SENDER_NAME = 'Kiki the Tooth Fairy';
+const LOGO_URL = 'https://kiki-tracker.replit.app/kiki-logo.png';
+
+function getLogoUrl(): string {
+  if (process.env.REPLIT_DEV_DOMAIN) {
+    return `https://${process.env.REPLIT_DEV_DOMAIN}/kiki-logo.png`;
+  }
+  return LOGO_URL;
+}
+
+export function getSenderName(): string {
+  return SENDER_NAME;
+}
+
 function generateEmailHtml(content: EmailContent): string {
   const isTracking = content.type === 'tracking';
   const accentColor = isTracking ? '#0ea5e9' : '#d946ef';
@@ -223,6 +246,7 @@ function generateEmailHtml(content: EmailContent): string {
   const badgeTextColor = isTracking ? '#4ade80' : '#f0abfc';
   const headerSubtext = isTracking ? 'Tooth Fairy Tracker' : 'Mission Update';
   const headerSubtextColor = isTracking ? '#22d3ee' : '#f0abfc';
+  const logoUrl = getLogoUrl();
 
   const footerLines = content.footerText?.split('|').map(l => l.trim()).filter(Boolean) || [];
 
@@ -238,7 +262,7 @@ function generateEmailHtml(content: EmailContent): string {
     
     <!-- Header -->
     <div style="background-color: #020617; padding: 32px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
-      <img src="https://kiki-tracker.replit.app/kiki-logo.png" alt="Kiki" style="width: 64px; height: 64px; border-radius: 12px; margin-bottom: 16px;">
+      <img src="${logoUrl}" alt="Kiki" style="width: 64px; height: 64px; border-radius: 12px; margin-bottom: 16px;">
       <p style="color: ${headerSubtextColor}; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.2em; margin: 0;">${headerSubtext}</p>
     </div>
 
