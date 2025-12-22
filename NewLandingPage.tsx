@@ -560,18 +560,18 @@ const NewLandingPage = () => {
                                                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/40" />
 
                                                 {/* Title Banner with Location - Top */}
-                                                <div className="absolute top-4 left-4 right-4 z-20">
-                                                    <div className="inline-flex items-start gap-3">
+                                                <div className="absolute top-2 left-2 right-2 md:top-4 md:left-4 md:right-4 z-20">
+                                                    <div className="inline-flex items-start gap-2 md:gap-3">
                                                         {/* Stage Badge */}
-                                                        <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${stage.color} flex items-center justify-center shadow-xl border-2 border-white transform -rotate-3 transition-transform group-hover/card:rotate-3 shrink-0`}>
-                                                            <span className="text-white text-xl font-black">{stage.stage}</span>
+                                                        <div className={`w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-gradient-to-br ${stage.color} flex items-center justify-center shadow-xl border-2 border-white transform -rotate-3 transition-transform group-hover/card:rotate-3 shrink-0`}>
+                                                            <span className="text-white text-sm md:text-xl font-black">{stage.stage}</span>
                                                         </div>
                                                         {/* Title + Location */}
-                                                        <div className={`bg-gradient-to-r ${stage.color} px-5 py-3 rounded-xl transform rotate-1 shadow-xl border-2 border-white/50 transition-transform group-hover/card:-rotate-1`}>
-                                                            <h3 className="font-chrome text-xl md:text-2xl text-white uppercase tracking-wide">
+                                                        <div className={`bg-gradient-to-r ${stage.color} px-3 py-2 md:px-5 md:py-3 rounded-lg md:rounded-xl transform rotate-1 shadow-xl border-2 border-white/50 transition-transform group-hover/card:-rotate-1`}>
+                                                            <h3 className="font-chrome text-sm md:text-2xl text-white uppercase tracking-wide">
                                                                 {stage.title}
                                                             </h3>
-                                                            <div className="flex items-center gap-1 text-white/70 text-[10px]">
+                                                            <div className="hidden md:flex items-center gap-1 text-white/70 text-[10px]">
                                                                 <span>📍</span>
                                                                 <span>{stage.location}</span>
                                                             </div>
