@@ -47,6 +47,8 @@ function App() {
         <Route path="/blog" element={<Navigate to="/blogs/kikis-blog" replace />} />
         <Route path="/privacy" element={<Navigate to="/policies/privacy-policy" replace />} />
         <Route path="/terms" element={<Navigate to="/policies/terms-of-service" replace />} />
+        <Route path="/shipping" element={<Navigate to="/policies/shipping-policy" replace />} />
+        <Route path="/refund" element={<Navigate to="/policies/refund-policy" replace />} />
         <Route path="/faq" element={<Navigate to="/pages/faq" replace />} />
         <Route path="/contact" element={<Navigate to="/pages/contact" replace />} />
       </Routes>
