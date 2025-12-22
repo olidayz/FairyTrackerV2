@@ -259,6 +259,12 @@ router.get('/api/landing-content', async (req: Request, res: Response) => {
         acc[img.key] = img.imageUrl;
         return acc;
       }, {} as Record<string, string | null>),
+      stageTitles: allLandingImages.reduce((acc, img) => {
+        if (img.key.startsWith('stage_') && (img as any).title) {
+          acc[img.key] = (img as any).title;
+        }
+        return acc;
+      }, {} as Record<string, string>),
     });
   } catch (error) {
     console.error('[API] Landing content fetch error:', error);

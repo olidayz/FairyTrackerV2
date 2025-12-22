@@ -1114,6 +1114,18 @@ const AdminPage = () => {
                 console.error('Failed to update image:', error);
               }
             }}
+            onTitleSave={async (id, title) => {
+              try {
+                const res = await fetch(`/api/admin/landing-images/${id}`, {
+                  method: 'PUT',
+                  headers: getAuthHeaders(),
+                  body: JSON.stringify({ title }),
+                });
+                if (res.ok) fetchData();
+              } catch (error) {
+                console.error('Failed to update title:', error);
+              }
+            }}
             getAuthHeaders={getAuthHeaders}
           />
         ) : (
@@ -1541,13 +1553,52 @@ const StageContentEditor = ({ stage, content, onSave, onCancel }: {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Video URL (Back of Card)</label>
-          <input
-            type="text"
-            value={formData.videoUrl}
-            onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
-            className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
-          />
+          <label className="block text-sm font-medium mb-1">Video (Back of Card)</label>
+          <div className="flex gap-2 items-center">
+            <input
+              type="text"
+              value={formData.videoUrl}
+              onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
+              className="flex-1 px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+              placeholder="Video URL or upload below"
+            />
+            <label className={`px-4 py-2 rounded-lg cursor-pointer transition-colors ${isUploading ? 'bg-slate-600' : 'bg-fuchsia-600 hover:bg-fuchsia-700'}`}>
+              {isUploading ? 'Uploading...' : 'Upload Video'}
+              <input
+                type="file"
+                accept="video/webm,video/mp4,video/quicktime"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  setIsUploading(true);
+                  try {
+                    const urlRes = await fetch('/api/uploads/request-url', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ name: file.name, size: file.size, contentType: file.type }),
+                    });
+                    if (!urlRes.ok) throw new Error('Failed to get upload URL');
+                    const { uploadURL, objectPath } = await urlRes.json();
+                    const uploadRes = await fetch(uploadURL, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
+                    if (!uploadRes.ok) throw new Error('Failed to upload');
+                    setFormData({ ...formData, videoUrl: objectPath });
+                  } catch (error) {
+                    console.error('Video upload failed:', error);
+                    alert('Failed to upload video');
+                  } finally {
+                    setIsUploading(false);
+                  }
+                }}
+                className="hidden"
+                disabled={isUploading}
+              />
+            </label>
+          </div>
+          {formData.videoUrl && (
+            <div className="mt-2">
+              <video src={formData.videoUrl} className="h-20 rounded-lg border border-slate-600" muted autoPlay loop playsInline />
+            </div>
+          )}
         </div>
 
         <div>
@@ -1590,13 +1641,18 @@ const StageContentEditor = ({ stage, content, onSave, onCancel }: {
   );
 };
 
+interface LandingImageWithTitle extends LandingImage {
+  title?: string | null;
+}
+
 interface LandingImagesEditorProps {
-  images: LandingImage[];
+  images: LandingImageWithTitle[];
   onSave: (id: number, imageUrl: string) => Promise<void>;
+  onTitleSave?: (id: number, title: string) => Promise<void>;
   getAuthHeaders: () => HeadersInit;
 }
 
-const LandingImagesEditor = ({ images, onSave, getAuthHeaders }: LandingImagesEditorProps) => {
+const LandingImagesEditor = ({ images, onSave, onTitleSave, getAuthHeaders }: LandingImagesEditorProps) => {
   const [uploadingId, setUploadingId] = useState<number | null>(null);
 
   const handleFileUpload = async (id: number, file: File) => {
@@ -1641,7 +1697,9 @@ const LandingImagesEditor = ({ images, onSave, getAuthHeaders }: LandingImagesEd
       <p className="text-slate-400">Upload images for different sections of your site. These images will be used across the landing page and other areas.</p>
       
       <div className="grid gap-6 md:grid-cols-2">
-        {images.map((image) => (
+        {images.map((image) => {
+          const isStageImage = image.key?.startsWith('stage_');
+          return (
           <div key={image.id} className="bg-slate-900 border border-slate-800 rounded-lg p-4 space-y-3">
             <div>
               <h3 className="font-medium text-white">{image.label}</h3>
@@ -1649,6 +1707,19 @@ const LandingImagesEditor = ({ images, onSave, getAuthHeaders }: LandingImagesEd
                 <p className="text-sm text-slate-400 mt-1">{image.description}</p>
               )}
             </div>
+            
+            {isStageImage && (
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Stage Title</label>
+                <input
+                  type="text"
+                  defaultValue={image.title || ''}
+                  placeholder="e.g. The Departure"
+                  className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-cyan-500"
+                  onBlur={(e) => onTitleSave && onTitleSave(image.id, e.target.value)}
+                />
+              </div>
+            )}
             
             <div className="aspect-video bg-slate-800 rounded-lg overflow-hidden flex items-center justify-center">
               {image.imageUrl ? (
@@ -1704,7 +1775,8 @@ const LandingImagesEditor = ({ images, onSave, getAuthHeaders }: LandingImagesEd
               )}
             </div>
           </div>
-        ))}
+        );
+        })}
         
         {images.length === 0 && (
           <p className="col-span-2 text-center py-8 text-slate-500">

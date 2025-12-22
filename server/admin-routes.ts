@@ -493,9 +493,12 @@ router.get('/api/admin/landing-images', async (req: Request, res: Response) => {
 router.put('/api/admin/landing-images/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { imageUrl } = req.body;
+    const { imageUrl, title } = req.body;
+    const updateData: { imageUrl?: string; title?: string; updatedAt: Date } = { updatedAt: new Date() };
+    if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
+    if (title !== undefined) updateData.title = title;
     const [updated] = await db.update(landingImages)
-      .set({ imageUrl, updatedAt: new Date() })
+      .set(updateData)
       .where(eq(landingImages.id, parseInt(id)))
       .returning();
     res.json(updated);

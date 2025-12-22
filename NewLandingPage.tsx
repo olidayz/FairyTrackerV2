@@ -42,7 +42,8 @@ const NewLandingPage = () => {
         kikiProfile: { name: string; title: string; bio: string; photoUrl: string } | null;
         faqs: Array<{ id: number; question: string; answer: string }>;
         images: Record<string, string | null>;
-    }>({ hero: null, reviews: [], kikiProfile: null, faqs: [], images: {} });
+        stageTitles: Record<string, string>;
+    }>({ hero: null, reviews: [], kikiProfile: null, faqs: [], images: {}, stageTitles: {} });
     
     useEffect(() => {
         fetch('/api/landing-content')
@@ -164,7 +165,7 @@ const NewLandingPage = () => {
     const storyStages: Array<{stage: number; title: string; location: string; image: string; video?: string; message: string; color: string}> = [
         {
             stage: 1,
-            title: "The Departure",
+            title: landingContent.stageTitles?.stage_1_photo || "The Departure",
             location: "North Star Portal",
             image: landingContent.images?.stage_1_photo || defaultFairyPhoto,
             message: "I've just taken flight from the North Star! The wind is in my wings and I'm heading your way. Keep that tooth safe! ✨",
@@ -172,7 +173,7 @@ const NewLandingPage = () => {
         },
         {
             stage: 2,
-            title: "Mid-Flight Magic",
+            title: landingContent.stageTitles?.stage_2_photo || "Mid-Flight Magic",
             location: "Sparkle Mountains",
             image: landingContent.images?.stage_2_photo || defaultFairyPhoto,
             message: "Just passed over the Sparkle Mountains. The view is breath-taking! I can see your neighborhood lights from here. 🏔️",
@@ -180,7 +181,7 @@ const NewLandingPage = () => {
         },
         {
             stage: 3,
-            title: "Cloud Surfing",
+            title: landingContent.stageTitles?.stage_3_photo || "Cloud Surfing",
             location: "Silver Lining Lane",
             image: landingContent.images?.stage_3_photo || defaultFairyPhoto,
             message: "Hitching a ride on a silver lining! Almost there. Is everyone tucked in tight? The magic works best when you're dreaming! ☁️",
@@ -188,7 +189,7 @@ const NewLandingPage = () => {
         },
         {
             stage: 4,
-            title: "Final Approach",
+            title: landingContent.stageTitles?.stage_4_photo || "Final Approach",
             location: "Your Neighborhood",
             image: landingContent.images?.stage_4_photo || defaultFairyPhoto,
             message: "I'm circling your street now! Just look for the faint trail of stardust. I'll be at your window in just a few minutes! 🏠",
@@ -196,7 +197,7 @@ const NewLandingPage = () => {
         },
         {
             stage: 5,
-            title: "Mission Complete",
+            title: landingContent.stageTitles?.stage_5_photo || "Mission Complete",
             location: "Your Pillow",
             image: landingContent.images?.stage_5_photo || defaultFairyPhoto,
             message: "Mission successful! The tooth has been collected and a special surprise is waiting for you. Safe travels back to Fairy HQ! 🦷",
@@ -204,7 +205,7 @@ const NewLandingPage = () => {
         },
         {
             stage: 6,
-            title: "Home Bound",
+            title: landingContent.stageTitles?.stage_6_photo || "Home Bound",
             location: "Fairy HQ",
             image: landingContent.images?.stage_6_photo || defaultFairyPhoto,
             message: "I'm back home now, tucked into my own petal bed. I'll see you again for the next one! Sweet dreams! 🌸",

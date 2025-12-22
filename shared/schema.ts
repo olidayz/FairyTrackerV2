@@ -174,6 +174,7 @@ export const landingImages = pgTable('landing_images', {
   label: varchar('label', { length: 255 }).notNull(),
   description: text('description'),
   imageUrl: text('image_url'),
+  title: text('title'),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
