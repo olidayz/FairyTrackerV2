@@ -27,7 +27,9 @@ const EmailContainer = ({ subject, preheader, children }: { subject: string, pre
   </div>
 );
 
-const renderBodyWithPlaceholder = (text: string | null, childName = "Oliver") => {
+const SAMPLE_CHILD_NAME = "[Child's Name]";
+
+const renderBodyWithPlaceholder = (text: string | null, childName = SAMPLE_CHILD_NAME) => {
   if (!text) return null;
   return text.replace(/\{\{child_name\}\}/g, childName).replace(/\{\{tracker_url\}\}/g, '#');
 };

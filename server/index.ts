@@ -3,6 +3,7 @@ import express from 'express';
 import path from 'path';
 import routes from './routes';
 import adminRoutes from './admin-routes';
+import { startEmailScheduler } from './email-scheduler';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -22,4 +23,5 @@ app.get('/*splat', (req, res) => {
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`[Server] Running on http://0.0.0.0:${PORT}`);
+  startEmailScheduler();
 });

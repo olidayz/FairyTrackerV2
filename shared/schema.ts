@@ -17,6 +17,8 @@ export const trackerSessions = pgTable('tracker_sessions', {
   utmMedium: varchar('utm_medium', { length: 255 }),
   utmCampaign: varchar('utm_campaign', { length: 255 }),
   referrer: text('referrer'),
+  morningEmailScheduledFor: timestamp('morning_email_scheduled_for'),
+  morningEmailSentAt: timestamp('morning_email_sent_at'),
 });
 
 export const stageDefinitions = pgTable('stage_definitions', {

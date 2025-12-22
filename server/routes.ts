@@ -1,8 +1,9 @@
 import { Router, Request, Response } from 'express';
 import { storage } from './storage';
 import { db } from './db';
-import { emailTemplates } from '../shared/schema';
+import { emailTemplates, trackerSessions } from '../shared/schema';
 import { sendTrackingEmail } from './email';
+import { eq } from 'drizzle-orm';
 
 const router = Router();
 
@@ -49,6 +50,15 @@ router.post('/api/signup', async (req: Request, res: Response) => {
       : 'https://kiki-tracker.replit.app';
     const fullTrackerUrl = `${baseUrl}/tracker/${session.trackerToken}`;
     
+    // Schedule morning email for 6 hours from now
+    const morningEmailTime = new Date();
+    morningEmailTime.setHours(morningEmailTime.getHours() + 6);
+    await db
+      .update(trackerSessions)
+      .set({ morningEmailScheduledFor: morningEmailTime })
+      .where(eq(trackerSessions.id, session.id));
+    
+    // Send tracking email immediately
     sendTrackingEmail(email, name, fullTrackerUrl).catch(err => {
       console.error('[Signup] Background email send failed:', err);
     });
@@ -83,6 +93,14 @@ router.post('/api/signup', async (req: Request, res: Response) => {
           ? `https://${process.env.REPLIT_DEV_DOMAIN}` 
           : 'https://kiki-tracker.replit.app';
         const fullTrackerUrl = `${baseUrl}/tracker/${newSession.trackerToken}`;
+        
+        // Schedule morning email for 6 hours from now
+        const morningEmailTime = new Date();
+        morningEmailTime.setHours(morningEmailTime.getHours() + 6);
+        await db
+          .update(trackerSessions)
+          .set({ morningEmailScheduledFor: morningEmailTime })
+          .where(eq(trackerSessions.id, newSession.id));
         
         sendTrackingEmail(req.body.email, existingUser.name, fullTrackerUrl).catch(err => {
           console.error('[Signup] Background email send failed:', err);
