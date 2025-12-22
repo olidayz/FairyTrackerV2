@@ -758,11 +758,11 @@ const NewLandingPage = () => {
                                                 <ul className="space-y-2 text-slate-300 text-sm">
                                                     <li className="flex items-start gap-2">
                                                         <span className="text-cyan-400">✓</span>
-                                                        <span>See the fairy move on a <span className="text-white font-medium">live map</span></span>
+                                                        <span>Tracker page <span className="text-white font-medium">customized with their name</span></span>
                                                     </li>
                                                     <li className="flex items-start gap-2">
                                                         <span className="text-cyan-400">✓</span>
-                                                        <span>Watch her <span className="text-white font-medium">speed stats</span> update</span>
+                                                        <span>Watch her <span className="text-white font-medium">speed & location</span></span>
                                                     </li>
                                                     <li className="flex items-start gap-2">
                                                         <span className="text-cyan-400">✓</span>
