@@ -2,6 +2,7 @@ import { Resend } from 'resend';
 import { db } from './db';
 import { emailTemplates } from '../shared/schema';
 import { eq } from 'drizzle-orm';
+import { trackEmailEvent } from './analytics';
 
 let connectionSettings: any;
 
@@ -95,6 +96,14 @@ export async function sendTrackingEmail(toEmail: string, childName: string, trac
     }
 
     console.log(`[Email] Sent tracking email to ${toEmail}, id: ${data?.id}`);
+    
+    trackEmailEvent({
+      resendEventId: data?.id,
+      email: toEmail,
+      eventType: 'sent',
+      payload: { type: 'tracking-link', childName },
+    });
+    
     return data;
   } catch (error) {
     console.error('[Email] Error sending tracking email:', error);
@@ -142,6 +151,14 @@ export async function sendMorningUnlockEmail(toEmail: string, childName: string,
     }
 
     console.log(`[Email] Sent morning unlock email to ${toEmail}, id: ${data?.id}`);
+    
+    trackEmailEvent({
+      resendEventId: data?.id,
+      email: toEmail,
+      eventType: 'sent',
+      payload: { type: 'morning-unlock', childName },
+    });
+    
     return data;
   } catch (error) {
     console.error('[Email] Error sending morning unlock email:', error);

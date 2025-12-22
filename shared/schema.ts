@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, text, timestamp, integer, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, serial, varchar, text, timestamp, integer, boolean, jsonb, date } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
@@ -193,3 +193,53 @@ export type KikiProfile = typeof kikiProfile.$inferSelect;
 export type Review = typeof reviews.$inferSelect;
 export type FAQ = typeof faqs.$inferSelect;
 export type CopySection = typeof copySections.$inferSelect;
+
+// Analytics Tables
+export const analyticsEvents = pgTable('analytics_events', {
+  id: serial('id').primaryKey(),
+  eventType: varchar('event_type', { length: 50 }).notNull(),
+  trackerSessionId: integer('tracker_session_id').references(() => trackerSessions.id),
+  userId: integer('user_id').references(() => users.id),
+  stageDefinitionId: integer('stage_definition_id').references(() => stageDefinitions.id),
+  source: varchar('source', { length: 100 }),
+  referrer: text('referrer'),
+  userAgent: text('user_agent'),
+  metadata: jsonb('metadata'),
+  occurredAt: timestamp('occurred_at').defaultNow().notNull(),
+});
+
+export const emailEvents = pgTable('email_events', {
+  id: serial('id').primaryKey(),
+  resendEventId: varchar('resend_event_id', { length: 255 }),
+  trackerSessionId: integer('tracker_session_id').references(() => trackerSessions.id),
+  email: varchar('email', { length: 255 }).notNull(),
+  eventType: varchar('event_type', { length: 50 }).notNull(),
+  payload: jsonb('payload'),
+  occurredAt: timestamp('occurred_at').defaultNow().notNull(),
+});
+
+export const dailyMetrics = pgTable('daily_metrics', {
+  id: serial('id').primaryKey(),
+  metricDate: date('metric_date').notNull(),
+  metricName: varchar('metric_name', { length: 100 }).notNull(),
+  metricValue: integer('metric_value').notNull().default(0),
+  dimension: varchar('dimension', { length: 255 }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const stageProgressMetrics = pgTable('stage_progress_metrics', {
+  id: serial('id').primaryKey(),
+  metricDate: date('metric_date').notNull(),
+  stageDefinitionId: integer('stage_definition_id').references(() => stageDefinitions.id).notNull(),
+  sessionsStarted: integer('sessions_started').default(0),
+  sessionsCompleted: integer('sessions_completed').default(0),
+  avgCompletionSeconds: integer('avg_completion_seconds'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
+export type InsertAnalyticsEvent = typeof analyticsEvents.$inferInsert;
+export type EmailEvent = typeof emailEvents.$inferSelect;
+export type InsertEmailEvent = typeof emailEvents.$inferInsert;
+export type DailyMetric = typeof dailyMetrics.$inferSelect;
+export type StageProgressMetric = typeof stageProgressMetrics.$inferSelect;

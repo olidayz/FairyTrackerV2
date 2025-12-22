@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, FileText, Image, Video, Settings, Plus, Trash2, Save, Edit2, X, Mail, LayoutDashboard, Star, HelpCircle, Type } from 'lucide-react';
+import { ArrowLeft, FileText, Image, Video, Settings, Plus, Trash2, Save, Edit2, X, Mail, LayoutDashboard, Star, HelpCircle, Type, BarChart3, Users, Eye, Send, MousePointer } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface LandingHero {
@@ -114,8 +114,46 @@ interface LandingImage {
   imageUrl: string | null;
 }
 
+interface AnalyticsSummary {
+  totalUsers: number;
+  totalSessions: number;
+  signups7d: number;
+  signups30d: number;
+  trackerViews7d: number;
+  trackerViews30d: number;
+}
+
+interface SignupsByDay {
+  date: string;
+  count: number;
+}
+
+interface TrackerViewsByDay {
+  date: string;
+  count: number;
+}
+
+interface EmailMetrics {
+  sent: number;
+  delivered: number;
+  opened: number;
+  clicked: number;
+  bounced: number;
+  complained: number;
+  openRate: string;
+  clickRate: string;
+}
+
+interface RecentSignup {
+  id: number;
+  childName: string;
+  parentEmail: string;
+  createdAt: string;
+  trackerToken: string | null;
+}
+
 const AdminPage = () => {
-  const [activeTab, setActiveTab] = useState<'blog' | 'stages' | 'emails' | 'assets' | 'landing' | 'reviews' | 'faqs' | 'copy' | 'images'>('blog');
+  const [activeTab, setActiveTab] = useState<'blog' | 'stages' | 'emails' | 'assets' | 'landing' | 'reviews' | 'faqs' | 'copy' | 'images' | 'analytics'>('analytics');
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [stages, setStages] = useState<StageDefinition[]>([]);
   const [stageContents, setStageContents] = useState<StageContent[]>([]);
@@ -127,6 +165,11 @@ const AdminPage = () => {
   const [faqsList, setFaqsList] = useState<FAQ[]>([]);
   const [copySections, setCopySections] = useState<CopySection[]>([]);
   const [landingImagesList, setLandingImagesList] = useState<LandingImage[]>([]);
+  const [analyticsSummary, setAnalyticsSummary] = useState<AnalyticsSummary | null>(null);
+  const [signupsByDay, setSignupsByDay] = useState<SignupsByDay[]>([]);
+  const [trackerViewsByDay, setTrackerViewsByDay] = useState<TrackerViewsByDay[]>([]);
+  const [emailMetrics, setEmailMetrics] = useState<EmailMetrics | null>(null);
+  const [recentSignups, setRecentSignups] = useState<RecentSignup[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [editingStage, setEditingStage] = useState<{ stage: StageDefinition; content: StageContent | null } | null>(null);
@@ -209,6 +252,19 @@ const AdminPage = () => {
       } else if (activeTab === 'images') {
         const res = await fetch('/api/admin/landing-images', { headers: getAuthHeaders() });
         if (res.ok) setLandingImagesList(await res.json());
+      } else if (activeTab === 'analytics') {
+        const [summaryRes, signupsRes, viewsRes, emailRes, recentRes] = await Promise.all([
+          fetch('/api/admin/analytics/summary', { headers: getAuthHeaders() }),
+          fetch('/api/admin/analytics/signups-by-day', { headers: getAuthHeaders() }),
+          fetch('/api/admin/analytics/tracker-views-by-day', { headers: getAuthHeaders() }),
+          fetch('/api/admin/analytics/email-metrics', { headers: getAuthHeaders() }),
+          fetch('/api/admin/analytics/recent-signups', { headers: getAuthHeaders() })
+        ]);
+        if (summaryRes.ok) setAnalyticsSummary(await summaryRes.json());
+        if (signupsRes.ok) setSignupsByDay(await signupsRes.json());
+        if (viewsRes.ok) setTrackerViewsByDay(await viewsRes.json());
+        if (emailRes.ok) setEmailMetrics(await emailRes.json());
+        if (recentRes.ok) setRecentSignups(await recentRes.json());
       }
     } catch (error) {
       console.error('Failed to fetch data:', error);
@@ -390,6 +446,7 @@ const AdminPage = () => {
   };
 
   const tabs = [
+    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
     { id: 'blog', label: 'Blog Posts', icon: FileText },
     { id: 'stages', label: 'Stage Content', icon: Video },
     { id: 'emails', label: 'Emails', icon: Mail },
@@ -1130,6 +1187,177 @@ const AdminPage = () => {
             }}
             getAuthHeaders={getAuthHeaders}
           />
+        ) : activeTab === 'analytics' ? (
+          <div className="space-y-6">
+            <h2 className="text-lg font-semibold">Analytics Dashboard</h2>
+            
+            {/* Summary Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-slate-900 border border-slate-800 rounded-lg p-4">
+                <div className="flex items-center gap-2 text-slate-400 mb-2">
+                  <Users size={18} />
+                  <span className="text-sm">Total Users</span>
+                </div>
+                <p className="text-2xl font-bold">{analyticsSummary?.totalUsers || 0}</p>
+              </div>
+              <div className="bg-slate-900 border border-slate-800 rounded-lg p-4">
+                <div className="flex items-center gap-2 text-slate-400 mb-2">
+                  <Eye size={18} />
+                  <span className="text-sm">Tracker Sessions</span>
+                </div>
+                <p className="text-2xl font-bold">{analyticsSummary?.totalSessions || 0}</p>
+              </div>
+              <div className="bg-slate-900 border border-slate-800 rounded-lg p-4">
+                <div className="flex items-center gap-2 text-slate-400 mb-2">
+                  <Users size={18} />
+                  <span className="text-sm">Signups (7d)</span>
+                </div>
+                <p className="text-2xl font-bold text-cyan-400">{analyticsSummary?.signups7d || 0}</p>
+              </div>
+              <div className="bg-slate-900 border border-slate-800 rounded-lg p-4">
+                <div className="flex items-center gap-2 text-slate-400 mb-2">
+                  <Eye size={18} />
+                  <span className="text-sm">Tracker Views (7d)</span>
+                </div>
+                <p className="text-2xl font-bold text-cyan-400">{analyticsSummary?.trackerViews7d || 0}</p>
+              </div>
+            </div>
+
+            {/* Email Metrics */}
+            <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <Send size={20} />
+                Email Performance
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+                <div>
+                  <p className="text-slate-400 text-sm">Sent</p>
+                  <p className="text-xl font-bold">{emailMetrics?.sent || 0}</p>
+                </div>
+                <div>
+                  <p className="text-slate-400 text-sm">Delivered</p>
+                  <p className="text-xl font-bold">{emailMetrics?.delivered || 0}</p>
+                </div>
+                <div>
+                  <p className="text-slate-400 text-sm">Opened</p>
+                  <p className="text-xl font-bold text-green-400">{emailMetrics?.opened || 0}</p>
+                </div>
+                <div>
+                  <p className="text-slate-400 text-sm">Clicked</p>
+                  <p className="text-xl font-bold text-cyan-400">{emailMetrics?.clicked || 0}</p>
+                </div>
+                <div>
+                  <p className="text-slate-400 text-sm">Open Rate</p>
+                  <p className="text-xl font-bold">{emailMetrics?.openRate || '0%'}</p>
+                </div>
+                <div>
+                  <p className="text-slate-400 text-sm">Click Rate</p>
+                  <p className="text-xl font-bold">{emailMetrics?.clickRate || '0%'}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Charts Section */}
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Signups Chart */}
+              <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">Signups (Last 30 Days)</h3>
+                <div className="h-48 flex items-end gap-1">
+                  {signupsByDay.slice(-30).map((day, i) => {
+                    const maxCount = Math.max(...signupsByDay.map(d => d.count), 1);
+                    const height = (day.count / maxCount) * 100;
+                    return (
+                      <div 
+                        key={i}
+                        className="flex-1 bg-cyan-500 rounded-t hover:bg-cyan-400 transition-colors relative group"
+                        style={{ height: `${Math.max(height, 2)}%` }}
+                        title={`${day.date}: ${day.count} signups`}
+                      >
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-slate-800 rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+                          {day.date}: {day.count}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <p className="text-center text-slate-400 text-sm mt-2">Last 30 days</p>
+              </div>
+
+              {/* Tracker Views Chart */}
+              <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">Tracker Views (Last 30 Days)</h3>
+                <div className="h-48 flex items-end gap-1">
+                  {trackerViewsByDay.slice(-30).map((day, i) => {
+                    const maxCount = Math.max(...trackerViewsByDay.map(d => d.count), 1);
+                    const height = (day.count / maxCount) * 100;
+                    return (
+                      <div 
+                        key={i}
+                        className="flex-1 bg-fuchsia-500 rounded-t hover:bg-fuchsia-400 transition-colors relative group"
+                        style={{ height: `${Math.max(height, 2)}%` }}
+                        title={`${day.date}: ${day.count} views`}
+                      >
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-slate-800 rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+                          {day.date}: {day.count}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <p className="text-center text-slate-400 text-sm mt-2">Last 30 days</p>
+              </div>
+            </div>
+
+            {/* Recent Signups Table */}
+            <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
+              <h3 className="text-lg font-semibold mb-4">Recent Signups</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="border-b border-slate-700">
+                      <th className="py-2 px-4 text-slate-400 font-medium">Child Name</th>
+                      <th className="py-2 px-4 text-slate-400 font-medium">Parent Email</th>
+                      <th className="py-2 px-4 text-slate-400 font-medium">Date</th>
+                      <th className="py-2 px-4 text-slate-400 font-medium">Tracker</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentSignups.map((signup) => (
+                      <tr key={signup.id} className="border-b border-slate-800 hover:bg-slate-800/50">
+                        <td className="py-2 px-4">{signup.childName}</td>
+                        <td className="py-2 px-4 text-slate-400">{signup.parentEmail}</td>
+                        <td className="py-2 px-4 text-slate-400">
+                          {new Date(signup.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="py-2 px-4">
+                          {signup.trackerToken ? (
+                            <a 
+                              href={`/tracker/${signup.trackerToken}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-cyan-400 hover:text-cyan-300 flex items-center gap-1"
+                            >
+                              <MousePointer size={14} />
+                              View
+                            </a>
+                          ) : (
+                            <span className="text-slate-500">-</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                    {recentSignups.length === 0 && (
+                      <tr>
+                        <td colSpan={4} className="py-8 text-center text-slate-500">
+                          No signups yet
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         ) : (
           <div className="space-y-4">
             <h2 className="text-lg font-semibold">Site Assets</h2>

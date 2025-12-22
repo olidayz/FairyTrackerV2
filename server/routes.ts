@@ -4,8 +4,44 @@ import { db } from './db';
 import { emailTemplates, trackerSessions, landingHero, fairyUpdates, kikiProfile, reviews, faqs, copySections, stageContent, stageDefinitions, landingImages } from '../shared/schema';
 import { sendTrackingEmail, sendAdminNotificationEmail } from './email';
 import { eq, asc } from 'drizzle-orm';
+import { trackEvent, trackEmailEvent } from './analytics';
 
 const router = Router();
+
+router.post('/api/webhooks/resend', async (req: Request, res: Response) => {
+  try {
+    const event = req.body;
+    console.log('[Webhook] Received Resend event:', event.type);
+
+    const eventTypeMap: Record<string, string> = {
+      'email.sent': 'sent',
+      'email.delivered': 'delivered',
+      'email.opened': 'opened',
+      'email.clicked': 'clicked',
+      'email.bounced': 'bounced',
+      'email.complained': 'complained',
+    };
+
+    const mappedType = eventTypeMap[event.type];
+    if (mappedType && event.data) {
+      const emailTo = Array.isArray(event.data.to) ? event.data.to[0] : event.data.to;
+      
+      await trackEmailEvent({
+        resendEventId: event.data.email_id,
+        email: emailTo || 'unknown',
+        eventType: mappedType as any,
+        payload: event.data,
+      });
+      
+      console.log(`[Webhook] Tracked ${mappedType} event for ${emailTo}`);
+    }
+
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error('[Webhook] Error processing Resend event:', error);
+    res.status(200).json({ success: true });
+  }
+});
 
 router.post('/api/signup', async (req: Request, res: Response) => {
   try {
@@ -44,6 +80,20 @@ router.post('/api/signup', async (req: Request, res: Response) => {
     }
 
     console.log(`[Signup] User ${name} signed up with token ${session.trackerToken}`);
+
+    trackEvent({
+      eventType: 'signup',
+      trackerSessionId: session.id,
+      userId: user.id,
+      source: 'web',
+      referrer: req.headers.referer as string || undefined,
+      userAgent: req.headers['user-agent'] as string || undefined,
+      metadata: {
+        utmSource: req.body.utmSource,
+        utmMedium: req.body.utmMedium,
+        utmCampaign: req.body.utmCampaign,
+      },
+    });
 
     const baseUrl = process.env.SITE_URL || `https://${process.env.REPLIT_DEV_DOMAIN}` || 'https://kikithetoothfairy.co';
     const fullTrackerUrl = `${baseUrl}/tracker/${session.trackerToken}`;
@@ -177,6 +227,16 @@ router.get('/api/tracker/:token', async (req: Request, res: Response) => {
     }
 
     const { session, user } = sessionData;
+
+    trackEvent({
+      eventType: 'tracker_view',
+      trackerSessionId: session.id,
+      userId: user.id,
+      source: 'web',
+      referrer: req.headers.referer as string || undefined,
+      userAgent: req.headers['user-agent'] as string || undefined,
+    });
+
     const entries = await storage.getStageEntriesForSession(session.id);
     const now = new Date();
 

@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { db } from './db';
-import { blogPosts, stageDefinitions, stageContent, siteAssets, emailTemplates, landingHero, fairyUpdates, kikiProfile, reviews, faqs, copySections, landingImages } from '../shared/schema';
-import { eq, asc } from 'drizzle-orm';
+import { blogPosts, stageDefinitions, stageContent, siteAssets, emailTemplates, landingHero, fairyUpdates, kikiProfile, reviews, faqs, copySections, landingImages, analyticsEvents, emailEvents, users, trackerSessions } from '../shared/schema';
+import { eq, asc, sql, gte, and, count, desc } from 'drizzle-orm';
 
 const router = Router();
 
@@ -506,6 +506,187 @@ router.put('/api/admin/landing-images/:id', async (req: Request, res: Response) 
   } catch (error) {
     console.error('[Admin] Failed to update landing image:', error);
     res.status(500).json({ error: 'Failed to update landing image' });
+  }
+});
+
+router.get('/api/admin/analytics/summary', async (req: Request, res: Response) => {
+  try {
+    const now = new Date();
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    const [totalUsers] = await db.select({ count: count() }).from(users);
+    const [totalSessions] = await db.select({ count: count() }).from(trackerSessions);
+
+    const [signups7d] = await db
+      .select({ count: count() })
+      .from(analyticsEvents)
+      .where(and(
+        eq(analyticsEvents.eventType, 'signup'),
+        gte(analyticsEvents.occurredAt, sevenDaysAgo)
+      ));
+
+    const [signups30d] = await db
+      .select({ count: count() })
+      .from(analyticsEvents)
+      .where(and(
+        eq(analyticsEvents.eventType, 'signup'),
+        gte(analyticsEvents.occurredAt, thirtyDaysAgo)
+      ));
+
+    const [trackerViews7d] = await db
+      .select({ count: count() })
+      .from(analyticsEvents)
+      .where(and(
+        eq(analyticsEvents.eventType, 'tracker_view'),
+        gte(analyticsEvents.occurredAt, sevenDaysAgo)
+      ));
+
+    const [emailsSent7d] = await db
+      .select({ count: count() })
+      .from(emailEvents)
+      .where(and(
+        eq(emailEvents.eventType, 'sent'),
+        gte(emailEvents.occurredAt, sevenDaysAgo)
+      ));
+
+    const [emailsOpened7d] = await db
+      .select({ count: count() })
+      .from(emailEvents)
+      .where(and(
+        eq(emailEvents.eventType, 'opened'),
+        gte(emailEvents.occurredAt, sevenDaysAgo)
+      ));
+
+    const openRate = emailsSent7d.count > 0 
+      ? Math.round((emailsOpened7d.count / emailsSent7d.count) * 100) 
+      : 0;
+
+    res.json({
+      totalUsers: totalUsers.count,
+      totalSessions: totalSessions.count,
+      signups7d: signups7d.count,
+      signups30d: signups30d.count,
+      trackerViews7d: trackerViews7d.count,
+      emailsSent7d: emailsSent7d.count,
+      emailsOpened7d: emailsOpened7d.count,
+      emailOpenRate7d: openRate,
+    });
+  } catch (error) {
+    console.error('[Admin] Failed to fetch analytics summary:', error);
+    res.status(500).json({ error: 'Failed to fetch analytics summary' });
+  }
+});
+
+router.get('/api/admin/analytics/signups-by-day', async (req: Request, res: Response) => {
+  try {
+    const days = parseInt(req.query.days as string) || 30;
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+
+    const results = await db
+      .select({
+        date: sql<string>`DATE(${analyticsEvents.occurredAt})`.as('date'),
+        count: count(),
+      })
+      .from(analyticsEvents)
+      .where(and(
+        eq(analyticsEvents.eventType, 'signup'),
+        gte(analyticsEvents.occurredAt, startDate)
+      ))
+      .groupBy(sql`DATE(${analyticsEvents.occurredAt})`)
+      .orderBy(sql`DATE(${analyticsEvents.occurredAt})`);
+
+    res.json(results);
+  } catch (error) {
+    console.error('[Admin] Failed to fetch signups by day:', error);
+    res.status(500).json({ error: 'Failed to fetch signups by day' });
+  }
+});
+
+router.get('/api/admin/analytics/tracker-views-by-day', async (req: Request, res: Response) => {
+  try {
+    const days = parseInt(req.query.days as string) || 30;
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+
+    const results = await db
+      .select({
+        date: sql<string>`DATE(${analyticsEvents.occurredAt})`.as('date'),
+        count: count(),
+      })
+      .from(analyticsEvents)
+      .where(and(
+        eq(analyticsEvents.eventType, 'tracker_view'),
+        gte(analyticsEvents.occurredAt, startDate)
+      ))
+      .groupBy(sql`DATE(${analyticsEvents.occurredAt})`)
+      .orderBy(sql`DATE(${analyticsEvents.occurredAt})`);
+
+    res.json(results);
+  } catch (error) {
+    console.error('[Admin] Failed to fetch tracker views by day:', error);
+    res.status(500).json({ error: 'Failed to fetch tracker views by day' });
+  }
+});
+
+router.get('/api/admin/analytics/email-metrics', async (req: Request, res: Response) => {
+  try {
+    const days = parseInt(req.query.days as string) || 30;
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+
+    const results = await db
+      .select({
+        eventType: emailEvents.eventType,
+        count: count(),
+      })
+      .from(emailEvents)
+      .where(gte(emailEvents.occurredAt, startDate))
+      .groupBy(emailEvents.eventType);
+
+    const metrics: Record<string, number> = {};
+    results.forEach(r => {
+      metrics[r.eventType] = r.count;
+    });
+
+    res.json({
+      sent: metrics.sent || 0,
+      delivered: metrics.delivered || 0,
+      opened: metrics.opened || 0,
+      clicked: metrics.clicked || 0,
+      bounced: metrics.bounced || 0,
+      complained: metrics.complained || 0,
+      openRate: metrics.sent > 0 ? Math.round((metrics.opened || 0) / metrics.sent * 100) : 0,
+      clickRate: metrics.opened > 0 ? Math.round((metrics.clicked || 0) / metrics.opened * 100) : 0,
+    });
+  } catch (error) {
+    console.error('[Admin] Failed to fetch email metrics:', error);
+    res.status(500).json({ error: 'Failed to fetch email metrics' });
+  }
+});
+
+router.get('/api/admin/analytics/recent-signups', async (req: Request, res: Response) => {
+  try {
+    const limit = parseInt(req.query.limit as string) || 20;
+
+    const recentSignups = await db
+      .select({
+        id: trackerSessions.id,
+        childName: trackerSessions.childName,
+        generatedAt: trackerSessions.generatedAt,
+        referrer: trackerSessions.referrer,
+        email: users.email,
+      })
+      .from(trackerSessions)
+      .innerJoin(users, eq(trackerSessions.userId, users.id))
+      .orderBy(desc(trackerSessions.generatedAt))
+      .limit(limit);
+
+    res.json(recentSignups);
+  } catch (error) {
+    console.error('[Admin] Failed to fetch recent signups:', error);
+    res.status(500).json({ error: 'Failed to fetch recent signups' });
   }
 });
 
