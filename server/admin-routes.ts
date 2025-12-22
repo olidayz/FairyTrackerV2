@@ -111,19 +111,19 @@ router.get('/api/admin/stage-content', async (req: Request, res: Response) => {
 router.put('/api/admin/stage-content/:stageId', async (req: Request, res: Response) => {
   try {
     const { stageId } = req.params;
-    const { videoUrl, imageUrl, messageText, frontImageUrl, locationText, statusText } = req.body;
+    const { videoUrl, imageUrl, messageText, frontImageUrl, locationText, statusText, selfieImageUrl, title } = req.body;
     
     const existing = await db.select().from(stageContent).where(eq(stageContent.stageDefinitionId, parseInt(stageId)));
     
     if (existing.length > 0) {
       const [updated] = await db.update(stageContent)
-        .set({ videoUrl, imageUrl, messageText, frontImageUrl, locationText, statusText, updatedAt: new Date() })
+        .set({ videoUrl, imageUrl, messageText, frontImageUrl, locationText, statusText, selfieImageUrl, title, updatedAt: new Date() })
         .where(eq(stageContent.stageDefinitionId, parseInt(stageId)))
         .returning();
       res.json(updated);
     } else {
       const [created] = await db.insert(stageContent)
-        .values({ stageDefinitionId: parseInt(stageId), videoUrl, imageUrl, messageText, frontImageUrl, locationText, statusText })
+        .values({ stageDefinitionId: parseInt(stageId), videoUrl, imageUrl, messageText, frontImageUrl, locationText, statusText, selfieImageUrl, title })
         .returning();
       res.json(created);
     }
