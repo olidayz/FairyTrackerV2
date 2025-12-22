@@ -1118,7 +1118,7 @@ const NewLandingPage = () => {
                                     <span className="text-lg md:text-3xl relative z-10">✨</span>
                                     <div className="relative z-10">
                                         <h3 className="font-bold text-white text-sm md:text-base">Made for Your Child</h3>
-                                        <p className="text-white/70 text-[10px] md:text-xs mt-0.5">A Page Personalized Just for Them</p>
+                                        <p className="text-white/70 text-[10px] md:text-xs mt-0.5">A Page Personalized with their Name</p>
                                     </div>
                                 </div>
                             </div>
