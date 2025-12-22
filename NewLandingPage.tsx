@@ -41,7 +41,8 @@ const NewLandingPage = () => {
         reviews: Array<{ id: number; reviewerName: string; reviewerLocation: string; reviewText: string; rating: number }>;
         kikiProfile: { name: string; title: string; bio: string; photoUrl: string } | null;
         faqs: Array<{ id: number; question: string; answer: string }>;
-    }>({ hero: null, reviews: [], kikiProfile: null, faqs: [] });
+        images: Record<string, string | null>;
+    }>({ hero: null, reviews: [], kikiProfile: null, faqs: [], images: {} });
     
     useEffect(() => {
         fetch('/api/landing-content')
@@ -163,7 +164,7 @@ const NewLandingPage = () => {
             stage: 1,
             title: "The Departure",
             location: "North Star Portal",
-            image: "/Fairy photo booth pic.webp",
+            image: landingContent.images?.fairy_photo || "/Fairy photo booth pic.webp",
             message: "I've just taken flight from the North Star! The wind is in my wings and I'm heading your way. Keep that tooth safe! ✨",
             color: "from-cyan-400 to-blue-500"
         },
@@ -736,7 +737,7 @@ const NewLandingPage = () => {
                                     {/* Full height image with overlay */}
                                     <div className="relative" style={{ height: '320px' }}>
                                         <img
-                                            src="/Fairy%20photo%20booth%20pic.webp"
+                                            src={landingContent.images?.fairy_photo || "/Fairy photo booth pic.webp"}
                                             alt="Kiki the Tooth Fairy"
                                             className="w-full h-full object-cover object-top"
                                         />
@@ -1154,7 +1155,7 @@ const NewLandingPage = () => {
                                 {/* Image Frame */}
                                 <div className="relative aspect-square rounded-[2rem] overflow-hidden border-4 border-white/20 shadow-2xl">
                                     <img
-                                        src="/Fairy photo booth pic.webp"
+                                        src={landingContent.images?.fairy_photo || "/Fairy photo booth pic.webp"}
                                         alt="Kiki the Tooth Fairy"
                                         className="w-full h-full object-cover"
                                     />

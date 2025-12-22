@@ -243,6 +243,7 @@ router.get('/api/landing-content', async (req: Request, res: Response) => {
     const featuredReviews = await db.select().from(reviews).orderBy(asc(reviews.sortOrder));
     const activeFaqs = await db.select().from(faqs).where(eq(faqs.isActive, true)).orderBy(asc(faqs.sortOrder));
     const allCopySections = await db.select().from(copySections);
+    const allLandingImages = await db.select().from(landingImages);
     
     res.json({
       hero: hero || null,
@@ -252,6 +253,10 @@ router.get('/api/landing-content', async (req: Request, res: Response) => {
       faqs: activeFaqs,
       copySections: allCopySections.reduce((acc, section) => {
         acc[section.key] = section.content;
+        return acc;
+      }, {} as Record<string, string | null>),
+      images: allLandingImages.reduce((acc, img) => {
+        acc[img.key] = img.imageUrl;
         return acc;
       }, {} as Record<string, string | null>),
     });
