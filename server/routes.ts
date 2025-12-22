@@ -392,4 +392,74 @@ router.get('/api/landing-images', async (req: Request, res: Response) => {
   }
 });
 
+router.get('/robots.txt', (req: Request, res: Response) => {
+  const baseUrl = process.env.SITE_URL || 'https://kikithetoothfairy.co';
+  const robotsTxt = `User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /emails
+Disallow: /tracker/
+
+Sitemap: ${baseUrl}/sitemap.xml
+`;
+  res.set('Content-Type', 'text/plain');
+  res.send(robotsTxt);
+});
+
+router.get('/sitemap.xml', async (req: Request, res: Response) => {
+  try {
+    const baseUrl = process.env.SITE_URL || 'https://kikithetoothfairy.co';
+    const now = new Date().toISOString().split('T')[0];
+    
+    const staticPages = [
+      { url: '/', priority: '1.0', changefreq: 'weekly' },
+      { url: '/tracker', priority: '0.9', changefreq: 'weekly' },
+      { url: '/blogs/kikis-blog', priority: '0.8', changefreq: 'weekly' },
+      { url: '/pages/faq', priority: '0.7', changefreq: 'monthly' },
+      { url: '/pages/contact', priority: '0.6', changefreq: 'monthly' },
+      { url: '/media-kit', priority: '0.5', changefreq: 'monthly' },
+      { url: '/policies/privacy-policy', priority: '0.3', changefreq: 'yearly' },
+      { url: '/policies/terms-of-service', priority: '0.3', changefreq: 'yearly' },
+      { url: '/policies/shipping-policy', priority: '0.3', changefreq: 'yearly' },
+      { url: '/policies/refund-policy', priority: '0.3', changefreq: 'yearly' },
+    ];
+
+    const blogPosts = await storage.getPublishedBlogPosts();
+    
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+`;
+    
+    for (const page of staticPages) {
+      xml += `  <url>
+    <loc>${baseUrl}${page.url}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>${page.changefreq}</changefreq>
+    <priority>${page.priority}</priority>
+  </url>
+`;
+    }
+    
+    for (const post of blogPosts) {
+      const lastmod = post.publishedAt ? new Date(post.publishedAt).toISOString().split('T')[0] : now;
+      xml += `  <url>
+    <loc>${baseUrl}/blogs/kikis-blog/${post.slug}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+`;
+    }
+    
+    xml += `</urlset>`;
+    
+    res.set('Content-Type', 'application/xml');
+    res.send(xml);
+  } catch (error) {
+    console.error('[Sitemap] Error generating sitemap:', error);
+    res.status(500).send('Error generating sitemap');
+  }
+});
+
 export default router;
