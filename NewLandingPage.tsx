@@ -31,7 +31,13 @@ const AutoPlayVideo = ({ src, isActive, className }: { src: string; isActive: bo
         } else {
             video.pause();
         }
-    }, [isActive]);
+    }, [isActive, src]);
+    
+    const handleLoadedData = () => {
+        if (isActive && videoRef.current) {
+            videoRef.current.play().catch(() => {});
+        }
+    };
     
     return (
         <video
@@ -40,7 +46,9 @@ const AutoPlayVideo = ({ src, isActive, className }: { src: string; isActive: bo
             muted
             loop
             playsInline
+            autoPlay={isActive}
             preload={isActive ? "auto" : "metadata"}
+            onLoadedData={handleLoadedData}
             className={className}
         />
     );
