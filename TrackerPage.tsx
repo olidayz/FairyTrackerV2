@@ -704,9 +704,9 @@ const FunPhaseDivider = ({
 
       {/* ROW 3: OVERLAPPING WARNING CALLOUT */}
       {warning && (
-        <div className="relative z-20 -mt-4 md:-mt-6 transform rotate-[-2deg] hover:rotate-0 transition-transform duration-300">
-          <div className="inline-block px-3 sm:px-5 py-1.5 bg-fuchsia-600 text-white border-2 border-fuchsia-400 shadow-[0_4px_20px_rgba(232,121,249,0.5)] rounded-lg">
-            <span className="font-sans font-bold text-xs sm:text-sm md:text-base tracking-wide sm:tracking-[0.2em] uppercase drop-shadow-md whitespace-nowrap">
+        <div className="relative z-20 -mt-6 md:-mt-8 transform rotate-[-2deg] hover:rotate-0 transition-transform duration-300">
+          <div className="inline-flex items-center justify-center px-4 py-1 bg-fuchsia-600 text-white border-2 border-fuchsia-400 shadow-[0_4px_20px_rgba(232,121,249,0.5)] rounded-lg">
+            <span className="font-sans font-bold text-xs sm:text-sm md:text-base tracking-tight sm:tracking-wide uppercase drop-shadow-md whitespace-nowrap text-center">
               {warning}
             </span>
           </div>
