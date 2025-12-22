@@ -57,7 +57,7 @@ export const StageCard: React.FC<StageCardProps> = ({
    const handleFlipBack = () => setIsFlipped(false);
 
    return (
-      <div className="relative w-full mb-16 md:mb-24" style={{ perspective: '1500px' }}>
+      <div className={`relative w-full mb-16 md:mb-24 ${isFlipped ? 'z-50' : 'z-10'}`} style={{ perspective: '1500px' }}>
          <div
             className="relative w-full transition-all duration-700 ease-out overflow-visible"
             style={{

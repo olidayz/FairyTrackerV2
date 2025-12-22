@@ -898,7 +898,7 @@ const StartMissionCard = ({ onClick, isMorning = false, userName = 'Your Child' 
         </div>
 
         {/* 2. Title - Compact on Mobile */}
-        <h2 className="font-chrome-oblique text-5xl sm:text-6xl md:text-7xl text-white uppercase tracking-normal leading-[0.9] drop-shadow-2xl text-center md:text-left w-full md:w-auto mb-1">
+        <h2 className="font-chrome text-5xl sm:text-6xl md:text-7xl text-white uppercase tracking-normal leading-[0.9] drop-shadow-2xl text-center md:text-left w-full md:w-auto mb-1">
           <span className="text-transparent bg-clip-text bg-gradient-to-br from-white via-cyan-100 to-cyan-500 pt-1 pb-3 md:pb-8 md:pr-4 inline-block leading-[0.85] md:leading-[0.9]">
             {isMorning ? <>FAIRY VISIT<br />COMPLETE</> : <>MAGIC<br />UNDERWAY</>}
           </span>
