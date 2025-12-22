@@ -1,0 +1,50 @@
+{
+  "name": "fairy-tracker---night-mode",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "npm run build && tsx server/index.ts",
+    "dev:frontend": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "seed": "tsx server/seed.ts"
+  },
+  "dependencies": {
+    "@google-cloud/storage": "^7.18.0",
+    "@types/leaflet": "^1.9.21",
+    "@uppy/aws-s3": "^5.1.0",
+    "@uppy/core": "^5.2.0",
+    "@uppy/dashboard": "^5.1.0",
+    "@uppy/react": "^5.1.1",
+    "clsx": "latest",
+    "cors": "^2.8.5",
+    "drizzle-orm": "^0.45.1",
+    "express": "^5.2.1",
+    "google-auth-library": "^10.5.0",
+    "leaflet": "^1.9.4",
+    "lucide-react": "^0.555.0",
+    "pg": "^8.16.3",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "react-leaflet": "^5.0.0",
+    "react-router-dom": "^7.10.1",
+    "resend": "^6.6.0",
+    "tailwind-merge": "latest",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.14.0",
+    "@types/pg": "^8.16.0",
+    "@types/uuid": "^10.0.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "drizzle-kit": "^0.31.8",
+    "tsx": "^4.19.0",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0"
+  }
+}
