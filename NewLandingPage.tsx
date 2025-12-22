@@ -286,21 +286,28 @@ const NewLandingPage = () => {
         <div className="min-h-screen bg-[#0a1020] text-white font-sans selection:bg-cyan-500/30 overflow-x-hidden">
 
             {/* === FIXED BACKGROUND === */}
-            {/* Desktop: fixed background with ambient glows */}
-            <div className="hidden lg:block fixed inset-0 pointer-events-none overflow-hidden z-0">
-                {/* Base Night */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+                {/* Base Night - Lighter */}
                 <div className="absolute inset-0 bg-gradient-to-b from-[#0a1020] via-[#0c1428] to-[#080e1a]" />
-                {/* Ambient glows */}
+
+                {/* Boosted ambient glows */}
                 <div className="absolute top-0 left-1/4 w-[1000px] h-[1000px] bg-cyan-500/10 rounded-full blur-[150px] mix-blend-screen" />
                 <div className="absolute bottom-0 right-0 w-[800px] h-[800px] bg-teal-500/8 rounded-full blur-[120px] mix-blend-screen" />
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[600px] bg-fuchsia-500/5 rounded-full blur-[200px] mix-blend-screen" />
+
+
                 {/* Grid overlay */}
                 <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(34, 211, 238, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(34, 211, 238, 0.3) 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
+
+                {/* Subtle noise texture */}
+                <div className="absolute inset-0 opacity-[0.015]" style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+                }} />
             </div>
 
             <header className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${headerVisible ? 'translate-y-0' : '-translate-y-full'}`}>
                 <div className="mx-4 mt-4">
-                    <div className="max-w-5xl mx-auto bg-slate-900 lg:bg-slate-900/80 lg:backdrop-blur-xl border border-white/10 rounded-2xl px-4 md:px-6 py-3 shadow-2xl">
+                    <div className="max-w-5xl mx-auto bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-2xl px-4 md:px-6 py-3 shadow-2xl">
                         <div className="flex items-center justify-between">
 
                             {/* Left: Hamburger (mobile) or Nav Links (desktop) */}
@@ -346,7 +353,7 @@ const NewLandingPage = () => {
                 {/* Mobile Menu Dropdown */}
                 {mobileMenuOpen && (
                     <div className="lg:hidden mx-4 mt-2">
-                        <div className="bg-slate-900 lg:bg-slate-900/95 lg:backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl">
+                        <div className="bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl">
                             <nav className="flex flex-col gap-4">
                                 <a href="#meet-kiki" onClick={() => setMobileMenuOpen(false)} className="text-slate-300 hover:text-white transition-colors py-2">
                                     Meet Kiki
@@ -477,7 +484,7 @@ const NewLandingPage = () => {
                             >
                                 {/* Decorative Anchor Shape (Option 4) */}
                                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full md:w-[120%] h-full md:h-[120%] max-w-[800px] pointer-events-none z-0 overflow-hidden">
-                                    <div className="hidden lg:block absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-purple-500/5 rounded-full blur-[100px] transform -rotate-12 scale-110" />
+                                    <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-purple-500/5 rounded-full blur-[100px] transform -rotate-12 scale-110" />
                                     <div className="absolute inset-20 border border-white/5 rounded-[60px] transform rotate-12" />
                                     <div className="absolute inset-40 border border-white/10 rounded-[40px] transform -rotate-6" />
                                 </div>
@@ -854,9 +861,9 @@ const NewLandingPage = () => {
 
                 {/* ========== SECTION 2.5: START MISSION (The Stack of Promises) ========== */}
                 <section id="start-mission" className="relative py-24 px-4 overflow-hidden">
-                    {/* Background Accents - hidden on mobile for performance */}
-                    <div className="hidden lg:block absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-fuchsia-500/10 rounded-full blur-[120px] pointer-events-none" />
-                    <div className="hidden lg:block absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-cyan-500/10 rounded-full blur-[100px] pointer-events-none" />
+                    {/* Background Accents */}
+                    <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-fuchsia-500/10 rounded-full blur-[120px] pointer-events-none" />
+                    <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-cyan-500/10 rounded-full blur-[100px] pointer-events-none" />
 
                     <div className="container mx-auto max-w-6xl">
                         {/* Section Header */}
@@ -1372,8 +1379,8 @@ const NewLandingPage = () => {
 
                 {/* ========== SECTION 4: WHY FAMILIES LOVE US ========== */}
                 <section className="relative py-24 px-4 overflow-hidden">
-                    {/* Background Glow - hidden on mobile for performance */}
-                    <div className="hidden lg:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-cyan-500/10 rounded-full blur-[200px] pointer-events-none" />
+                    {/* Background Glow */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-cyan-500/10 rounded-full blur-[200px] pointer-events-none" />
 
                     <div className="container mx-auto max-w-5xl">
                         {/* Header */}
@@ -1474,8 +1481,8 @@ const NewLandingPage = () => {
 
                 {/* ========== SECTION 5: PRESS LOGOS ========== */}
                 <section className="relative py-20 px-4">
-                    {/* Background glow - hidden on mobile for performance */}
-                    <div className="hidden lg:flex absolute inset-0 justify-center pointer-events-none">
+                    {/* Background glow */}
+                    <div className="absolute inset-0 flex justify-center pointer-events-none">
                         <div className="w-[600px] h-[300px] bg-cyan-500/5 rounded-full blur-[100px]" />
                     </div>
 
@@ -1633,8 +1640,8 @@ const NewLandingPage = () => {
 
                 {/* ========== FOOTER ========== */}
                 <footer className="relative py-16 px-4 border-t border-white/10">
-                    {/* Background Glow - hidden on mobile for performance */}
-                    <div className="hidden lg:block absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-cyan-500/10 rounded-full blur-[150px] pointer-events-none" />
+                    {/* Background Glow */}
+                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-cyan-500/10 rounded-full blur-[150px] pointer-events-none" />
 
                     <div className="container mx-auto max-w-6xl relative z-10">
                         <div className="grid md:grid-cols-[1.5fr_1fr_1fr_1fr] gap-10 md:gap-8">

@@ -9,7 +9,7 @@
   <link rel="preload" href="/MDNichromeTest-Black.otf" as="font" type="font/otf" crossorigin>
   <link rel="preload" href="/MDNichromeTest-BlackOblique.otf" as="font" type="font/otf" crossorigin>
   <style>
-    /* Critical CSS - prevents flash on mobile */
+    /* Critical CSS - prevents black flash on mobile */
     html, body {
       margin: 0;
       padding: 0;
@@ -21,6 +21,36 @@
     #root {
       min-height: 100vh;
       background-color: #050505;
+    }
+    /* Loading splash styles */
+    .loading-splash {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background-color: #050505;
+    }
+    .loading-logo {
+      width: 120px;
+      height: 120px;
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+    .loading-text {
+      margin-top: 24px;
+      font-size: 14px;
+      color: #22d3ee;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      animation: fade-pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.8; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+    @keyframes fade-pulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
     }
     @font-face {
       font-family: 'MDNIchrome Ultra';
@@ -57,7 +87,12 @@
 </head>
 
 <body>
-  <div id="root"></div>
+  <div id="root">
+    <div class="loading-splash">
+      <img src="/kiki-logo.png" alt="Kiki" class="loading-logo" />
+      <p class="loading-text">Loading Magic...</p>
+    </div>
+  </div>
   <script type="module" src="/index.tsx"></script>
 </body>
 
