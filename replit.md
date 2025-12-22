@@ -20,12 +20,29 @@ Preferred communication style: Simple, everyday language.
 - **Custom Fonts**: MDNIchrome Ultra (custom font files served from public directory)
 
 ### Page Structure
-The app follows a multi-page SPA architecture with these main routes:
-- `/` - Landing page (NewLandingPage.tsx)
-- `/tracker` - Main tracker experience (TrackerPage.tsx)
-- `/blog` and `/blog/:slug` - Blog listing and individual posts
-- `/media-kit`, `/faq`, `/contact` - Marketing and support pages
-- `/privacy`, `/terms`, `/shipping`, `/refund` - Legal pages
+The app follows a multi-page SPA architecture with these main routes (matching Shopify URL structure):
+- `/` - Landing page with signup form (NewLandingPage.tsx)
+- `/tracker` - Demo tracker experience (TrackerPage.tsx)
+- `/tracker/:token` - Personalized tracker with child's name from database
+- `/blogs/kikis-blog` and `/blogs/kikis-blog/:slug` - Blog listing and posts
+- `/pages/faq`, `/pages/contact` - Marketing and support pages
+- `/policies/privacy-policy`, `/policies/terms-of-service`, `/policies/shipping-policy`, `/policies/refund-policy` - Legal pages
+
+### Backend Architecture
+- **Framework**: Express 5 with TypeScript
+- **Database**: PostgreSQL with Drizzle ORM
+- **Port**: Backend runs on port 3001, Vite dev server on port 5000 with proxy
+
+### API Endpoints
+- `POST /api/signup` - Creates user and tracker session, returns personalized tracker URL
+- `GET /api/tracker/:token` - Returns personalized tracker data including child's name
+
+### Database Schema
+- `users` - Stores child name and parent email
+- `tracker_sessions` - Links users to unique tracker tokens
+- `stage_definitions` - Defines tracker stages (night/morning)
+- `stage_entries` - Per-session stage availability timestamps
+- `stage_content` - Video/image content for each stage
 
 ### Component Organization
 - **Page Components**: Root-level TSX files (App.tsx, NewLandingPage.tsx, etc.)
