@@ -42,7 +42,7 @@ The app follows a multi-page SPA architecture with these main routes (matching S
 - `tracker_sessions` - Links users to unique tracker tokens (includes childName for per-session personalization)
 - `stage_definitions` - Defines tracker stages (night/morning)
 - `stage_entries` - Per-session stage availability timestamps
-- `stage_content` - Video/image content for each stage
+- `stage_content` - Video/image content for each stage (includes frontImageUrl, locationText, statusText for front card)
 - `blog_posts` - Blog articles with slug, title, content, featured images
 - `email_templates` - Customizable email templates for tracking, morning unlock, admin notifications
 - `landing_hero` - Hero section content (headline, subheadline, CTA text)
@@ -51,6 +51,20 @@ The app follows a multi-page SPA architecture with these main routes (matching S
 - `reviews` - Customer reviews with ratings and photos
 - `faqs` - FAQ questions and answers (displayed on /pages/faq)
 - `copy_sections` - Editable text sections across the site
+
+### Admin CMS Features
+The Admin panel (/admin) provides full CMS capabilities:
+- **Blog Posts**: Create, edit, delete blog articles with rich content
+- **Stage Content**: Configure each tracker stage with front card image (via upload), location text, status text, video URL, image URL, and message text
+- **Email Templates**: Customize email content for tracking links, morning unlock, and admin notifications
+- **Landing Page Content**: Manage hero section, fairy updates, Kiki profile, reviews, FAQs, and copy sections
+- **Site Assets**: Manage downloadable assets and media files
+
+### File Upload (Object Storage)
+- Uses Replit Object Storage with presigned URL upload flow
+- POST /api/uploads/request-url - Get presigned URL for file upload
+- GET /objects/* - Serve uploaded files from storage
+- Images uploaded in Admin are stored in cloud storage and served via /objects/ path
 
 ### Component Organization
 - **Page Components**: Root-level TSX files (App.tsx, NewLandingPage.tsx, etc.)
