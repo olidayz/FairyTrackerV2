@@ -17,18 +17,26 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* Main pages */}
         <Route path="/" element={<NewLandingPage />} />
         <Route path="/tracker" element={<Tracker />} />
-        <Route path="/blog" element={<BlogListPage />} />
-        <Route path="/blog/:slug" element={<BlogPostPage />} />
+        <Route path="/tracker/:token" element={<Tracker />} />
+        
+        {/* Blog */}
+        <Route path="/blogs/kikis-blog" element={<BlogListPage />} />
+        <Route path="/blogs/kikis-blog/:slug" element={<BlogPostPage />} />
+        
+        {/* Pages - matching Shopify URL structure */}
+        <Route path="/pages/faq" element={<FAQPage />} />
+        <Route path="/pages/contact" element={<ContactPage />} />
         <Route path="/media-kit" element={<MediaKitPage />} />
         <Route path="/emails" element={<EmailPreviews />} />
-        <Route path="/faq" element={<FAQPage />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/privacy" element={<PrivacyPolicyPage />} />
-        <Route path="/terms" element={<TermsPage />} />
-        <Route path="/shipping" element={<ShippingPolicyPage />} />
-        <Route path="/refund" element={<RefundPolicyPage />} />
+        
+        {/* Policies - matching Shopify URL structure */}
+        <Route path="/policies/privacy-policy" element={<PrivacyPolicyPage />} />
+        <Route path="/policies/terms-of-service" element={<TermsPage />} />
+        <Route path="/policies/shipping-policy" element={<ShippingPolicyPage />} />
+        <Route path="/policies/refund-policy" element={<RefundPolicyPage />} />
       </Routes>
     </Router>
   );

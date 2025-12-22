@@ -7,8 +7,9 @@ export default defineConfig(({ mode }) => {
   return {
     appType: 'spa',
     server: {
-      port: 3000,
+      port: 5000,
       host: '0.0.0.0',
+      allowedHosts: true,
     },
     plugins: [react()],
     define: {
@@ -18,6 +19,7 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
+        '@assets': path.resolve(__dirname, 'attached_assets'),
       }
     }
   };
