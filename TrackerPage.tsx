@@ -696,7 +696,7 @@ const FunPhaseDivider = ({
       )}
 
       {/* ROW 2: MAIN TITLE */}
-      <h2 className="font-chrome text-3xl sm:text-5xl md:text-7xl text-white uppercase tracking-tight sm:tracking-normal leading-tight drop-shadow-[0_4px_0_rgba(0,0,0,1)] scale-y-110 py-2 md:py-4 whitespace-nowrap">
+      <h2 className="font-chrome text-5xl md:text-7xl text-white uppercase tracking-normal leading-normal drop-shadow-[0_4px_0_rgba(0,0,0,1)] scale-y-110 py-2 md:py-4 whitespace-nowrap">
         <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-cyan-100 pb-1 inline-block">
           {title}
         </span>
