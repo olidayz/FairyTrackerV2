@@ -730,7 +730,7 @@ const NewLandingPage = () => {
                                             attributionControl={false}
                                             style={{ height: '100%', width: '100%', background: '#020617' }}
                                         >
-                                            <MapUpdater center={[39, -98]} zoom={3} />
+                                            <MapUpdater center={[39, -98]} zoom={2} />
                                             <TileLayer
                                                 url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
                                             />
