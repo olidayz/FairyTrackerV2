@@ -811,11 +811,11 @@ const NewLandingPage = () => {
                                 {/* Card Body with Ring Accent */}
                                 <div className="rounded-[2rem] bg-gradient-to-b from-slate-900/90 to-slate-950/90 ring-4 ring-fuchsia-500/40 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
                                     {/* Full height image with overlay */}
-                                    <div className="relative" style={{ height: '320px' }}>
+                                    <div className="relative bg-slate-800/50" style={{ height: '320px' }}>
                                         <img
                                             src={landingContent.images?.fairy_updates_photo || defaultFairyPhoto}
                                             alt="Kiki the Tooth Fairy"
-                                            className="w-full h-full object-cover object-top"
+                                            className="w-full h-full object-contain"
                                         />
 
                                         {/* Gradient overlay + Text content */}
