@@ -462,25 +462,31 @@ const NewLandingPage = () => {
                                                 '--tw-ring-color': stage.color.includes('cyan') ? '#22d3ee' : stage.color.includes('fuchsia') ? '#e879f9' : stage.color.includes('amber') ? '#fbbf24' : stage.color.includes('lime') ? '#a3e635' : stage.color.includes('red') ? '#f87171' : '#818cf8'
                                             } as React.CSSProperties}>
 
-                                                {/* Media Content (Video or Image) */}
-                                                {stage.video ? (
-                                                    <video
-                                                        key={stage.video}
-                                                        autoPlay
-                                                        muted
-                                                        loop
-                                                        playsInline
-                                                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-[8s] group-hover/card:scale-110"
-                                                    >
-                                                        <source src={stage.video} type="video/mp4" />
-                                                    </video>
-                                                ) : (
-                                                    <img
-                                                        src={stage.image}
-                                                        alt={stage.title}
-                                                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-[8s] group-hover/card:scale-110"
-                                                    />
-                                                )}
+                                                {/* Media Content (Video or Image) - auto-detect by extension */}
+                                                {(() => {
+                                                    const mediaSrc = stage.video || stage.image;
+                                                    const isVideo = mediaSrc && (mediaSrc.endsWith('.webm') || mediaSrc.endsWith('.mp4') || mediaSrc.endsWith('.mov'));
+                                                    const videoType = mediaSrc?.endsWith('.webm') ? 'video/webm' : mediaSrc?.endsWith('.mov') ? 'video/quicktime' : 'video/mp4';
+                                                    
+                                                    return isVideo ? (
+                                                        <video
+                                                            key={mediaSrc}
+                                                            autoPlay
+                                                            muted
+                                                            loop
+                                                            playsInline
+                                                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-[8s] group-hover/card:scale-110"
+                                                        >
+                                                            <source src={mediaSrc} type={videoType} />
+                                                        </video>
+                                                    ) : (
+                                                        <img
+                                                            src={stage.image}
+                                                            alt={stage.title}
+                                                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-[8s] group-hover/card:scale-110"
+                                                        />
+                                                    );
+                                                })()}
 
                                                 {/* Gradient Overlay */}
                                                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/40" />

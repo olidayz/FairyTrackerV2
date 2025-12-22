@@ -1497,7 +1497,7 @@ const StageContentEditor = ({ stage, content, onSave, onCancel }: {
                   {isUploading ? 'Uploading...' : 'Upload'}
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/webm,video/mp4,video/quicktime"
                     onChange={handleImageUpload}
                     className="hidden"
                     disabled={isUploading}
@@ -1506,7 +1506,11 @@ const StageContentEditor = ({ stage, content, onSave, onCancel }: {
               </div>
               {formData.frontImageUrl && (
                 <div className="mt-2">
-                  <img src={formData.frontImageUrl} alt="Preview" className="h-20 w-20 object-cover rounded-lg border border-slate-600" />
+                  {formData.frontImageUrl.endsWith('.webm') || formData.frontImageUrl.endsWith('.mp4') || formData.frontImageUrl.endsWith('.mov') ? (
+                    <video src={formData.frontImageUrl} className="h-20 w-20 object-cover rounded-lg border border-slate-600" muted autoPlay loop playsInline />
+                  ) : (
+                    <img src={formData.frontImageUrl} alt="Preview" className="h-20 w-20 object-cover rounded-lg border border-slate-600" />
+                  )}
                 </div>
               )}
             </div>
@@ -1648,11 +1652,22 @@ const LandingImagesEditor = ({ images, onSave, getAuthHeaders }: LandingImagesEd
             
             <div className="aspect-video bg-slate-800 rounded-lg overflow-hidden flex items-center justify-center">
               {image.imageUrl ? (
-                <img 
-                  src={image.imageUrl} 
-                  alt={image.label} 
-                  className="w-full h-full object-cover"
-                />
+                image.imageUrl.endsWith('.webm') || image.imageUrl.endsWith('.mp4') || image.imageUrl.endsWith('.mov') ? (
+                  <video 
+                    src={image.imageUrl} 
+                    className="w-full h-full object-cover"
+                    muted
+                    autoPlay
+                    loop
+                    playsInline
+                  />
+                ) : (
+                  <img 
+                    src={image.imageUrl} 
+                    alt={image.label} 
+                    className="w-full h-full object-cover"
+                  />
+                )
               ) : (
                 <div className="text-slate-500 text-sm">No image uploaded</div>
               )}
@@ -1662,7 +1677,7 @@ const LandingImagesEditor = ({ images, onSave, getAuthHeaders }: LandingImagesEd
               <label className="flex-1">
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/*,video/webm,video/mp4,video/quicktime"
                   className="hidden"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
@@ -1675,7 +1690,7 @@ const LandingImagesEditor = ({ images, onSave, getAuthHeaders }: LandingImagesEd
                     ? 'bg-slate-700 text-slate-400 cursor-not-allowed' 
                     : 'bg-cyan-500 hover:bg-cyan-600 text-white'
                 }`}>
-                  {uploadingId === image.id ? 'Uploading...' : 'Upload Image'}
+                  {uploadingId === image.id ? 'Uploading...' : 'Upload Media'}
                 </span>
               </label>
               {image.imageUrl && (
