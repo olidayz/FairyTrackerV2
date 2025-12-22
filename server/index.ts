@@ -7,7 +7,7 @@ import { startEmailScheduler } from './email-scheduler';
 import { registerObjectStorageRoutes } from './replit_integrations/object_storage';
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.NODE_ENV === 'production' ? 5000 : (process.env.PORT || 3001);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
