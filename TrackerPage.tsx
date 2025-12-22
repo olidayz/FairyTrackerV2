@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useParams } from 'react-router-dom';
 import {
   LucideIcon,
   Plane, Search, Home, Lock,
@@ -752,7 +753,7 @@ const HudGauge = ({ icon: Icon, label, value, color, delay }: any) => (
 );
 
 
-const MissionHeaderCard = ({ isComplete = false }: { isComplete?: boolean }) => (
+const MissionHeaderCard = ({ isComplete = false, userName = 'Friend' }: { isComplete?: boolean; userName?: string }) => (
   <div className="relative w-full flex flex-col items-center justify-center mb-10 pt-8 pb-4">
 
     {/* === PERSONALIZED HEADER === */}
@@ -764,7 +765,7 @@ const MissionHeaderCard = ({ isComplete = false }: { isComplete?: boolean }) => 
 
       {/* Right: Pickup */}
       <div className="flex items-center gap-2">
-        <span className="text-xs md:text-sm font-sans font-medium text-white/80 tracking-wide">Pickup: Savannah's Tooth</span>
+        <span className="text-xs md:text-sm font-sans font-medium text-white/80 tracking-wide">Pickup: {userName}'s Tooth</span>
       </div>
     </div>
 
@@ -779,13 +780,13 @@ const MissionHeaderCard = ({ isComplete = false }: { isComplete?: boolean }) => 
           Journey to
         </span>
 
-        {/* SAVANNAH - Main name with scan line */}
+        {/* User Name - Main name with scan line */}
         <div className="relative -mt-1 md:-mt-3">
           <span className="font-chrome text-white text-7xl sm:text-8xl md:text-[9rem] tracking-wide uppercase"
             style={{
               textShadow: '0 0 40px rgba(34,211,238,0.8), 0 0 80px rgba(34,211,238,0.4), 0 4px 0 rgba(0,0,0,0.5)'
             }}>
-            SAVANNAH
+            {userName.toUpperCase()}
           </span>
 
           {/* Scan Line Animation - Only on name */}
@@ -1050,12 +1051,41 @@ const RecentlyCollectedWidget = () => {
 // === MAIN APP ===
 
 function Tracker() {
+  const { token } = useParams<{ token: string }>();
   const [currentStage, setCurrentStage] = useState(2);
   const [maxUnlockedStage, setMaxUnlockedStage] = useState(3);
-  // Modal state removed - flip card handles reveals
   const [selectedStage, setSelectedStage] = useState<Stage | null>(null);
+  const [userName, setUserName] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
   const morningRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const fetchTrackerData = async () => {
+      if (!token) {
+        setUserName('Friend');
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/tracker/${token}`);
+        if (response.ok) {
+          const data = await response.json();
+          setUserName(data.userName || 'Friend');
+        } else {
+          setUserName('Friend');
+        }
+      } catch (error) {
+        console.error('Failed to fetch tracker data:', error);
+        setUserName('Friend');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTrackerData();
+  }, [token]);
 
   // Listen for postMessage from landing page to scroll to sections
   useEffect(() => {
@@ -1107,7 +1137,7 @@ function Tracker() {
       <div className="relative z-10 container mx-auto px-4 py-4 md:py-8 max-w-5xl">
 
         {/* 1. HEADER SECTION */}
-        <MissionHeaderCard isComplete={!isNextBatchAvailable} />
+        <MissionHeaderCard isComplete={!isNextBatchAvailable} userName={userName} />
 
         {/* 2. ISOLATED START CARD */}
         <StartMissionCard onClick={unlockNextBatch} isMorning={!isNextBatchAvailable} />

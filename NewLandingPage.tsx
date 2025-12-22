@@ -29,6 +29,53 @@ const NewLandingPage = () => {
     const [touchEnd, setTouchEnd] = useState<number | null>(null);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [fairyPosition, setFairyPosition] = useState(0);
+    
+    const [childName, setChildName] = useState('');
+    const [email, setEmail] = useState('');
+    const [formError, setFormError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleSignup = async () => {
+        setFormError('');
+        
+        if (!childName.trim()) {
+            setFormError("Please enter your child's name");
+            return;
+        }
+        
+        if (!email.trim()) {
+            setFormError('Please enter your email');
+            return;
+        }
+        
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            setFormError('Please enter a valid email address');
+            return;
+        }
+        
+        setIsSubmitting(true);
+        
+        try {
+            const response = await fetch('/api/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: childName.trim(), email: email.trim() }),
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || 'Signup failed');
+            }
+            
+            navigate(data.trackerUrl);
+        } catch (error: any) {
+            setFormError(error.message || 'Something went wrong. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     // Fairy positions for animation (North America path)
     const fairyPath = [
@@ -775,6 +822,8 @@ const NewLandingPage = () => {
                                             <input
                                                 type="text"
                                                 placeholder="Enter name..."
+                                                value={childName}
+                                                onChange={(e) => setChildName(e.target.value)}
                                                 className="w-full px-6 py-5 bg-white border-2 border-slate-200 rounded-2xl text-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/20 transition-all shadow-inner"
                                             />
                                         </div>
@@ -786,17 +835,27 @@ const NewLandingPage = () => {
                                             <input
                                                 type="email"
                                                 placeholder="your@email.com"
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
                                                 className="w-full px-6 py-5 bg-white border-2 border-slate-200 rounded-2xl text-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/20 transition-all shadow-inner"
                                             />
                                         </div>
 
+                                        {/* Error Message */}
+                                        {formError && (
+                                            <div className="text-red-400 text-sm text-center bg-red-500/10 border border-red-500/30 rounded-lg py-3 px-4">
+                                                {formError}
+                                            </div>
+                                        )}
+
                                         {/* CTA Button - MASSIVE */}
                                         <button
-                                            onClick={handleEnter}
-                                            className="w-full bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600 text-white px-8 py-6 rounded-xl font-sans font-extrabold text-xl uppercase tracking-tight shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all transform hover:-translate-y-1 active:translate-y-1 border-b-[4px] border-[#1e40af] active:border-b-0 flex items-center justify-center gap-3"
+                                            onClick={handleSignup}
+                                            disabled={isSubmitting}
+                                            className="w-full bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600 text-white px-8 py-6 rounded-xl font-sans font-extrabold text-xl uppercase tracking-tight shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all transform hover:-translate-y-1 active:translate-y-1 border-b-[4px] border-[#1e40af] active:border-b-0 flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
                                         >
-                                            <span>Start Tracking</span>
-                                            <span className="text-2xl">✨</span>
+                                            <span>{isSubmitting ? 'Creating Your Tracker...' : 'Start Tracking'}</span>
+                                            {!isSubmitting && <span className="text-2xl">✨</span>}
                                         </button>
 
                                         {/* Trust Signals - BIGGER */}
