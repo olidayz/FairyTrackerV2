@@ -54,7 +54,6 @@ The app follows a multi-page SPA architecture with these main routes (matching S
 
 ### Admin CMS Features
 The Admin panel (/admin) provides full CMS capabilities:
-- **Analytics Dashboard**: Real-time metrics for signups, tracker views, email performance, and recent users
 - **Blog Posts**: Create, edit, delete blog articles with rich content
 - **Stage Content**: Configure each tracker stage with front card image (via upload), location text, status text, video URL, image URL, and message text
 - **Email Templates**: Customize email content for tracking links, morning unlock, and admin notifications
@@ -117,22 +116,3 @@ The Admin panel (/admin) provides full CMS capabilities:
 ### Static Assets
 - Custom font files (MDNIchrome) served from public directory
 - Logo and branding images expected in public directory
-
-## Recent Additions (December 22, 2025)
-
-### Analytics Dashboard
-- Real-time metrics for user signups and tracker views
-- Email performance tracking (sent, delivered, opened, clicked)
-- 30-day historical charts with interactive tooltips
-- Recent signups table with direct tracker links
-- Integrated with Resend webhook events
-
-### SEO & Search
-- `/sitemap.xml` - Dynamic XML sitemap with all pages and published blog posts
-- `/robots.txt` - Search engine crawling rules and sitemap reference
-- Vite proxy configured for both endpoints
-
-### UI Improvements
-- Fixed stage card layout: expanded cards now push down subsequent cards instead of overlaying
-- Dynamic height calculation for flipped stage cards
-- Smooth height transitions during card flip animation

@@ -39,8 +39,6 @@ export const StageCard: React.FC<StageCardProps> = ({
    const backRef = useRef<HTMLDivElement>(null);
    const videoRef = useRef<HTMLVideoElement>(null);
    const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-   const flipContainerRef = useRef<HTMLDivElement>(null);
-   const [containerHeight, setContainerHeight] = useState<string | number>('auto');
 
    const isInverted = index % 2 !== 0;
 
@@ -67,13 +65,6 @@ export const StageCard: React.FC<StageCardProps> = ({
       if (isFlipped) {
          setBackHidden(false);
          setIsAnimating(true);
-         // Measure back face height and expand container
-         setTimeout(() => {
-            if (backRef.current) {
-               const backHeight = backRef.current.offsetHeight;
-               setContainerHeight(backHeight);
-            }
-         }, 50);
          hideTimeoutRef.current = setTimeout(() => {
             setFrontHidden(true);
             setIsAnimating(false);
@@ -83,13 +74,6 @@ export const StageCard: React.FC<StageCardProps> = ({
          setFrontHidden(false);
          setIsAnimating(true);
          setShowContent(false);
-         // Measure front face height and contract container
-         setTimeout(() => {
-            if (frontRef.current) {
-               const frontHeight = frontRef.current.offsetHeight;
-               setContainerHeight(frontHeight);
-            }
-         }, 50);
          hideTimeoutRef.current = setTimeout(() => {
             setBackHidden(true);
             setIsAnimating(false);
@@ -110,16 +94,13 @@ export const StageCard: React.FC<StageCardProps> = ({
             }}
          >
             <div
-               ref={flipContainerRef}
                className="relative w-full transition-transform duration-700 ease-out"
                style={{
                   transformStyle: 'preserve-3d',
                   WebkitTransformStyle: 'preserve-3d',
                   transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
                   WebkitTransform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
-                  willChange: 'transform',
-                  height: containerHeight,
-                  transition: 'height 0.7s ease-out'
+                  willChange: 'transform'
                }}
             >
                {/* ===== FRONT FACE ===== */}
