@@ -106,7 +106,7 @@ const MediaKitPage = () => {
     const keyFeatures = [
         {
             icon: Sparkles,
-            title: "Six-stage mission",
+            title: "Seven-stage mission",
             desc: "The Tooth Fairy's journey unlocks in sequence, with stages designed for nighttime and others for the morning."
         },
         {
@@ -272,7 +272,7 @@ const MediaKitPage = () => {
 
                             <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
                                 {[
-                                    "Six cinematic stages revealed from the parent's phone",
+                                    "Seven cinematic stages revealed from the parent's phone",
                                     "Short videos, Tooth Fairy selfies, and travel stats like flight speed and altitude",
                                     "Real-world locations and playful detours that build excitement and belief",
                                     "Designed to amplify a beloved childhood ritual, not replace it"
