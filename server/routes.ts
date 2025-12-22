@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { storage } from './storage';
 import { db } from './db';
-import { emailTemplates, trackerSessions, landingHero, fairyUpdates, kikiProfile, reviews, faqs, copySections } from '../shared/schema';
+import { emailTemplates, trackerSessions, landingHero, fairyUpdates, kikiProfile, reviews, faqs, copySections, stageContent, stageDefinitions } from '../shared/schema';
 import { sendTrackingEmail, sendAdminNotificationEmail } from './email';
 import { eq, asc } from 'drizzle-orm';
 
@@ -203,6 +203,9 @@ router.get('/api/tracker/:token', async (req: Request, res: Response) => {
                 videoUrl: content?.videoUrl || null,
                 imageUrl: content?.imageUrl || null,
                 messageText: content?.messageText || null,
+                frontImageUrl: content?.frontImageUrl || null,
+                locationText: content?.locationText || null,
+                statusText: content?.statusText || null,
               }
             : null,
         };
@@ -275,6 +278,32 @@ router.get('/api/reviews', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('[API] Reviews fetch error:', error);
     res.status(500).json({ error: 'Failed to fetch reviews' });
+  }
+});
+
+router.get('/api/stage-content', async (req: Request, res: Response) => {
+  try {
+    const definitions = await db.select().from(stageDefinitions).orderBy(asc(stageDefinitions.orderIndex));
+    const content = await db.select().from(stageContent);
+    
+    const contentMap = content.reduce((acc, c) => {
+      acc[c.stageDefinitionId] = c;
+      return acc;
+    }, {} as Record<number, typeof content[0]>);
+    
+    const result = definitions.map(def => ({
+      id: def.id,
+      slug: def.slug,
+      label: def.label,
+      dayPart: def.dayPart,
+      orderIndex: def.orderIndex,
+      content: contentMap[def.id] || null,
+    }));
+    
+    res.json(result);
+  } catch (error) {
+    console.error('[API] Stage content fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch stage content' });
   }
 });
 

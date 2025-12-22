@@ -70,6 +70,22 @@ interface Stage {
   objectImage: string;
 }
 
+interface CMSStageContent {
+  id: number;
+  slug: string;
+  label: string;
+  dayPart: string;
+  orderIndex: number;
+  content: {
+    videoUrl?: string | null;
+    imageUrl?: string | null;
+    messageText?: string | null;
+    frontImageUrl?: string | null;
+    locationText?: string | null;
+    statusText?: string | null;
+  } | null;
+}
+
 // === ASSET URLS ===
 const IMG_NIGHT_SKY = "https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?q=80&w=600&auto=format&fit=crop";
 const IMG_CLOUDS = "https://images.unsplash.com/photo-1534067783865-2913f5fd1503?q=80&w=600&auto=format&fit=crop";
@@ -1056,6 +1072,7 @@ function Tracker() {
   const [selectedStage, setSelectedStage] = useState<Stage | null>(null);
   const [userName, setUserName] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [cmsStageContent, setCmsStageContent] = useState<CMSStageContent[]>([]);
   
   // Night/Morning unlock system
   // true = Night mode (morning locked), false = Morning mode (morning unlocked)
@@ -1117,6 +1134,22 @@ function Tracker() {
     fetchTrackerData();
   }, [token]);
 
+  // Fetch CMS stage content
+  useEffect(() => {
+    const fetchStageContent = async () => {
+      try {
+        const response = await fetch('/api/stage-content');
+        if (response.ok) {
+          const data = await response.json();
+          setCmsStageContent(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch stage content:', error);
+      }
+    };
+    fetchStageContent();
+  }, []);
+
   // Listen for postMessage from landing page to scroll to sections
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -1147,8 +1180,23 @@ function Tracker() {
     }, 100);
   };
 
-  const nightStages = STAGES.slice(0, 3);
-  const morningStages = STAGES.slice(3, 6);
+  // Merge CMS content with default stages
+  const mergedStages = STAGES.map(stage => {
+    const cmsContent = cmsStageContent.find(c => c.id === stage.id)?.content;
+    if (!cmsContent) return stage;
+    
+    return {
+      ...stage,
+      cardImage: cmsContent.frontImageUrl || stage.cardImage,
+      location: cmsContent.locationText || stage.location,
+      subtext: cmsContent.statusText || stage.subtext,
+      message: cmsContent.messageText || stage.message,
+      videoThumbnail: cmsContent.imageUrl || stage.videoThumbnail,
+    };
+  });
+
+  const nightStages = mergedStages.slice(0, 3);
+  const morningStages = mergedStages.slice(3, 6);
 
   return (
     <div className="min-h-screen bg-[#02040a] text-white font-sans selection:bg-cyan-500/30 pb-20 overflow-x-hidden">
