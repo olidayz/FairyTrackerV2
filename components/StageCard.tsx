@@ -85,7 +85,16 @@ export const StageCard: React.FC<StageCardProps> = ({
                         </div>
                         <h2 className={`font-chrome text-6xl md:text-7xl uppercase tracking-normal drop-shadow-[0_4px_0_rgba(0,0,0,1)] transform skew-x-[-6deg] transition-all duration-300 ${isHovered ? 'scale-105' : 'scale-100'}`}>
                            <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-cyan-200">
-                              {stage.title.split(' ').map((word, i) => (<React.Fragment key={i}>{i > 0 && <br />}{word}</React.Fragment>))}
+                              {(() => {
+                                 const words = stage.title.split(' ');
+                                 if (words.length <= 2) {
+                                    return words.map((word, i) => (<React.Fragment key={i}>{i > 0 && <br />}{word}</React.Fragment>));
+                                 }
+                                 const mid = Math.ceil(words.length / 2);
+                                 const line1 = words.slice(0, mid).join(' ');
+                                 const line2 = words.slice(mid).join(' ');
+                                 return <>{line1}<br />{line2}</>;
+                              })()}
                            </span>
                         </h2>
                         <div className={`relative group/btn z-50 bg-gradient-to-r ${theme.button} border-b-[6px] border-black/20 rounded-xl px-8 py-3 md:px-10 md:py-4 transform transition-all duration-200 shadow-xl hover:-translate-y-1 hover:border-b-[8px] active:translate-y-1 active:border-b-0`}>
