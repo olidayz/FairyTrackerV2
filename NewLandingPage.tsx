@@ -82,11 +82,23 @@ const NewLandingPage = () => {
         mediaTypes: Record<string, string>;
     }>({ hero: null, reviews: [], kikiProfile: null, faqs: [], images: {}, stageTitles: {}, mediaTypes: {} });
     
+    // Stage content from CMS (same as tracker)
+    const [stageContent, setStageContent] = useState<Array<{
+        id: number;
+        content: { messageText?: string | null } | null;
+    }>>([]);
+    
     useEffect(() => {
         fetch('/api/landing-content')
             .then(res => res.json())
             .then(data => setLandingContent(data))
             .catch(err => console.error('Failed to load landing content:', err));
+        
+        // Fetch stage content for messages
+        fetch('/api/stage-content')
+            .then(res => res.json())
+            .then(data => setStageContent(data))
+            .catch(err => console.error('Failed to load stage content:', err));
     }, []);
 
     const handleSignup = async () => {
@@ -199,6 +211,12 @@ const NewLandingPage = () => {
 
     const defaultFairyPhoto = "/Fairy photo booth pic.webp";
     
+    // Helper to get CMS message for a stage
+    const getStageMessage = (stageId: number, defaultMessage: string) => {
+        const content = stageContent.find(s => s.id === stageId)?.content;
+        return content?.messageText || defaultMessage;
+    };
+    
     const storyStages: Array<{stage: number; title: string; location: string; image: string; isVideo: boolean; message: string; color: string}> = [
         {
             stage: 1,
@@ -206,7 +224,7 @@ const NewLandingPage = () => {
             location: "North Star Portal",
             image: landingContent.images?.stage_1_photo || defaultFairyPhoto,
             isVideo: landingContent.mediaTypes?.stage_1_photo === 'video',
-            message: "I've just taken flight from the North Star! The wind is in my wings and I'm heading your way. Keep that tooth safe! ✨",
+            message: getStageMessage(1, "I've just taken flight from the North Star! The wind is in my wings and I'm heading your way. Keep that tooth safe! ✨"),
             color: "from-cyan-400 to-blue-500"
         },
         {
@@ -215,7 +233,7 @@ const NewLandingPage = () => {
             location: "Sparkle Mountains",
             image: landingContent.images?.stage_2_photo || defaultFairyPhoto,
             isVideo: landingContent.mediaTypes?.stage_2_photo === 'video',
-            message: "Just passed over the Sparkle Mountains. The view is breath-taking! I can see your neighborhood lights from here. 🏔️",
+            message: getStageMessage(2, "Just passed over the Sparkle Mountains. The view is breath-taking! I can see your neighborhood lights from here. 🏔️"),
             color: "from-fuchsia-400 to-purple-500"
         },
         {
@@ -224,7 +242,7 @@ const NewLandingPage = () => {
             location: "Silver Lining Lane",
             image: landingContent.images?.stage_3_photo || defaultFairyPhoto,
             isVideo: landingContent.mediaTypes?.stage_3_photo === 'video',
-            message: "Hitching a ride on a silver lining! Almost there. Is everyone tucked in tight? The magic works best when you're dreaming! ☁️",
+            message: getStageMessage(3, "Hitching a ride on a silver lining! Almost there. Is everyone tucked in tight? The magic works best when you're dreaming! ☁️"),
             color: "from-amber-400 to-orange-500"
         },
         {
@@ -233,7 +251,7 @@ const NewLandingPage = () => {
             location: "Your Neighborhood",
             image: landingContent.images?.stage_4_photo || defaultFairyPhoto,
             isVideo: landingContent.mediaTypes?.stage_4_photo === 'video',
-            message: "I'm circling your street now! Just look for the faint trail of stardust. I'll be at your window in just a few minutes! 🏠",
+            message: getStageMessage(4, "I'm circling your street now! Just look for the faint trail of stardust. I'll be at your window in just a few minutes! 🏠"),
             color: "from-lime-400 to-green-500"
         },
         {
@@ -242,7 +260,7 @@ const NewLandingPage = () => {
             location: "Your Pillow",
             image: landingContent.images?.stage_5_photo || defaultFairyPhoto,
             isVideo: landingContent.mediaTypes?.stage_5_photo === 'video',
-            message: "Mission successful! The tooth has been collected and a special surprise is waiting for you. Safe travels back to Fairy HQ! 🦷",
+            message: getStageMessage(5, "Mission successful! The tooth has been collected and a special surprise is waiting for you. Safe travels back to Fairy HQ! 🦷"),
             color: "from-red-400 to-pink-500"
         },
         {
@@ -251,7 +269,7 @@ const NewLandingPage = () => {
             location: "Fairy HQ",
             image: landingContent.images?.stage_6_photo || defaultFairyPhoto,
             isVideo: landingContent.mediaTypes?.stage_6_photo === 'video',
-            message: "I'm back home now, tucked into my own petal bed. I'll see you again for the next one! Sweet dreams! 🌸",
+            message: getStageMessage(6, "I'm back home now, tucked into my own petal bed. I'll see you again for the next one! Sweet dreams! 🌸"),
             color: "from-indigo-400 to-blue-600"
         }
     ];
