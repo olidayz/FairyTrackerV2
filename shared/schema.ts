@@ -45,7 +45,41 @@ export const stageEntries = pgTable('stage_entries', {
   completedAt: timestamp('completed_at'),
 });
 
+export const blogPosts = pgTable('blog_posts', {
+  id: serial('id').primaryKey(),
+  slug: varchar('slug', { length: 255 }).notNull().unique(),
+  title: varchar('title', { length: 255 }).notNull(),
+  excerpt: text('excerpt'),
+  content: text('content'),
+  featuredImageUrl: text('featured_image_url'),
+  status: varchar('status', { length: 20 }).default('draft').notNull(),
+  publishedAt: timestamp('published_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  shopifyId: varchar('shopify_id', { length: 100 }),
+  metaTitle: varchar('meta_title', { length: 255 }),
+  metaDescription: varchar('meta_description', { length: 500 }),
+});
+
+export const siteAssets = pgTable('site_assets', {
+  id: serial('id').primaryKey(),
+  key: varchar('key', { length: 100 }).notNull().unique(),
+  type: varchar('type', { length: 50 }).notNull(),
+  label: varchar('label', { length: 255 }).notNull(),
+  description: text('description'),
+  url: text('url'),
+  downloadable: boolean('downloadable').default(false),
+  sortOrder: integer('sort_order').default(0),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type TrackerSession = typeof trackerSessions.$inferSelect;
 export type InsertTrackerSession = typeof trackerSessions.$inferInsert;
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type InsertBlogPost = typeof blogPosts.$inferInsert;
+export type SiteAsset = typeof siteAssets.$inferSelect;
+export type StageDefinition = typeof stageDefinitions.$inferSelect;
+export type StageContent = typeof stageContent.$inferSelect;

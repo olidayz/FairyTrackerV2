@@ -12,6 +12,7 @@ import PrivacyPolicyPage from './PrivacyPolicyPage';
 import TermsPage from './TermsPage';
 import ShippingPolicyPage from './ShippingPolicyPage';
 import RefundPolicyPage from './RefundPolicyPage';
+import AdminPage from './AdminPage';
 
 function App() {
   return (
@@ -37,6 +38,10 @@ function App() {
         <Route path="/policies/terms-of-service" element={<TermsPage />} />
         <Route path="/policies/shipping-policy" element={<ShippingPolicyPage />} />
         <Route path="/policies/refund-policy" element={<RefundPolicyPage />} />
+        
+        {/* Admin */}
+        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/admin/cms" element={<AdminPage />} />
       </Routes>
     </Router>
   );
