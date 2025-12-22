@@ -168,7 +168,17 @@ export const copySections = pgTable('copy_sections', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+export const landingImages = pgTable('landing_images', {
+  id: serial('id').primaryKey(),
+  key: varchar('key', { length: 100 }).notNull().unique(),
+  label: varchar('label', { length: 255 }).notNull(),
+  description: text('description'),
+  imageUrl: text('image_url'),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 export type SiteAsset = typeof siteAssets.$inferSelect;
+export type LandingImage = typeof landingImages.$inferSelect;
 export type StageDefinition = typeof stageDefinitions.$inferSelect;
 export type StageContent = typeof stageContent.$inferSelect;
 export type EmailTemplate = typeof emailTemplates.$inferSelect;

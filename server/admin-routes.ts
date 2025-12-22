@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { db } from './db';
-import { blogPosts, stageDefinitions, stageContent, siteAssets, emailTemplates, landingHero, fairyUpdates, kikiProfile, reviews, faqs, copySections } from '../shared/schema';
+import { blogPosts, stageDefinitions, stageContent, siteAssets, emailTemplates, landingHero, fairyUpdates, kikiProfile, reviews, faqs, copySections, landingImages } from '../shared/schema';
 import { eq, asc } from 'drizzle-orm';
 
 const router = Router();
@@ -477,6 +477,31 @@ router.delete('/api/admin/copy-sections/:id', async (req: Request, res: Response
   } catch (error) {
     console.error('[Admin] Failed to delete copy section:', error);
     res.status(500).json({ error: 'Failed to delete copy section' });
+  }
+});
+
+router.get('/api/admin/landing-images', async (req: Request, res: Response) => {
+  try {
+    const images = await db.select().from(landingImages);
+    res.json(images);
+  } catch (error) {
+    console.error('[Admin] Failed to fetch landing images:', error);
+    res.status(500).json({ error: 'Failed to fetch landing images' });
+  }
+});
+
+router.put('/api/admin/landing-images/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { imageUrl } = req.body;
+    const [updated] = await db.update(landingImages)
+      .set({ imageUrl, updatedAt: new Date() })
+      .where(eq(landingImages.id, parseInt(id)))
+      .returning();
+    res.json(updated);
+  } catch (error) {
+    console.error('[Admin] Failed to update landing image:', error);
+    res.status(500).json({ error: 'Failed to update landing image' });
   }
 });
 

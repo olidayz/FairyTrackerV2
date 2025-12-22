@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { storage } from './storage';
 import { db } from './db';
-import { emailTemplates, trackerSessions, landingHero, fairyUpdates, kikiProfile, reviews, faqs, copySections, stageContent, stageDefinitions } from '../shared/schema';
+import { emailTemplates, trackerSessions, landingHero, fairyUpdates, kikiProfile, reviews, faqs, copySections, stageContent, stageDefinitions, landingImages } from '../shared/schema';
 import { sendTrackingEmail, sendAdminNotificationEmail } from './email';
 import { eq, asc } from 'drizzle-orm';
 
@@ -304,6 +304,20 @@ router.get('/api/stage-content', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('[API] Stage content fetch error:', error);
     res.status(500).json({ error: 'Failed to fetch stage content' });
+  }
+});
+
+router.get('/api/landing-images', async (req: Request, res: Response) => {
+  try {
+    const images = await db.select().from(landingImages);
+    const imageMap = images.reduce((acc, img) => {
+      acc[img.key] = img.imageUrl;
+      return acc;
+    }, {} as Record<string, string | null>);
+    res.json(imageMap);
+  } catch (error) {
+    console.error('[API] Landing images fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch landing images' });
   }
 });
 

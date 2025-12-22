@@ -104,8 +104,16 @@ interface EmailTemplate {
   footerText: string;
 }
 
+interface LandingImage {
+  id: number;
+  key: string;
+  label: string;
+  description: string | null;
+  imageUrl: string | null;
+}
+
 const AdminPage = () => {
-  const [activeTab, setActiveTab] = useState<'blog' | 'stages' | 'emails' | 'assets' | 'landing' | 'reviews' | 'faqs' | 'copy'>('blog');
+  const [activeTab, setActiveTab] = useState<'blog' | 'stages' | 'emails' | 'assets' | 'landing' | 'reviews' | 'faqs' | 'copy' | 'images'>('blog');
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [stages, setStages] = useState<StageDefinition[]>([]);
   const [stageContents, setStageContents] = useState<StageContent[]>([]);
@@ -116,6 +124,7 @@ const AdminPage = () => {
   const [reviewsList, setReviewsList] = useState<Review[]>([]);
   const [faqsList, setFaqsList] = useState<FAQ[]>([]);
   const [copySections, setCopySections] = useState<CopySection[]>([]);
+  const [landingImagesList, setLandingImagesList] = useState<LandingImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [editingStage, setEditingStage] = useState<{ stage: StageDefinition; content: StageContent | null } | null>(null);
@@ -195,6 +204,9 @@ const AdminPage = () => {
       } else if (activeTab === 'copy') {
         const res = await fetch('/api/admin/copy-sections', { headers: getAuthHeaders() });
         if (res.ok) setCopySections(await res.json());
+      } else if (activeTab === 'images') {
+        const res = await fetch('/api/admin/landing-images', { headers: getAuthHeaders() });
+        if (res.ok) setLandingImagesList(await res.json());
       }
     } catch (error) {
       console.error('Failed to fetch data:', error);
@@ -380,6 +392,7 @@ const AdminPage = () => {
     { id: 'stages', label: 'Stage Content', icon: Video },
     { id: 'emails', label: 'Emails', icon: Mail },
     { id: 'landing', label: 'Landing Hero', icon: LayoutDashboard },
+    { id: 'images', label: 'Site Images', icon: Image },
     { id: 'reviews', label: 'Reviews', icon: Star },
     { id: 'faqs', label: 'FAQs', icon: HelpCircle },
     { id: 'copy', label: 'Copy Sections', icon: Type },
@@ -1086,6 +1099,23 @@ const AdminPage = () => {
               )}
             </div>
           </div>
+        ) : activeTab === 'images' ? (
+          <LandingImagesEditor 
+            images={landingImagesList} 
+            onSave={async (id, imageUrl) => {
+              try {
+                const res = await fetch(`/api/admin/landing-images/${id}`, {
+                  method: 'PUT',
+                  headers: getAuthHeaders(),
+                  body: JSON.stringify({ imageUrl }),
+                });
+                if (res.ok) fetchData();
+              } catch (error) {
+                console.error('Failed to update image:', error);
+              }
+            }}
+            getAuthHeaders={getAuthHeaders}
+          />
         ) : (
           <div className="space-y-4">
             <h2 className="text-lg font-semibold">Site Assets</h2>
@@ -1551,6 +1581,118 @@ const StageContentEditor = ({ stage, content, onSave, onCancel }: {
         >
           Cancel
         </button>
+      </div>
+    </div>
+  );
+};
+
+interface LandingImagesEditorProps {
+  images: LandingImage[];
+  onSave: (id: number, imageUrl: string) => Promise<void>;
+  getAuthHeaders: () => HeadersInit;
+}
+
+const LandingImagesEditor = ({ images, onSave, getAuthHeaders }: LandingImagesEditorProps) => {
+  const [uploadingId, setUploadingId] = useState<number | null>(null);
+
+  const handleFileUpload = async (id: number, file: File) => {
+    setUploadingId(id);
+    try {
+      const urlRes = await fetch('/api/uploads/request-url', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ 
+          fileName: file.name, 
+          contentType: file.type 
+        }),
+      });
+      
+      if (!urlRes.ok) throw new Error('Failed to get upload URL');
+      const { uploadUrl, objectPath } = await urlRes.json();
+      
+      const uploadRes = await fetch(uploadUrl, {
+        method: 'PUT',
+        body: file,
+        headers: { 'Content-Type': file.type },
+      });
+      
+      if (!uploadRes.ok) throw new Error('Failed to upload file');
+      
+      const imageUrl = `/objects/${objectPath}`;
+      await onSave(id, imageUrl);
+    } catch (error) {
+      console.error('Upload failed:', error);
+      alert('Failed to upload image. Please try again.');
+    } finally {
+      setUploadingId(null);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-lg font-semibold">Site Images</h2>
+      <p className="text-slate-400">Upload images for different sections of your site. These images will be used across the landing page and other areas.</p>
+      
+      <div className="grid gap-6 md:grid-cols-2">
+        {images.map((image) => (
+          <div key={image.id} className="bg-slate-900 border border-slate-800 rounded-lg p-4 space-y-3">
+            <div>
+              <h3 className="font-medium text-white">{image.label}</h3>
+              {image.description && (
+                <p className="text-sm text-slate-400 mt-1">{image.description}</p>
+              )}
+            </div>
+            
+            <div className="aspect-video bg-slate-800 rounded-lg overflow-hidden flex items-center justify-center">
+              {image.imageUrl ? (
+                <img 
+                  src={image.imageUrl} 
+                  alt={image.label} 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="text-slate-500 text-sm">No image uploaded</div>
+              )}
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <label className="flex-1">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleFileUpload(image.id, file);
+                  }}
+                  disabled={uploadingId === image.id}
+                />
+                <span className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg cursor-pointer transition-colors ${
+                  uploadingId === image.id 
+                    ? 'bg-slate-700 text-slate-400 cursor-not-allowed' 
+                    : 'bg-cyan-500 hover:bg-cyan-600 text-white'
+                }`}>
+                  {uploadingId === image.id ? 'Uploading...' : 'Upload Image'}
+                </span>
+              </label>
+              {image.imageUrl && (
+                <button
+                  onClick={() => onSave(image.id, '')}
+                  className="p-2 text-red-400 hover:text-red-300 transition-colors"
+                  title="Remove image"
+                >
+                  <Trash2 size={18} />
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+        
+        {images.length === 0 && (
+          <p className="col-span-2 text-center py-8 text-slate-500">
+            No image slots configured. Contact support to add new image slots.
+          </p>
+        )}
       </div>
     </div>
   );
