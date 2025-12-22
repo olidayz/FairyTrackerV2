@@ -68,8 +68,8 @@ export const StageCard: React.FC<StageCardProps> = ({
             {/* ===== FRONT FACE ===== */}
             <div
                ref={frontRef}
-               className={`w-full cursor-pointer group ${isFlipped ? 'absolute inset-0 pointer-events-none' : ''}`}
-               style={{ backfaceVisibility: 'hidden' }}
+               className={`w-full cursor-pointer group ${isFlipped ? 'absolute inset-0 pointer-events-none opacity-0 invisible' : ''}`}
+               style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                onClick={handleFlip}
                onMouseEnter={() => setIsHovered(true)}
                onMouseLeave={() => setIsHovered(false)}
@@ -117,8 +117,8 @@ export const StageCard: React.FC<StageCardProps> = ({
             {/* ===== BACK FACE ===== */}
             <div
                ref={backRef}
-               className={`w-full ${!isFlipped ? 'absolute inset-0 pointer-events-none' : ''}`}
-               style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+               className={`w-full ${!isFlipped ? 'absolute inset-0 pointer-events-none opacity-0 invisible' : ''}`}
+               style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
             >
                <div className={`rounded-[2rem] bg-gradient-to-b from-slate-900/90 to-slate-950/90 ring-4 ${theme.ring}/60 overflow-visible shadow-[0_20px_50px_rgba(0,0,0,0.4)] relative h-full flex flex-col`}>
                   <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-white/5 to-transparent pointer-events-none rounded-t-[2rem]" />
