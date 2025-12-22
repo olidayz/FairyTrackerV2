@@ -11,6 +11,8 @@ interface BlogPost {
   featuredImageUrl: string;
   status: string;
   publishedAt: string | null;
+  metaTitle: string;
+  metaDescription: string;
 }
 
 interface StageDefinition {
@@ -228,7 +230,7 @@ const AdminPage = () => {
             <div className="flex justify-between items-center">
               <h2 className="text-lg font-semibold">Blog Posts</h2>
               <button
-                onClick={() => setEditingPost({ id: 0, slug: '', title: '', excerpt: '', content: '', featuredImageUrl: '', status: 'draft', publishedAt: null })}
+                onClick={() => setEditingPost({ id: 0, slug: '', title: '', excerpt: '', content: '', featuredImageUrl: '', status: 'draft', publishedAt: null, metaTitle: '', metaDescription: '' })}
                 className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 rounded-lg transition-colors"
               >
                 <Plus size={18} />
@@ -393,6 +395,52 @@ const BlogPostEditor = ({ post, onSave, onCancel }: { post: BlogPost; onSave: (p
             <option value="draft">Draft</option>
             <option value="published">Published</option>
           </select>
+        </div>
+
+        <div className="border-t border-slate-700 pt-4 mt-4">
+          <h4 className="text-md font-medium mb-3">Search engine listing</h4>
+          <p className="text-sm text-slate-400 mb-4">Add a title and description to see how this blog post might appear in a search engine listing</p>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Page title</label>
+              <input
+                type="text"
+                value={formData.metaTitle || ''}
+                onChange={(e) => setFormData({ ...formData, metaTitle: e.target.value.slice(0, 70) })}
+                maxLength={70}
+                className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                placeholder="Enter SEO page title"
+              />
+              <p className="text-xs text-slate-500 mt-1">{(formData.metaTitle || '').length} of 70 characters used</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Meta description</label>
+              <textarea
+                value={formData.metaDescription || ''}
+                onChange={(e) => setFormData({ ...formData, metaDescription: e.target.value.slice(0, 160) })}
+                maxLength={160}
+                rows={3}
+                className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                placeholder="Enter SEO meta description"
+              />
+              <p className="text-xs text-slate-500 mt-1">{(formData.metaDescription || '').length} of 160 characters used</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">URL handle</label>
+              <div className="flex items-center">
+                <span className="text-slate-400 text-sm mr-2">blogs/kikis-blog/</span>
+                <input
+                  type="text"
+                  value={formData.slug}
+                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                  className="flex-1 px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

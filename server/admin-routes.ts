@@ -32,7 +32,7 @@ router.get('/api/admin/blog-posts', async (req: Request, res: Response) => {
 
 router.post('/api/admin/blog-posts', async (req: Request, res: Response) => {
   try {
-    const { slug, title, excerpt, content, featuredImageUrl, status } = req.body;
+    const { slug, title, excerpt, content, featuredImageUrl, status, metaTitle, metaDescription } = req.body;
     const [post] = await db.insert(blogPosts).values({
       slug,
       title,
@@ -41,6 +41,8 @@ router.post('/api/admin/blog-posts', async (req: Request, res: Response) => {
       featuredImageUrl,
       status: status || 'draft',
       publishedAt: status === 'published' ? new Date() : null,
+      metaTitle,
+      metaDescription,
     }).returning();
     res.json(post);
   } catch (error) {
@@ -52,7 +54,7 @@ router.post('/api/admin/blog-posts', async (req: Request, res: Response) => {
 router.put('/api/admin/blog-posts/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { slug, title, excerpt, content, featuredImageUrl, status } = req.body;
+    const { slug, title, excerpt, content, featuredImageUrl, status, metaTitle, metaDescription } = req.body;
     const [post] = await db.update(blogPosts)
       .set({
         slug,
@@ -63,6 +65,8 @@ router.put('/api/admin/blog-posts/:id', async (req: Request, res: Response) => {
         status,
         publishedAt: status === 'published' ? new Date() : null,
         updatedAt: new Date(),
+        metaTitle,
+        metaDescription,
       })
       .where(eq(blogPosts.id, parseInt(id)))
       .returning();
