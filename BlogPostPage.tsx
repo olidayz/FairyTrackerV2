@@ -1,16 +1,50 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Clock, User, ArrowLeft, ChevronsRight, Share2, Bookmark, Sparkles } from 'lucide-react';
-import { BLOG_POSTS } from './lib/blogs';
 import Footer from './components/Footer';
+
+interface BlogPost {
+    id: number;
+    slug: string;
+    title: string;
+    excerpt: string | null;
+    content: string | null;
+    featuredImageUrl: string | null;
+    status: string;
+    createdAt: string;
+}
 
 const BlogPostPage = () => {
     const { slug } = useParams();
     const navigate = useNavigate();
-    const post = BLOG_POSTS.find(p => p.slug === slug);
+    const [post, setPost] = useState<BlogPost | null>(null);
+    const [otherPosts, setOtherPosts] = useState<BlogPost[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [notFound, setNotFound] = useState(false);
 
     const [headerVisible, setHeaderVisible] = useState(true);
     const [lastScrollY, setLastScrollY] = useState(0);
+
+    useEffect(() => {
+        if (!slug) return;
+        
+        Promise.all([
+            fetch(`/api/blog/${slug}`).then(res => res.ok ? res.json() : null),
+            fetch('/api/blog').then(res => res.json())
+        ]).then(([postData, allPosts]) => {
+            if (!postData) {
+                setNotFound(true);
+            } else {
+                setPost(postData);
+                setOtherPosts(allPosts.filter((p: BlogPost) => p.slug !== slug).slice(0, 2));
+            }
+            setLoading(false);
+        }).catch(err => {
+            console.error('Failed to fetch blog post:', err);
+            setNotFound(true);
+            setLoading(false);
+        });
+    }, [slug]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -26,18 +60,26 @@ const BlogPostPage = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, [lastScrollY]);
 
-    if (!post) {
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-[#0a1020] flex items-center justify-center text-white">
+                <div className="text-center text-slate-400">Loading...</div>
+            </div>
+        );
+    }
+
+    if (notFound || !post) {
         return (
             <div className="min-h-screen bg-[#0a1020] flex items-center justify-center text-white">
                 <div className="text-center">
                     <h1 className="text-4xl font-chrome mb-4">Story Not Found</h1>
-                    <Link to="/blog" className="text-cyan-400 hover:underline">Return to Archive</Link>
+                    <Link to="/blogs/kikis-blog" className="text-cyan-400 hover:underline">Return to Archive</Link>
                 </div>
             </div>
         );
     }
 
-    const otherPosts = BLOG_POSTS.filter(p => p.slug !== slug).slice(0, 2);
+    const postDate = new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
     return (
         <div className="min-h-screen bg-[#0a1020] text-white font-sans selection:bg-cyan-500/30 overflow-x-hidden">
@@ -83,7 +125,7 @@ const BlogPostPage = () => {
             <main className="relative z-10 pt-24 pb-24">
                 <div className="container mx-auto max-w-5xl px-4">
                     {/* Back Link */}
-                    <Link to="/blog" className="inline-flex items-center gap-2 text-slate-400 hover:text-cyan-400 transition-colors mb-12 group">
+                    <Link to="/blogs/kikis-blog" className="inline-flex items-center gap-2 text-slate-400 hover:text-cyan-400 transition-colors mb-12 group">
                         <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Back to stories
                     </Link>
 
@@ -100,26 +142,28 @@ const BlogPostPage = () => {
                                 </div>
                                 <div>
                                     <div className="text-[10px] text-slate-500 uppercase font-black tracking-widest leading-none mb-1">Storyteller</div>
-                                    <div className="text-sm font-bold text-white leading-none">{post.author}</div>
+                                    <div className="text-sm font-bold text-white leading-none">Kiki the Tooth Fairy</div>
                                 </div>
                             </div>
                             <div className="h-10 w-px bg-white/5 hidden md:block" />
                             <div>
                                 <div className="text-[10px] text-slate-500 uppercase font-black tracking-widest leading-none mb-1">Date</div>
-                                <div className="text-sm font-bold text-white leading-none">{post.date}</div>
+                                <div className="text-sm font-bold text-white leading-none">{postDate}</div>
                             </div>
                         </div>
                     </div>
 
                     {/* Featured Image */}
+                    {post.featuredImageUrl && (
                     <div className="relative aspect-[21/9] rounded-2xl overflow-hidden border border-white/10 mb-16 shadow-xl">
                         <img
-                            src={post.image}
+                            src={post.featuredImageUrl}
                             alt={post.title}
                             className="w-full h-full object-cover"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-[#020617]/40 via-transparent to-transparent" />
                     </div>
+                    )}
 
                     {/* Main Content Layout */}
                     <div className="grid lg:grid-cols-[1fr_300px] gap-20">
@@ -127,7 +171,7 @@ const BlogPostPage = () => {
                         <article className="prose prose-invert prose-cyan max-w-none">
                             <div
                                 className="text-white text-lg leading-relaxed font-sans space-y-8"
-                                dangerouslySetInnerHTML={{ __html: post.content }}
+                                dangerouslySetInnerHTML={{ __html: post.content || '' }}
                             />
                         </article>
 
@@ -140,9 +184,9 @@ const BlogPostPage = () => {
                                 </h3>
                                 <div className="space-y-6">
                                     {otherPosts.map((other, idx) => (
-                                        <Link key={other.slug} to={`/blog/${other.slug}`} className="group block">
+                                        <Link key={other.slug} to={`/blogs/kikis-blog/${other.slug}`} className="group block">
                                             <div className="relative aspect-video rounded-xl overflow-hidden border border-white/10 group-hover:border-cyan-500/30 mb-3 transition-all bg-slate-800 shadow-lg">
-                                                <img src={other.image} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt={other.title} />
+                                                <img src={other.featuredImageUrl || 'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?q=80&w=800&auto=format&fit=crop'} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt={other.title} />
                                             </div>
                                             <h4 className="text-sm font-bold text-white group-hover:text-cyan-400 transition-colors line-clamp-2 leading-snug">
                                                 {other.title}

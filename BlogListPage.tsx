@@ -1,14 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { BookOpen, Clock, User, ArrowRight, ChevronsRight, Sparkles, Menu, X } from 'lucide-react';
-import { BLOG_POSTS } from './lib/blogs';
 import Footer from './components/Footer';
+
+interface BlogPost {
+    id: number;
+    slug: string;
+    title: string;
+    excerpt: string | null;
+    content: string | null;
+    featuredImageUrl: string | null;
+    status: string;
+    createdAt: string;
+}
 
 const BlogListPage = () => {
     const navigate = useNavigate();
     const [headerVisible, setHeaderVisible] = useState(true);
     const [lastScrollY, setLastScrollY] = useState(0);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetch('/api/blog')
+            .then(res => res.json())
+            .then(data => {
+                setBlogPosts(data);
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error('Failed to fetch blog posts:', err);
+                setLoading(false);
+            });
+    }, []);
 
     // Card color variations matching landing page bento
     const cardColors = [
@@ -119,8 +144,11 @@ const BlogListPage = () => {
                     </div>
 
                     {/* Blog Grid - Subtle cards matching tracker aesthetic */}
+                    {loading ? (
+                        <div className="text-center py-12 text-slate-400">Loading...</div>
+                    ) : (
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {BLOG_POSTS.map((post, idx) => {
+                        {blogPosts.map((post, idx) => {
                             const accentColors = [
                                 'border-cyan-500/30 hover:border-cyan-400/50',
                                 'border-fuchsia-500/30 hover:border-fuchsia-400/50',
@@ -129,17 +157,18 @@ const BlogListPage = () => {
                                 'border-pink-500/30 hover:border-pink-400/50',
                             ];
                             const accent = accentColors[idx % accentColors.length];
+                            const postDate = new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                             return (
                                 <Link
                                     key={post.slug}
-                                    to={`/blog/${post.slug}`}
+                                    to={`/blogs/kikis-blog/${post.slug}`}
                                     className="group"
                                 >
                                     <article className={`relative bg-slate-900/80 backdrop-blur-sm rounded-2xl border ${accent} overflow-hidden hover:scale-[1.02] transition-all duration-300 h-full flex flex-col shadow-xl`}>
                                         {/* Image */}
                                         <div className="aspect-[16/10] overflow-hidden relative">
                                             <img
-                                                src={post.image}
+                                                src={post.featuredImageUrl || 'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?q=80&w=800&auto=format&fit=crop'}
                                                 alt={post.title}
                                                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                             />
@@ -149,7 +178,7 @@ const BlogListPage = () => {
 
                                         {/* Content */}
                                         <div className="p-5 flex flex-col flex-1 relative z-10">
-                                            <p className="text-slate-500 text-xs font-medium mb-2">{post.date}</p>
+                                            <p className="text-slate-500 text-xs font-medium mb-2">{postDate}</p>
                                             <h3 className="font-bold text-white text-lg mb-2 leading-snug group-hover:text-cyan-200 transition-colors">
                                                 {post.title}
                                             </h3>
@@ -165,6 +194,7 @@ const BlogListPage = () => {
                             );
                         })}
                     </div>
+                    )}
 
                     {/* Footer CTA - Meet Kiki style with overlapping image */}
                     <div className="mt-24">

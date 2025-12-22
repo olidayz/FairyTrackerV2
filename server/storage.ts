@@ -1,6 +1,6 @@
 import { db } from './db';
-import { users, trackerSessions, stageDefinitions, stageEntries, stageContent } from '../shared/schema';
-import { eq } from 'drizzle-orm';
+import { users, trackerSessions, stageDefinitions, stageEntries, stageContent, blogPosts } from '../shared/schema';
+import { eq, desc } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 
 export const storage = {
@@ -69,5 +69,14 @@ export const storage = {
   async getStageContent(stageDefinitionId: number) {
     const [content] = await db.select().from(stageContent).where(eq(stageContent.stageDefinitionId, stageDefinitionId));
     return content || null;
+  },
+
+  async getPublishedBlogPosts() {
+    return db.select().from(blogPosts).where(eq(blogPosts.status, 'published')).orderBy(desc(blogPosts.createdAt));
+  },
+
+  async getBlogPostBySlug(slug: string) {
+    const [post] = await db.select().from(blogPosts).where(eq(blogPosts.slug, slug));
+    return post || null;
   },
 };

@@ -78,6 +78,30 @@ router.post('/api/signup', async (req: Request, res: Response) => {
   }
 });
 
+router.get('/api/blog', async (req: Request, res: Response) => {
+  try {
+    const posts = await storage.getPublishedBlogPosts();
+    res.json(posts);
+  } catch (error) {
+    console.error('[API] Blog fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch blog posts' });
+  }
+});
+
+router.get('/api/blog/:slug', async (req: Request, res: Response) => {
+  try {
+    const { slug } = req.params;
+    const post = await storage.getBlogPostBySlug(slug);
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+    res.json(post);
+  } catch (error) {
+    console.error('[API] Blog post fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch blog post' });
+  }
+});
+
 router.get('/api/tracker/:token', async (req: Request, res: Response) => {
   try {
     const { token } = req.params;
