@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowLeft, FileText, Image, Video, Settings, Plus, Trash2, Save, Edit2, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -37,24 +37,54 @@ const AdminPage = () => {
   const [loading, setLoading] = useState(true);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [editingStage, setEditingStage] = useState<{ stage: StageDefinition; content: StageContent | null } | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState('');
+  const [authError, setAuthError] = useState('');
+
+  const adminToken = localStorage.getItem('adminToken');
+
+  const handleLogin = () => {
+    localStorage.setItem('adminToken', password);
+    setIsAuthenticated(true);
+    setAuthError('');
+  };
+
+  const getAuthHeaders = () => ({
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${adminToken || password}`,
+  });
 
   useEffect(() => {
-    fetchData();
-  }, [activeTab]);
+    if (adminToken) {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchData();
+    }
+  }, [activeTab, isAuthenticated]);
 
   const fetchData = async () => {
     setLoading(true);
     try {
       if (activeTab === 'blog') {
-        const res = await fetch('/api/admin/blog-posts');
+        const res = await fetch('/api/admin/blog-posts', { headers: getAuthHeaders() });
+        if (res.status === 401) {
+          setIsAuthenticated(false);
+          localStorage.removeItem('adminToken');
+          setAuthError('Invalid password');
+          return;
+        }
         if (res.ok) {
           const data = await res.json();
           setBlogPosts(data);
         }
       } else if (activeTab === 'stages') {
         const [stagesRes, contentRes] = await Promise.all([
-          fetch('/api/admin/stages'),
-          fetch('/api/admin/stage-content')
+          fetch('/api/admin/stages', { headers: getAuthHeaders() }),
+          fetch('/api/admin/stage-content', { headers: getAuthHeaders() })
         ]);
         if (stagesRes.ok) setStages(await stagesRes.json());
         if (contentRes.ok) setStageContents(await contentRes.json());
@@ -70,7 +100,7 @@ const AdminPage = () => {
     try {
       const res = await fetch(`/api/admin/blog-posts${post.id ? `/${post.id}` : ''}`, {
         method: post.id ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify(post),
       });
       if (res.ok) {
@@ -85,7 +115,7 @@ const AdminPage = () => {
   const deleteBlogPost = async (id: number) => {
     if (!confirm('Are you sure you want to delete this post?')) return;
     try {
-      const res = await fetch(`/api/admin/blog-posts/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/admin/blog-posts/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
       if (res.ok) fetchData();
     } catch (error) {
       console.error('Failed to delete blog post:', error);
@@ -96,7 +126,7 @@ const AdminPage = () => {
     try {
       const res = await fetch(`/api/admin/stage-content/${stageId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify(content),
       });
       if (res.ok) {
@@ -114,6 +144,43 @@ const AdminPage = () => {
     { id: 'assets', label: 'Site Assets', icon: Image },
   ];
 
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
+        <div className="bg-slate-900 border border-slate-800 rounded-lg p-8 w-full max-w-md">
+          <h1 className="text-2xl font-bold mb-6 text-center">Admin Login</h1>
+          {authError && (
+            <div className="bg-red-500/20 border border-red-500 text-red-300 px-4 py-2 rounded-lg mb-4">
+              {authError}
+            </div>
+          )}
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+                className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                placeholder="Enter admin password"
+              />
+            </div>
+            <button
+              onClick={handleLogin}
+              className="w-full px-4 py-2 bg-cyan-500 hover:bg-cyan-600 rounded-lg font-medium transition-colors"
+            >
+              Login
+            </button>
+          </div>
+          <p className="text-center text-slate-500 text-sm mt-4">
+            <Link to="/" className="text-cyan-400 hover:text-cyan-300">Back to home</Link>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-950 text-white">
       <header className="bg-slate-900 border-b border-slate-800 px-6 py-4">
@@ -125,6 +192,12 @@ const AdminPage = () => {
             <h1 className="text-xl font-bold">Admin / CMS</h1>
           </div>
           <div className="flex items-center gap-2">
+            <button 
+              onClick={() => { localStorage.removeItem('adminToken'); setIsAuthenticated(false); }}
+              className="text-sm text-slate-400 hover:text-white"
+            >
+              Logout
+            </button>
             <Settings className="text-slate-400" size={20} />
           </div>
         </div>
@@ -246,6 +319,10 @@ const AdminPage = () => {
 const BlogPostEditor = ({ post, onSave, onCancel }: { post: BlogPost; onSave: (post: BlogPost) => void; onCancel: () => void }) => {
   const [formData, setFormData] = useState(post);
 
+  useEffect(() => {
+    setFormData(post);
+  }, [post.id]);
+
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 space-y-4">
       <div className="flex justify-between items-center">
@@ -349,6 +426,14 @@ const StageContentEditor = ({ stage, content, onSave, onCancel }: {
     imageUrl: content?.imageUrl || '',
     messageText: content?.messageText || '',
   });
+
+  useEffect(() => {
+    setFormData({
+      videoUrl: content?.videoUrl || '',
+      imageUrl: content?.imageUrl || '',
+      messageText: content?.messageText || '',
+    });
+  }, [stage.id, content]);
 
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 space-y-4">

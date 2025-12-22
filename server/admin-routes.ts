@@ -1,9 +1,24 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { db } from './db';
 import { blogPosts, stageDefinitions, stageContent, siteAssets } from '../shared/schema';
 import { eq } from 'drizzle-orm';
 
 const router = Router();
+
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+const adminAuth = (req: Request, res: Response, next: NextFunction) => {
+  if (!ADMIN_PASSWORD) {
+    return res.status(503).json({ error: 'Admin password not configured. Set ADMIN_PASSWORD in secrets.' });
+  }
+  const authHeader = req.headers.authorization;
+  if (!authHeader || authHeader !== `Bearer ${ADMIN_PASSWORD}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  next();
+};
+
+router.use('/api/admin/*splat', adminAuth);
 
 router.get('/api/admin/blog-posts', async (req: Request, res: Response) => {
   try {
