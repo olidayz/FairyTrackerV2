@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, FileText, Image, Video, Settings, Plus, Trash2, Save, Edit2, X, Mail, LayoutDashboard, Star, HelpCircle, Type } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -1600,17 +1600,21 @@ const LandingImagesEditor = ({ images, onSave, getAuthHeaders }: LandingImagesEd
     try {
       const urlRes = await fetch('/api/uploads/request-url', {
         method: 'POST',
-        headers: getAuthHeaders(),
+        headers: { 
+          ...getAuthHeaders() as Record<string, string>,
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({ 
-          fileName: file.name, 
+          name: file.name, 
+          size: file.size,
           contentType: file.type 
         }),
       });
       
       if (!urlRes.ok) throw new Error('Failed to get upload URL');
-      const { uploadUrl, objectPath } = await urlRes.json();
+      const { uploadURL, objectPath } = await urlRes.json();
       
-      const uploadRes = await fetch(uploadUrl, {
+      const uploadRes = await fetch(uploadURL, {
         method: 'PUT',
         body: file,
         headers: { 'Content-Type': file.type },
