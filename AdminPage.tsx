@@ -1622,8 +1622,7 @@ const LandingImagesEditor = ({ images, onSave, getAuthHeaders }: LandingImagesEd
       
       if (!uploadRes.ok) throw new Error('Failed to upload file');
       
-      const imageUrl = `/objects/${objectPath}`;
-      await onSave(id, imageUrl);
+      await onSave(id, objectPath);
     } catch (error) {
       console.error('Upload failed:', error);
       alert('Failed to upload image. Please try again.');
