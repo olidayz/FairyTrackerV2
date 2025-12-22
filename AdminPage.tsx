@@ -1102,12 +1102,12 @@ const AdminPage = () => {
         ) : activeTab === 'images' ? (
           <LandingImagesEditor 
             images={landingImagesList} 
-            onSave={async (id, imageUrl) => {
+            onSave={async (id, imageUrl, mediaType) => {
               try {
                 const res = await fetch(`/api/admin/landing-images/${id}`, {
                   method: 'PUT',
                   headers: getAuthHeaders(),
-                  body: JSON.stringify({ imageUrl }),
+                  body: JSON.stringify({ imageUrl, mediaType }),
                 });
                 if (res.ok) fetchData();
               } catch (error) {
@@ -1647,7 +1647,7 @@ interface LandingImageWithTitle extends LandingImage {
 
 interface LandingImagesEditorProps {
   images: LandingImageWithTitle[];
-  onSave: (id: number, imageUrl: string) => Promise<void>;
+  onSave: (id: number, imageUrl: string, mediaType?: string) => Promise<void>;
   onTitleSave?: (id: number, title: string) => Promise<void>;
   getAuthHeaders: () => HeadersInit;
 }
@@ -1682,7 +1682,8 @@ const LandingImagesEditor = ({ images, onSave, onTitleSave, getAuthHeaders }: La
       
       if (!uploadRes.ok) throw new Error('Failed to upload file');
       
-      await onSave(id, objectPath);
+      const isVideo = file.type.startsWith('video/');
+      await onSave(id, objectPath, isVideo ? 'video' : 'image');
     } catch (error) {
       console.error('Upload failed:', error);
       alert('Failed to upload image. Please try again.');

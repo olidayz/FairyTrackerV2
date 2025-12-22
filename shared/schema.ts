@@ -175,6 +175,7 @@ export const landingImages = pgTable('landing_images', {
   description: text('description'),
   imageUrl: text('image_url'),
   title: text('title'),
+  mediaType: varchar('media_type', { length: 20 }).default('image'),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 

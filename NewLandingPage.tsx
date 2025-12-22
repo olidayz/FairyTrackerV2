@@ -79,7 +79,8 @@ const NewLandingPage = () => {
         faqs: Array<{ id: number; question: string; answer: string }>;
         images: Record<string, string | null>;
         stageTitles: Record<string, string>;
-    }>({ hero: null, reviews: [], kikiProfile: null, faqs: [], images: {}, stageTitles: {} });
+        mediaTypes: Record<string, string>;
+    }>({ hero: null, reviews: [], kikiProfile: null, faqs: [], images: {}, stageTitles: {}, mediaTypes: {} });
     
     useEffect(() => {
         fetch('/api/landing-content')
@@ -198,12 +199,13 @@ const NewLandingPage = () => {
 
     const defaultFairyPhoto = "/Fairy photo booth pic.webp";
     
-    const storyStages: Array<{stage: number; title: string; location: string; image: string; video?: string; message: string; color: string}> = [
+    const storyStages: Array<{stage: number; title: string; location: string; image: string; isVideo: boolean; message: string; color: string}> = [
         {
             stage: 1,
             title: landingContent.stageTitles?.stage_1_photo || "The Departure",
             location: "North Star Portal",
             image: landingContent.images?.stage_1_photo || defaultFairyPhoto,
+            isVideo: landingContent.mediaTypes?.stage_1_photo === 'video',
             message: "I've just taken flight from the North Star! The wind is in my wings and I'm heading your way. Keep that tooth safe! ✨",
             color: "from-cyan-400 to-blue-500"
         },
@@ -212,6 +214,7 @@ const NewLandingPage = () => {
             title: landingContent.stageTitles?.stage_2_photo || "Mid-Flight Magic",
             location: "Sparkle Mountains",
             image: landingContent.images?.stage_2_photo || defaultFairyPhoto,
+            isVideo: landingContent.mediaTypes?.stage_2_photo === 'video',
             message: "Just passed over the Sparkle Mountains. The view is breath-taking! I can see your neighborhood lights from here. 🏔️",
             color: "from-fuchsia-400 to-purple-500"
         },
@@ -220,6 +223,7 @@ const NewLandingPage = () => {
             title: landingContent.stageTitles?.stage_3_photo || "Cloud Surfing",
             location: "Silver Lining Lane",
             image: landingContent.images?.stage_3_photo || defaultFairyPhoto,
+            isVideo: landingContent.mediaTypes?.stage_3_photo === 'video',
             message: "Hitching a ride on a silver lining! Almost there. Is everyone tucked in tight? The magic works best when you're dreaming! ☁️",
             color: "from-amber-400 to-orange-500"
         },
@@ -228,6 +232,7 @@ const NewLandingPage = () => {
             title: landingContent.stageTitles?.stage_4_photo || "Final Approach",
             location: "Your Neighborhood",
             image: landingContent.images?.stage_4_photo || defaultFairyPhoto,
+            isVideo: landingContent.mediaTypes?.stage_4_photo === 'video',
             message: "I'm circling your street now! Just look for the faint trail of stardust. I'll be at your window in just a few minutes! 🏠",
             color: "from-lime-400 to-green-500"
         },
@@ -236,6 +241,7 @@ const NewLandingPage = () => {
             title: landingContent.stageTitles?.stage_5_photo || "Mission Complete",
             location: "Your Pillow",
             image: landingContent.images?.stage_5_photo || defaultFairyPhoto,
+            isVideo: landingContent.mediaTypes?.stage_5_photo === 'video',
             message: "Mission successful! The tooth has been collected and a special surprise is waiting for you. Safe travels back to Fairy HQ! 🦷",
             color: "from-red-400 to-pink-500"
         },
@@ -244,6 +250,7 @@ const NewLandingPage = () => {
             title: landingContent.stageTitles?.stage_6_photo || "Home Bound",
             location: "Fairy HQ",
             image: landingContent.images?.stage_6_photo || defaultFairyPhoto,
+            isVideo: landingContent.mediaTypes?.stage_6_photo === 'video',
             message: "I'm back home now, tucked into my own petal bed. I'll see you again for the next one! Sweet dreams! 🌸",
             color: "from-indigo-400 to-blue-600"
         }
@@ -499,10 +506,8 @@ const NewLandingPage = () => {
                                                 '--tw-ring-color': stage.color.includes('cyan') ? '#22d3ee' : stage.color.includes('fuchsia') ? '#e879f9' : stage.color.includes('amber') ? '#fbbf24' : stage.color.includes('lime') ? '#a3e635' : stage.color.includes('red') ? '#f87171' : '#818cf8'
                                             } as React.CSSProperties}>
 
-                                                {/* Media Content (Video or Image) - auto-detect by extension */}
+                                                {/* Media Content (Video or Image) */}
                                                 {(() => {
-                                                    const mediaSrc = stage.video || stage.image;
-                                                    const isVideo = mediaSrc && (mediaSrc.endsWith('.webm') || mediaSrc.endsWith('.mp4') || mediaSrc.endsWith('.mov'));
                                                     const shouldLoad = isActive || isNext || isPrev;
                                                     
                                                     if (!shouldLoad) {
@@ -511,9 +516,9 @@ const NewLandingPage = () => {
                                                         );
                                                     }
                                                     
-                                                    return isVideo ? (
+                                                    return stage.isVideo ? (
                                                         <AutoPlayVideo
-                                                            src={mediaSrc!}
+                                                            src={stage.image}
                                                             isActive={isActive}
                                                             className="absolute inset-0 w-full h-full object-cover transition-transform duration-[8s] group-hover/card:scale-110"
                                                         />

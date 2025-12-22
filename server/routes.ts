@@ -260,9 +260,13 @@ router.get('/api/landing-content', async (req: Request, res: Response) => {
         return acc;
       }, {} as Record<string, string | null>),
       stageTitles: allLandingImages.reduce((acc, img) => {
-        if (img.key.startsWith('stage_') && (img as any).title) {
-          acc[img.key] = (img as any).title;
+        if (img.key.startsWith('stage_') && img.title) {
+          acc[img.key] = img.title;
         }
+        return acc;
+      }, {} as Record<string, string>),
+      mediaTypes: allLandingImages.reduce((acc, img) => {
+        acc[img.key] = img.mediaType || 'image';
         return acc;
       }, {} as Record<string, string>),
     });
