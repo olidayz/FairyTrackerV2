@@ -86,6 +86,9 @@ interface StageContent {
   videoUrl: string;
   imageUrl: string;
   messageText: string;
+  frontImageUrl: string;
+  locationText: string;
+  statusText: string;
 }
 
 interface EmailTemplate {
@@ -1388,15 +1391,54 @@ const StageContentEditor = ({ stage, content, onSave, onCancel }: {
     videoUrl: content?.videoUrl || '',
     imageUrl: content?.imageUrl || '',
     messageText: content?.messageText || '',
+    frontImageUrl: content?.frontImageUrl || '',
+    locationText: content?.locationText || '',
+    statusText: content?.statusText || '',
   });
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     setFormData({
       videoUrl: content?.videoUrl || '',
       imageUrl: content?.imageUrl || '',
       messageText: content?.messageText || '',
+      frontImageUrl: content?.frontImageUrl || '',
+      locationText: content?.locationText || '',
+      statusText: content?.statusText || '',
     });
   }, [stage.id, content]);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setIsUploading(true);
+    try {
+      const response = await fetch('/api/uploads/request-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: file.name,
+          size: file.size,
+          contentType: file.type,
+        }),
+      });
+      const { uploadURL, objectPath } = await response.json();
+      
+      await fetch(uploadURL, {
+        method: 'PUT',
+        body: file,
+        headers: { 'Content-Type': file.type },
+      });
+      
+      setFormData({ ...formData, frontImageUrl: objectPath });
+    } catch (error) {
+      console.error('Upload failed:', error);
+      alert('Failed to upload image. Please try again.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 space-y-4">
@@ -1408,8 +1450,63 @@ const StageContentEditor = ({ stage, content, onSave, onCancel }: {
       </div>
 
       <div className="grid gap-4">
+        <div className="p-4 bg-slate-800/50 border border-cyan-500/30 rounded-lg">
+          <h4 className="text-sm font-semibold text-cyan-400 mb-3">Front Card Content</h4>
+          <div className="grid gap-3">
+            <div>
+              <label className="block text-sm font-medium mb-1">Front Card Image</label>
+              <div className="flex gap-2 items-center">
+                <input
+                  type="text"
+                  value={formData.frontImageUrl}
+                  onChange={(e) => setFormData({ ...formData, frontImageUrl: e.target.value })}
+                  className="flex-1 px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                  placeholder="Image URL or upload below"
+                />
+                <label className={`px-4 py-2 rounded-lg cursor-pointer transition-colors ${isUploading ? 'bg-slate-600' : 'bg-fuchsia-600 hover:bg-fuchsia-700'}`}>
+                  {isUploading ? 'Uploading...' : 'Upload'}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                    disabled={isUploading}
+                  />
+                </label>
+              </div>
+              {formData.frontImageUrl && (
+                <div className="mt-2">
+                  <img src={formData.frontImageUrl} alt="Preview" className="h-20 w-20 object-cover rounded-lg border border-slate-600" />
+                </div>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium mb-1">Location</label>
+                <input
+                  type="text"
+                  value={formData.locationText}
+                  onChange={(e) => setFormData({ ...formData, locationText: e.target.value })}
+                  className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                  placeholder="e.g. North Star Portal"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Status</label>
+                <input
+                  type="text"
+                  value={formData.statusText}
+                  onChange={(e) => setFormData({ ...formData, statusText: e.target.value })}
+                  className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                  placeholder="e.g. En Route"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div>
-          <label className="block text-sm font-medium mb-1">Video URL</label>
+          <label className="block text-sm font-medium mb-1">Video URL (Back of Card)</label>
           <input
             type="text"
             value={formData.videoUrl}
@@ -1419,7 +1516,7 @@ const StageContentEditor = ({ stage, content, onSave, onCancel }: {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Image URL</label>
+          <label className="block text-sm font-medium mb-1">Image URL (Back of Card)</label>
           <input
             type="text"
             value={formData.imageUrl}

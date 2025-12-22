@@ -37,6 +37,9 @@ export const stageContent = pgTable('stage_content', {
   videoUrl: text('video_url'),
   imageUrl: text('image_url'),
   messageText: text('message_text'),
+  frontImageUrl: text('front_image_url'),
+  locationText: text('location_text'),
+  statusText: text('status_text'),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
