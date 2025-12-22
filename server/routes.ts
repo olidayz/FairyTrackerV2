@@ -58,15 +58,25 @@ router.post('/api/signup', async (req: Request, res: Response) => {
       .set({ morningEmailScheduledFor: morningEmailTime })
       .where(eq(trackerSessions.id, session.id));
     
-    // Send tracking email immediately
-    sendTrackingEmail(email, name, fullTrackerUrl).catch(err => {
-      console.error('[Signup] Background email send failed:', err);
-    });
-    
-    // Send admin notification
-    sendAdminNotificationEmail(email, name, req.headers.referer || null).catch(err => {
-      console.error('[Signup] Admin notification failed:', err);
-    });
+    // Send emails sequentially to avoid Resend rate limits (2 req/sec)
+    (async () => {
+      try {
+        await sendTrackingEmail(email, name, fullTrackerUrl);
+        console.log('[Signup] Tracking email sent successfully');
+      } catch (err) {
+        console.error('[Signup] Tracking email failed:', err);
+      }
+      
+      // Wait 600ms before sending next email to stay under rate limit
+      await new Promise(resolve => setTimeout(resolve, 600));
+      
+      try {
+        await sendAdminNotificationEmail(email, name, req.headers.referer || null);
+        console.log('[Signup] Admin notification sent successfully');
+      } catch (err) {
+        console.error('[Signup] Admin notification failed:', err);
+      }
+    })();
 
     res.json({
       success: true,
@@ -107,14 +117,24 @@ router.post('/api/signup', async (req: Request, res: Response) => {
           .set({ morningEmailScheduledFor: morningEmailTime })
           .where(eq(trackerSessions.id, newSession.id));
         
-        sendTrackingEmail(req.body.email, req.body.name, fullTrackerUrl).catch(err => {
-          console.error('[Signup] Background email send failed:', err);
-        });
-        
-        // Send admin notification with the new child name
-        sendAdminNotificationEmail(req.body.email, req.body.name, req.headers.referer || null).catch(err => {
-          console.error('[Signup] Admin notification failed:', err);
-        });
+        // Send emails sequentially to avoid Resend rate limits
+        (async () => {
+          try {
+            await sendTrackingEmail(req.body.email, req.body.name, fullTrackerUrl);
+            console.log('[Signup] Tracking email sent successfully');
+          } catch (err) {
+            console.error('[Signup] Tracking email failed:', err);
+          }
+          
+          await new Promise(resolve => setTimeout(resolve, 600));
+          
+          try {
+            await sendAdminNotificationEmail(req.body.email, req.body.name, req.headers.referer || null);
+            console.log('[Signup] Admin notification sent successfully');
+          } catch (err) {
+            console.error('[Signup] Admin notification failed:', err);
+          }
+        })();
 
         return res.json({
           success: true,
