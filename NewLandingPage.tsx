@@ -313,31 +313,31 @@ const NewLandingPage = () => {
                                     </div>
 
                                     {/* CTA Buttons */}
-                                    <div className="flex flex-row items-center gap-3 justify-center lg:justify-start pt-2">
+                                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 justify-center lg:justify-start pt-2">
                                         <button
                                             onClick={handleEnter}
-                                            className="relative group/btn overflow-hidden bg-gradient-to-r from-teal-400 via-cyan-500 to-blue-600 text-white px-7 py-4 md:px-8 md:py-5 rounded-xl font-sans font-extrabold text-sm md:text-base uppercase tracking-tight shadow-[0_0_25px_rgba(34,211,238,0.5)] transition-all transform hover:-translate-y-1 active:translate-y-1 border-b-[4px] border-cyan-800 active:border-b-0 flex items-center justify-center gap-2"
+                                            className="relative group/btn overflow-hidden bg-gradient-to-r from-teal-400 via-cyan-500 to-blue-600 text-white px-7 py-4 md:px-8 md:py-5 rounded-xl font-sans font-extrabold text-sm md:text-base uppercase tracking-tight shadow-[0_0_25px_rgba(34,211,238,0.5)] transition-all transform hover:-translate-y-1 active:translate-y-1 border-b-[4px] border-cyan-800 active:border-b-0 flex items-center justify-center gap-2 w-full sm:w-auto"
                                         >
-                                            <span className="relative z-10 whitespace-nowrap">Start the Journey</span>
+                                            <span className="relative z-10">Start the Journey</span>
                                             <ChevronsRight size={18} className="relative z-10 group-hover/btn:translate-x-1 transition-transform" />
                                         </button>
 
                                         <button
                                             onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
-                                            className="px-7 py-4 md:px-8 md:py-5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all font-sans font-bold text-sm md:text-base uppercase tracking-tight flex items-center justify-center gap-2"
+                                            className="px-7 py-4 md:px-8 md:py-5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all font-sans font-bold text-sm md:text-base uppercase tracking-tight flex items-center justify-center gap-2 w-full sm:w-auto"
                                         >
-                                            <span className="whitespace-nowrap">How It Works</span>
+                                            <span>How It Works</span>
                                             <ArrowRight size={16} className="md:w-[18px] md:h-[18px]" />
                                         </button>
                                     </div>
 
                                     {/* No Credit Card - simple styling with dots */}
-                                    <div className="flex items-center justify-center lg:justify-start gap-4 text-slate-400 text-sm">
+                                    <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 sm:gap-4 text-slate-400 text-xs sm:text-sm">
                                         <span className="flex items-center gap-2">
                                             <span className="w-2 h-2 rounded-full bg-lime-500"></span>
                                             No credit card required
                                         </span>
-                                        <span>•</span>
+                                        <span className="hidden sm:inline">•</span>
                                         <span className="flex items-center gap-2">
                                             <span className="text-slate-500">⏻</span>
                                             No Download
@@ -398,7 +398,7 @@ const NewLandingPage = () => {
                                 }}
                             >
                                 {/* Decorative Anchor Shape (Option 4) */}
-                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] max-w-[800px] pointer-events-none z-0">
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full md:w-[120%] h-full md:h-[120%] max-w-[800px] pointer-events-none z-0 overflow-hidden">
                                     <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-purple-500/5 rounded-full blur-[100px] transform -rotate-12 scale-110" />
                                     <div className="absolute inset-20 border border-white/5 rounded-[60px] transform rotate-12" />
                                     <div className="absolute inset-40 border border-white/10 rounded-[40px] transform -rotate-6" />
@@ -420,11 +420,15 @@ const NewLandingPage = () => {
                                         zIndex = 30;
                                         opacity = 1;
                                     } else if (isNext) {
-                                        transform = 'rotateY(-15deg) rotateX(4deg) translateZ(-80px) translateX(80px) translateY(20px) scale(0.92)';
+                                        transform = window.innerWidth < 768 
+                                            ? 'rotateY(-10deg) rotateX(3deg) translateZ(-60px) translateX(40px) translateY(15px) scale(0.9)'
+                                            : 'rotateY(-15deg) rotateX(4deg) translateZ(-80px) translateX(80px) translateY(20px) scale(0.92)';
                                         zIndex = 20;
                                         opacity = 0.7;
                                     } else if (isPrev) {
-                                        transform = 'rotateY(-3deg) rotateX(0deg) translateZ(-150px) translateX(-80px) translateY(-15px) scale(0.85)';
+                                        transform = window.innerWidth < 768
+                                            ? 'rotateY(-3deg) rotateX(0deg) translateZ(-100px) translateX(-40px) translateY(-10px) scale(0.85)'
+                                            : 'rotateY(-3deg) rotateX(0deg) translateZ(-150px) translateX(-80px) translateY(-15px) scale(0.85)';
                                         zIndex = 10;
                                         opacity = 0.5;
                                     }
