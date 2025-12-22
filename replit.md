@@ -39,10 +39,18 @@ The app follows a multi-page SPA architecture with these main routes (matching S
 
 ### Database Schema
 - `users` - Stores child name and parent email
-- `tracker_sessions` - Links users to unique tracker tokens
+- `tracker_sessions` - Links users to unique tracker tokens (includes childName for per-session personalization)
 - `stage_definitions` - Defines tracker stages (night/morning)
 - `stage_entries` - Per-session stage availability timestamps
 - `stage_content` - Video/image content for each stage
+- `blog_posts` - Blog articles with slug, title, content, featured images
+- `email_templates` - Customizable email templates for tracking, morning unlock, admin notifications
+- `landing_hero` - Hero section content (headline, subheadline, CTA text)
+- `fairy_updates` - Fairy update cards content
+- `kiki_profile` - Meet Kiki section content (name, title, bio, photo)
+- `reviews` - Customer reviews with ratings and photos
+- `faqs` - FAQ questions and answers (displayed on /pages/faq)
+- `copy_sections` - Editable text sections across the site
 
 ### Component Organization
 - **Page Components**: Root-level TSX files (App.tsx, NewLandingPage.tsx, etc.)

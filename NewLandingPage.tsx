@@ -34,6 +34,21 @@ const NewLandingPage = () => {
     const [email, setEmail] = useState('');
     const [formError, setFormError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    // Dynamic CMS content
+    const [landingContent, setLandingContent] = useState<{
+        hero: { headline: string; subheadline: string; badgeText: string; ctaText: string } | null;
+        reviews: Array<{ id: number; reviewerName: string; reviewerLocation: string; reviewText: string; rating: number }>;
+        kikiProfile: { name: string; title: string; bio: string; photoUrl: string } | null;
+        faqs: Array<{ id: number; question: string; answer: string }>;
+    }>({ hero: null, reviews: [], kikiProfile: null, faqs: [] });
+    
+    useEffect(() => {
+        fetch('/api/landing-content')
+            .then(res => res.json())
+            .then(data => setLandingContent(data))
+            .catch(err => console.error('Failed to load landing content:', err));
+    }, []);
 
     const handleSignup = async () => {
         setFormError('');
@@ -119,30 +134,29 @@ const NewLandingPage = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, [lastScrollY]);
 
-    // Reviews data
-    const reviews = [
-        {
-            name: "Sarah M.",
-            role: "Mother of two",
-            review: "My daughter ABSOLUTELY LOVED watching the little videos at every step! It made the Tooth Fairy feel so real.",
-            bg: "bg-gradient-to-br from-cyan-400 via-cyan-500 to-blue-600",
-            glow: "shadow-[0_20px_50px_rgba(34,211,238,0.3)]"
-        },
-        {
-            name: "James P.",
-            role: "Dad",
-            review: "Finally a stress-free way to handle the Tooth Fairy. The tracker bought us so much time!",
-            bg: "bg-gradient-to-br from-fuchsia-400 via-fuchsia-500 to-purple-600",
-            glow: "shadow-[0_20px_50px_rgba(232,121,249,0.3)]"
-        },
-        {
-            name: "Emily R.",
-            role: "Parent",
-            review: "The custom selfie from Kiki blew their minds. Best app ever.",
-            bg: "bg-gradient-to-br from-lime-400 via-lime-500 to-green-600",
-            glow: "shadow-[0_20px_50px_rgba(163,230,53,0.3)]"
-        }
+    // Reviews data with dynamic content fallback
+    const colorSchemes = [
+        { bg: "bg-gradient-to-br from-cyan-400 via-cyan-500 to-blue-600", glow: "shadow-[0_20px_50px_rgba(34,211,238,0.3)]" },
+        { bg: "bg-gradient-to-br from-fuchsia-400 via-fuchsia-500 to-purple-600", glow: "shadow-[0_20px_50px_rgba(232,121,249,0.3)]" },
+        { bg: "bg-gradient-to-br from-lime-400 via-lime-500 to-green-600", glow: "shadow-[0_20px_50px_rgba(163,230,53,0.3)]" },
+        { bg: "bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600", glow: "shadow-[0_20px_50px_rgba(251,191,36,0.3)]" },
+        { bg: "bg-gradient-to-br from-rose-400 via-rose-500 to-pink-600", glow: "shadow-[0_20px_50px_rgba(251,113,133,0.3)]" },
     ];
+    
+    const defaultReviews = [
+        { name: "Sarah M.", role: "Mother of two", review: "My daughter ABSOLUTELY LOVED watching the little videos at every step! It made the Tooth Fairy feel so real." },
+        { name: "James P.", role: "Dad", review: "Finally a stress-free way to handle the Tooth Fairy. The tracker bought us so much time!" },
+        { name: "Emily R.", role: "Parent", review: "The custom selfie from Kiki blew their minds. Best app ever." }
+    ];
+    
+    const reviews = landingContent.reviews.length > 0
+        ? landingContent.reviews.map((r, i) => ({
+            name: r.reviewerName,
+            role: r.reviewerLocation || 'Parent',
+            review: r.reviewText,
+            ...colorSchemes[i % colorSchemes.length]
+        }))
+        : defaultReviews.map((r, i) => ({ ...r, ...colorSchemes[i % colorSchemes.length] }));
 
     const storyStages = [
         {

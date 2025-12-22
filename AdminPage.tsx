@@ -1,6 +1,63 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, FileText, Image, Video, Settings, Plus, Trash2, Save, Edit2, X, Mail } from 'lucide-react';
+import { ArrowLeft, FileText, Image, Video, Settings, Plus, Trash2, Save, Edit2, X, Mail, LayoutDashboard, Star, HelpCircle, Type } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
+interface LandingHero {
+  id?: number;
+  headline: string;
+  subheadline: string;
+  badgeText: string;
+  ctaText: string;
+  backgroundImageUrl: string;
+}
+
+interface FairyUpdate {
+  id?: number;
+  title: string;
+  description: string;
+  imageUrl: string;
+  iconType: string;
+  sortOrder: number;
+  isActive: boolean;
+}
+
+interface KikiProfile {
+  id?: number;
+  name: string;
+  title: string;
+  bio: string;
+  photoUrl: string;
+  stats: string;
+}
+
+interface Review {
+  id?: number;
+  reviewerName: string;
+  reviewerLocation: string;
+  reviewText: string;
+  rating: number;
+  photoUrl: string;
+  isVerified: boolean;
+  isFeatured: boolean;
+  sortOrder: number;
+}
+
+interface FAQ {
+  id?: number;
+  question: string;
+  answer: string;
+  category: string;
+  sortOrder: number;
+  isActive: boolean;
+}
+
+interface CopySection {
+  id?: number;
+  key: string;
+  label: string;
+  content: string;
+  page: string;
+}
 
 interface BlogPost {
   id: number;
@@ -45,15 +102,24 @@ interface EmailTemplate {
 }
 
 const AdminPage = () => {
-  const [activeTab, setActiveTab] = useState<'blog' | 'stages' | 'emails' | 'assets'>('blog');
+  const [activeTab, setActiveTab] = useState<'blog' | 'stages' | 'emails' | 'assets' | 'landing' | 'reviews' | 'faqs' | 'copy'>('blog');
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [stages, setStages] = useState<StageDefinition[]>([]);
   const [stageContents, setStageContents] = useState<StageContent[]>([]);
   const [emailTemplates, setEmailTemplates] = useState<EmailTemplate[]>([]);
+  const [landingHero, setLandingHero] = useState<LandingHero | null>(null);
+  const [fairyUpdates, setFairyUpdates] = useState<FairyUpdate[]>([]);
+  const [kikiProfile, setKikiProfile] = useState<KikiProfile | null>(null);
+  const [reviewsList, setReviewsList] = useState<Review[]>([]);
+  const [faqsList, setFaqsList] = useState<FAQ[]>([]);
+  const [copySections, setCopySections] = useState<CopySection[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [editingStage, setEditingStage] = useState<{ stage: StageDefinition; content: StageContent | null } | null>(null);
   const [editingEmail, setEditingEmail] = useState<EmailTemplate | null>(null);
+  const [editingReview, setEditingReview] = useState<Review | null>(null);
+  const [editingFaq, setEditingFaq] = useState<FAQ | null>(null);
+  const [editingCopy, setEditingCopy] = useState<CopySection | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [authError, setAuthError] = useState('');
@@ -108,6 +174,24 @@ const AdminPage = () => {
       } else if (activeTab === 'emails') {
         const res = await fetch('/api/admin/email-templates', { headers: getAuthHeaders() });
         if (res.ok) setEmailTemplates(await res.json());
+      } else if (activeTab === 'landing') {
+        const [heroRes, updatesRes, profileRes] = await Promise.all([
+          fetch('/api/admin/landing-hero', { headers: getAuthHeaders() }),
+          fetch('/api/admin/fairy-updates', { headers: getAuthHeaders() }),
+          fetch('/api/admin/kiki-profile', { headers: getAuthHeaders() })
+        ]);
+        if (heroRes.ok) setLandingHero(await heroRes.json());
+        if (updatesRes.ok) setFairyUpdates(await updatesRes.json());
+        if (profileRes.ok) setKikiProfile(await profileRes.json());
+      } else if (activeTab === 'reviews') {
+        const res = await fetch('/api/admin/reviews', { headers: getAuthHeaders() });
+        if (res.ok) setReviewsList(await res.json());
+      } else if (activeTab === 'faqs') {
+        const res = await fetch('/api/admin/faqs', { headers: getAuthHeaders() });
+        if (res.ok) setFaqsList(await res.json());
+      } else if (activeTab === 'copy') {
+        const res = await fetch('/api/admin/copy-sections', { headers: getAuthHeaders() });
+        if (res.ok) setCopySections(await res.json());
       }
     } catch (error) {
       console.error('Failed to fetch data:', error);
@@ -184,11 +268,118 @@ const AdminPage = () => {
     }
   };
 
+  const saveLandingHero = async (hero: LandingHero) => {
+    try {
+      const res = await fetch('/api/admin/landing-hero', {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(hero),
+      });
+      if (res.ok) fetchData();
+    } catch (error) {
+      console.error('Failed to save landing hero:', error);
+    }
+  };
+
+  const saveKikiProfile = async (profile: KikiProfile) => {
+    try {
+      const res = await fetch('/api/admin/kiki-profile', {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(profile),
+      });
+      if (res.ok) fetchData();
+    } catch (error) {
+      console.error('Failed to save Kiki profile:', error);
+    }
+  };
+
+  const saveReview = async (review: Review) => {
+    try {
+      const res = await fetch(`/api/admin/reviews${review.id ? `/${review.id}` : ''}`, {
+        method: review.id ? 'PUT' : 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(review),
+      });
+      if (res.ok) {
+        setEditingReview(null);
+        fetchData();
+      }
+    } catch (error) {
+      console.error('Failed to save review:', error);
+    }
+  };
+
+  const deleteReview = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this review?')) return;
+    try {
+      const res = await fetch(`/api/admin/reviews/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+      if (res.ok) fetchData();
+    } catch (error) {
+      console.error('Failed to delete review:', error);
+    }
+  };
+
+  const saveFaq = async (faq: FAQ) => {
+    try {
+      const res = await fetch(`/api/admin/faqs${faq.id ? `/${faq.id}` : ''}`, {
+        method: faq.id ? 'PUT' : 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(faq),
+      });
+      if (res.ok) {
+        setEditingFaq(null);
+        fetchData();
+      }
+    } catch (error) {
+      console.error('Failed to save FAQ:', error);
+    }
+  };
+
+  const deleteFaq = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this FAQ?')) return;
+    try {
+      const res = await fetch(`/api/admin/faqs/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+      if (res.ok) fetchData();
+    } catch (error) {
+      console.error('Failed to delete FAQ:', error);
+    }
+  };
+
+  const saveCopySection = async (section: CopySection) => {
+    try {
+      const res = await fetch(`/api/admin/copy-sections${section.id ? `/${section.id}` : ''}`, {
+        method: section.id ? 'PUT' : 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(section),
+      });
+      if (res.ok) {
+        setEditingCopy(null);
+        fetchData();
+      }
+    } catch (error) {
+      console.error('Failed to save copy section:', error);
+    }
+  };
+
+  const deleteCopySection = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this copy section?')) return;
+    try {
+      const res = await fetch(`/api/admin/copy-sections/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+      if (res.ok) fetchData();
+    } catch (error) {
+      console.error('Failed to delete copy section:', error);
+    }
+  };
+
   const tabs = [
     { id: 'blog', label: 'Blog Posts', icon: FileText },
     { id: 'stages', label: 'Stage Content', icon: Video },
     { id: 'emails', label: 'Emails', icon: Mail },
-    { id: 'assets', label: 'Site Assets', icon: Image },
+    { id: 'landing', label: 'Landing Hero', icon: LayoutDashboard },
+    { id: 'reviews', label: 'Reviews', icon: Star },
+    { id: 'faqs', label: 'FAQs', icon: HelpCircle },
+    { id: 'copy', label: 'Copy Sections', icon: Type },
   ];
 
   if (!isAuthenticated) {
@@ -402,6 +593,493 @@ const AdminPage = () => {
               ))}
               {emailTemplates.length === 0 && (
                 <p className="text-center py-8 text-slate-500">No email templates yet. Create your first template!</p>
+              )}
+            </div>
+          </div>
+        ) : activeTab === 'landing' ? (
+          <div className="space-y-6">
+            <h2 className="text-lg font-semibold">Landing Page Content</h2>
+            
+            {/* Hero Section */}
+            <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
+              <h3 className="font-medium mb-4">Hero Section</h3>
+              <div className="grid gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Headline</label>
+                  <input
+                    type="text"
+                    value={landingHero?.headline || ''}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setLandingHero(prev => ({ headline: val, subheadline: prev?.subheadline || '', badgeText: prev?.badgeText || '', ctaText: prev?.ctaText || '', backgroundImageUrl: prev?.backgroundImageUrl || '' }));
+                    }}
+                    className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                    placeholder="Main headline text"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Subheadline</label>
+                  <textarea
+                    value={landingHero?.subheadline || ''}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setLandingHero(prev => ({ headline: prev?.headline || '', subheadline: val, badgeText: prev?.badgeText || '', ctaText: prev?.ctaText || '', backgroundImageUrl: prev?.backgroundImageUrl || '' }));
+                    }}
+                    className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                    rows={2}
+                    placeholder="Supporting text"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Badge Text</label>
+                    <input
+                      type="text"
+                      value={landingHero?.badgeText || ''}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setLandingHero(prev => ({ headline: prev?.headline || '', subheadline: prev?.subheadline || '', badgeText: val, ctaText: prev?.ctaText || '', backgroundImageUrl: prev?.backgroundImageUrl || '' }));
+                      }}
+                      className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                      placeholder="FREE TRACKER"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">CTA Button Text</label>
+                    <input
+                      type="text"
+                      value={landingHero?.ctaText || ''}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setLandingHero(prev => ({ headline: prev?.headline || '', subheadline: prev?.subheadline || '', badgeText: prev?.badgeText || '', ctaText: val, backgroundImageUrl: prev?.backgroundImageUrl || '' }));
+                      }}
+                      className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                      placeholder="Start Tracking Now"
+                    />
+                  </div>
+                </div>
+                <button
+                  onClick={() => saveLandingHero(landingHero || { headline: '', subheadline: '', badgeText: '', ctaText: '', backgroundImageUrl: '' })}
+                  className="px-4 py-2 bg-cyan-500 hover:bg-cyan-600 rounded-lg transition-colors w-fit"
+                >
+                  <Save size={18} className="inline mr-2" />
+                  Save Hero
+                </button>
+              </div>
+            </div>
+
+            {/* Kiki Profile */}
+            <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
+              <h3 className="font-medium mb-4">Meet Kiki - Profile</h3>
+              <div className="grid gap-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Name</label>
+                    <input
+                      type="text"
+                      value={kikiProfile?.name || 'Kiki'}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setKikiProfile(prev => ({ name: val, title: prev?.title || '', bio: prev?.bio || '', photoUrl: prev?.photoUrl || '', stats: prev?.stats || '' }));
+                      }}
+                      className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Title</label>
+                    <input
+                      type="text"
+                      value={kikiProfile?.title || ''}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setKikiProfile(prev => ({ name: prev?.name || 'Kiki', title: val, bio: prev?.bio || '', photoUrl: prev?.photoUrl || '', stats: prev?.stats || '' }));
+                      }}
+                      className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                      placeholder="Professional Tooth Fairy"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Bio</label>
+                  <textarea
+                    value={kikiProfile?.bio || ''}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setKikiProfile(prev => ({ name: prev?.name || 'Kiki', title: prev?.title || '', bio: val, photoUrl: prev?.photoUrl || '', stats: prev?.stats || '' }));
+                    }}
+                    className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                    rows={3}
+                    placeholder="Kiki's story..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Photo URL</label>
+                  <input
+                    type="text"
+                    value={kikiProfile?.photoUrl || ''}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setKikiProfile(prev => ({ name: prev?.name || 'Kiki', title: prev?.title || '', bio: prev?.bio || '', photoUrl: val, stats: prev?.stats || '' }));
+                    }}
+                    className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                    placeholder="/kiki-photo.png"
+                  />
+                </div>
+                <button
+                  onClick={() => saveKikiProfile(kikiProfile || { name: 'Kiki', title: '', bio: '', photoUrl: '', stats: '' })}
+                  className="px-4 py-2 bg-cyan-500 hover:bg-cyan-600 rounded-lg transition-colors w-fit"
+                >
+                  <Save size={18} className="inline mr-2" />
+                  Save Profile
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : activeTab === 'reviews' ? (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-lg font-semibold">Customer Reviews</h2>
+              <button
+                onClick={() => setEditingReview({ reviewerName: '', reviewerLocation: '', reviewText: '', rating: 5, photoUrl: '', isVerified: false, isFeatured: false, sortOrder: 0 })}
+                className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 rounded-lg transition-colors"
+              >
+                <Plus size={18} />
+                New Review
+              </button>
+            </div>
+
+            {editingReview && (
+              <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-medium">{editingReview.id ? 'Edit Review' : 'New Review'}</h3>
+                  <button onClick={() => setEditingReview(null)} className="text-slate-400 hover:text-white">
+                    <X size={20} />
+                  </button>
+                </div>
+                <div className="grid gap-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Reviewer Name</label>
+                      <input
+                        type="text"
+                        value={editingReview.reviewerName}
+                        onChange={(e) => setEditingReview({ ...editingReview, reviewerName: e.target.value })}
+                        className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Location</label>
+                      <input
+                        type="text"
+                        value={editingReview.reviewerLocation}
+                        onChange={(e) => setEditingReview({ ...editingReview, reviewerLocation: e.target.value })}
+                        className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                        placeholder="New York, USA"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Review Text</label>
+                    <textarea
+                      value={editingReview.reviewText}
+                      onChange={(e) => setEditingReview({ ...editingReview, reviewText: e.target.value })}
+                      className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                      rows={3}
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Rating (1-5)</label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={5}
+                        value={editingReview.rating}
+                        onChange={(e) => setEditingReview({ ...editingReview, rating: parseInt(e.target.value) })}
+                        className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Sort Order</label>
+                      <input
+                        type="number"
+                        value={editingReview.sortOrder}
+                        onChange={(e) => setEditingReview({ ...editingReview, sortOrder: parseInt(e.target.value) })}
+                        className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Photo URL</label>
+                      <input
+                        type="text"
+                        value={editingReview.photoUrl}
+                        onChange={(e) => setEditingReview({ ...editingReview, photoUrl: e.target.value })}
+                        className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-4">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={editingReview.isVerified}
+                        onChange={(e) => setEditingReview({ ...editingReview, isVerified: e.target.checked })}
+                        className="rounded"
+                      />
+                      <span className="text-sm">Verified</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={editingReview.isFeatured}
+                        onChange={(e) => setEditingReview({ ...editingReview, isFeatured: e.target.checked })}
+                        className="rounded"
+                      />
+                      <span className="text-sm">Featured</span>
+                    </label>
+                  </div>
+                  <button
+                    onClick={() => saveReview(editingReview)}
+                    className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 rounded-lg transition-colors w-fit"
+                  >
+                    <Save size={18} />
+                    Save Review
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="grid gap-4">
+              {reviewsList.map((review) => (
+                <div key={review.id} className="bg-slate-900 border border-slate-800 rounded-lg p-4 flex items-center justify-between">
+                  <div>
+                    <h3 className="font-medium">{review.reviewerName}</h3>
+                    <p className="text-sm text-slate-400">{review.reviewerLocation} - {'⭐'.repeat(review.rating)}</p>
+                    <p className="text-xs text-slate-500 mt-1 line-clamp-1">{review.reviewText}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => setEditingReview(review)} className="p-2 text-slate-400 hover:text-white">
+                      <Edit2 size={18} />
+                    </button>
+                    <button onClick={() => review.id && deleteReview(review.id)} className="p-2 text-red-400 hover:text-red-300">
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {reviewsList.length === 0 && (
+                <p className="text-center py-8 text-slate-500">No reviews yet. Add your first review!</p>
+              )}
+            </div>
+          </div>
+        ) : activeTab === 'faqs' ? (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-lg font-semibold">FAQs</h2>
+              <button
+                onClick={() => setEditingFaq({ question: '', answer: '', category: '', sortOrder: 0, isActive: true })}
+                className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 rounded-lg transition-colors"
+              >
+                <Plus size={18} />
+                New FAQ
+              </button>
+            </div>
+
+            {editingFaq && (
+              <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-medium">{editingFaq.id ? 'Edit FAQ' : 'New FAQ'}</h3>
+                  <button onClick={() => setEditingFaq(null)} className="text-slate-400 hover:text-white">
+                    <X size={20} />
+                  </button>
+                </div>
+                <div className="grid gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Question</label>
+                    <input
+                      type="text"
+                      value={editingFaq.question}
+                      onChange={(e) => setEditingFaq({ ...editingFaq, question: e.target.value })}
+                      className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Answer</label>
+                    <textarea
+                      value={editingFaq.answer}
+                      onChange={(e) => setEditingFaq({ ...editingFaq, answer: e.target.value })}
+                      className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                      rows={4}
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Category</label>
+                      <input
+                        type="text"
+                        value={editingFaq.category}
+                        onChange={(e) => setEditingFaq({ ...editingFaq, category: e.target.value })}
+                        className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                        placeholder="General"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Sort Order</label>
+                      <input
+                        type="number"
+                        value={editingFaq.sortOrder}
+                        onChange={(e) => setEditingFaq({ ...editingFaq, sortOrder: parseInt(e.target.value) })}
+                        className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                      />
+                    </div>
+                    <div className="flex items-end pb-2">
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={editingFaq.isActive}
+                          onChange={(e) => setEditingFaq({ ...editingFaq, isActive: e.target.checked })}
+                          className="rounded"
+                        />
+                        <span className="text-sm">Active</span>
+                      </label>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => saveFaq(editingFaq)}
+                    className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 rounded-lg transition-colors w-fit"
+                  >
+                    <Save size={18} />
+                    Save FAQ
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="grid gap-4">
+              {faqsList.map((faq) => (
+                <div key={faq.id} className="bg-slate-900 border border-slate-800 rounded-lg p-4 flex items-center justify-between">
+                  <div className="flex-1">
+                    <h3 className="font-medium">{faq.question}</h3>
+                    <p className="text-sm text-slate-400 line-clamp-1">{faq.answer}</p>
+                    <div className="flex gap-2 mt-1">
+                      {faq.category && <span className="text-xs bg-slate-800 px-2 py-0.5 rounded">{faq.category}</span>}
+                      <span className={`text-xs ${faq.isActive ? 'text-green-400' : 'text-red-400'}`}>
+                        {faq.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => setEditingFaq(faq)} className="p-2 text-slate-400 hover:text-white">
+                      <Edit2 size={18} />
+                    </button>
+                    <button onClick={() => faq.id && deleteFaq(faq.id)} className="p-2 text-red-400 hover:text-red-300">
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {faqsList.length === 0 && (
+                <p className="text-center py-8 text-slate-500">No FAQs yet. Add your first FAQ!</p>
+              )}
+            </div>
+          </div>
+        ) : activeTab === 'copy' ? (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-lg font-semibold">Copy Sections</h2>
+              <button
+                onClick={() => setEditingCopy({ key: '', label: '', content: '', page: 'landing' })}
+                className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 rounded-lg transition-colors"
+              >
+                <Plus size={18} />
+                New Section
+              </button>
+            </div>
+
+            {editingCopy && (
+              <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-medium">{editingCopy.id ? 'Edit Section' : 'New Section'}</h3>
+                  <button onClick={() => setEditingCopy(null)} className="text-slate-400 hover:text-white">
+                    <X size={20} />
+                  </button>
+                </div>
+                <div className="grid gap-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Key (unique ID)</label>
+                      <input
+                        type="text"
+                        value={editingCopy.key}
+                        onChange={(e) => setEditingCopy({ ...editingCopy, key: e.target.value })}
+                        className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                        placeholder="hero_tagline"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Label</label>
+                      <input
+                        type="text"
+                        value={editingCopy.label}
+                        onChange={(e) => setEditingCopy({ ...editingCopy, label: e.target.value })}
+                        className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                        placeholder="Hero Tagline"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Page</label>
+                    <select
+                      value={editingCopy.page}
+                      onChange={(e) => setEditingCopy({ ...editingCopy, page: e.target.value })}
+                      className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                    >
+                      <option value="landing">Landing Page</option>
+                      <option value="tracker">Tracker Page</option>
+                      <option value="faq">FAQ Page</option>
+                      <option value="global">Global</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Content</label>
+                    <textarea
+                      value={editingCopy.content}
+                      onChange={(e) => setEditingCopy({ ...editingCopy, content: e.target.value })}
+                      className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                      rows={4}
+                    />
+                  </div>
+                  <button
+                    onClick={() => saveCopySection(editingCopy)}
+                    className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 rounded-lg transition-colors w-fit"
+                  >
+                    <Save size={18} />
+                    Save Section
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="grid gap-4">
+              {copySections.map((section) => (
+                <div key={section.id} className="bg-slate-900 border border-slate-800 rounded-lg p-4 flex items-center justify-between">
+                  <div className="flex-1">
+                    <h3 className="font-medium">{section.label}</h3>
+                    <p className="text-sm text-slate-400">Key: {section.key}</p>
+                    <p className="text-xs text-cyan-400 mt-1">Page: {section.page}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => setEditingCopy(section)} className="p-2 text-slate-400 hover:text-white">
+                      <Edit2 size={18} />
+                    </button>
+                    <button onClick={() => section.id && deleteCopySection(section.id)} className="p-2 text-red-400 hover:text-red-300">
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {copySections.length === 0 && (
+                <p className="text-center py-8 text-slate-500">No copy sections yet. Add your first section!</p>
               )}
             </div>
           </div>
