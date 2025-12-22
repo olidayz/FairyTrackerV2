@@ -1185,6 +1185,7 @@ function Tracker() {
     const cmsContent = cmsStageContent.find(c => c.id === stage.id)?.content;
     if (!cmsContent) return stage;
     
+    
     return {
       ...stage,
       cardImage: cmsContent.frontImageUrl || stage.cardImage,
