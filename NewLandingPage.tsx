@@ -1186,8 +1186,8 @@ const NewLandingPage = () => {
 
                 {/* ========== SECTION 2.9: MEET KIKI ========== */}
                 <section id="meet-kiki" className="relative py-24 px-4 overflow-hidden">
-                    {/* Background Glow */}
-                    <div className="absolute top-1/2 left-1/3 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-[150px] pointer-events-none" />
+                    {/* Background Glow - hidden on mobile to prevent rendering issues */}
+                    <div className="hidden lg:block absolute top-1/2 left-1/3 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-[150px] pointer-events-none" />
 
                     <div className="container mx-auto max-w-6xl">
                         {/* Overlapping Layout Container */}
@@ -1224,8 +1224,8 @@ const NewLandingPage = () => {
 
                             {/* The Image (overlaps the card) */}
                             <div className="lg:absolute lg:left-0 lg:top-1/2 lg:-translate-y-1/2 lg:w-[550px] mt-4 lg:mt-0 mx-auto max-w-[350px] lg:max-w-none transform lg:-rotate-3">
-                                {/* Glow behind image */}
-                                <div className="absolute -inset-4 bg-gradient-to-br from-cyan-400/40 via-teal-400/30 to-cyan-400/40 rounded-[2rem] blur-2xl" />
+                                {/* Glow behind image - hidden on mobile to prevent color block rendering issue */}
+                                <div className="hidden lg:block absolute -inset-4 bg-gradient-to-br from-cyan-400/40 via-teal-400/30 to-cyan-400/40 rounded-[2rem] blur-2xl" />
 
                                 {/* Image Frame */}
                                 <div className="relative aspect-square rounded-[2rem] overflow-hidden border-4 border-white/20 shadow-2xl">
