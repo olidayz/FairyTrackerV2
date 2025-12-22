@@ -303,7 +303,7 @@ const NewLandingPage = () => {
 
                                     {/* Main Headline */}
                                     <div className="space-y-3">
-                                        <h1 className="font-chrome text-[2.5rem] sm:text-5xl lg:text-6xl text-white leading-[0.95] tracking-normal">
+                                        <h1 className="font-chrome text-5xl lg:text-6xl text-white leading-[0.95] tracking-normal">
                                             Track the Tooth&nbsp;Fairy,<br />
                                             <span className="text-white">Bring the Magic to&nbsp;Life</span>
                                         </h1>
