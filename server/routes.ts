@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { storage } from './storage';
 import { db } from './db';
 import { emailTemplates } from '../shared/schema';
+import { sendTrackingEmail } from './email';
 
 const router = Router();
 
@@ -43,6 +44,15 @@ router.post('/api/signup', async (req: Request, res: Response) => {
 
     console.log(`[Signup] User ${name} signed up with token ${session.trackerToken}`);
 
+    const baseUrl = process.env.REPLIT_DEV_DOMAIN 
+      ? `https://${process.env.REPLIT_DEV_DOMAIN}` 
+      : 'https://kiki-tracker.replit.app';
+    const fullTrackerUrl = `${baseUrl}/tracker/${session.trackerToken}`;
+    
+    sendTrackingEmail(email, name, fullTrackerUrl).catch(err => {
+      console.error('[Signup] Background email send failed:', err);
+    });
+
     res.json({
       success: true,
       trackerToken: session.trackerToken,
@@ -69,6 +79,15 @@ router.post('/api/signup', async (req: Request, res: Response) => {
           });
         }
         
+        const baseUrl = process.env.REPLIT_DEV_DOMAIN 
+          ? `https://${process.env.REPLIT_DEV_DOMAIN}` 
+          : 'https://kiki-tracker.replit.app';
+        const fullTrackerUrl = `${baseUrl}/tracker/${newSession.trackerToken}`;
+        
+        sendTrackingEmail(req.body.email, existingUser.name, fullTrackerUrl).catch(err => {
+          console.error('[Signup] Background email send failed:', err);
+        });
+
         return res.json({
           success: true,
           trackerToken: newSession.trackerToken,
