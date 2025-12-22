@@ -18,6 +18,34 @@ const MapUpdater = ({ center, zoom }: { center: [number, number], zoom: number }
     return null;
 };
 
+// Video component that handles autoplay properly
+const AutoPlayVideo = ({ src, isActive, className }: { src: string; isActive: boolean; className: string }) => {
+    const videoRef = useRef<HTMLVideoElement>(null);
+    
+    useEffect(() => {
+        const video = videoRef.current;
+        if (!video) return;
+        
+        if (isActive) {
+            video.play().catch(() => {});
+        } else {
+            video.pause();
+        }
+    }, [isActive]);
+    
+    return (
+        <video
+            ref={videoRef}
+            src={src}
+            muted
+            loop
+            playsInline
+            preload={isActive ? "auto" : "metadata"}
+            className={className}
+        />
+    );
+};
+
 const NewLandingPage = () => {
     const navigate = useNavigate();
     const [activeStage, setActiveStage] = useState(1);
@@ -476,14 +504,9 @@ const NewLandingPage = () => {
                                                     }
                                                     
                                                     return isVideo ? (
-                                                        <video
-                                                            key={mediaSrc}
-                                                            src={mediaSrc}
-                                                            autoPlay={isActive}
-                                                            muted
-                                                            loop
-                                                            playsInline
-                                                            preload={isActive ? "auto" : "metadata"}
+                                                        <AutoPlayVideo
+                                                            src={mediaSrc!}
+                                                            isActive={isActive}
                                                             className="absolute inset-0 w-full h-full object-cover transition-transform duration-[8s] group-hover/card:scale-110"
                                                         />
                                                     ) : (
