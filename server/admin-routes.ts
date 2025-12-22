@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { db } from './db';
-import { blogPosts, stageDefinitions, stageContent, siteAssets, emailTemplates } from '../shared/schema';
-import { eq } from 'drizzle-orm';
+import { blogPosts, stageDefinitions, stageContent, siteAssets, emailTemplates, landingHero, fairyUpdates, kikiProfile, reviews, faqs, copySections } from '../shared/schema';
+import { eq, asc } from 'drizzle-orm';
 
 const router = Router();
 
@@ -208,6 +208,275 @@ router.delete('/api/admin/email-templates/:id', async (req: Request, res: Respon
   } catch (error) {
     console.error('[Admin] Failed to delete email template:', error);
     res.status(500).json({ error: 'Failed to delete email template' });
+  }
+});
+
+// === LANDING PAGE CMS ROUTES ===
+
+// Landing Hero
+router.get('/api/admin/landing-hero', async (req: Request, res: Response) => {
+  try {
+    const [hero] = await db.select().from(landingHero).limit(1);
+    res.json(hero || null);
+  } catch (error) {
+    console.error('[Admin] Failed to fetch landing hero:', error);
+    res.status(500).json({ error: 'Failed to fetch landing hero' });
+  }
+});
+
+router.put('/api/admin/landing-hero', async (req: Request, res: Response) => {
+  try {
+    const { headline, subheadline, badgeText, ctaText, backgroundImageUrl } = req.body;
+    const [existing] = await db.select().from(landingHero).limit(1);
+    
+    if (existing) {
+      const [updated] = await db.update(landingHero)
+        .set({ headline, subheadline, badgeText, ctaText, backgroundImageUrl, updatedAt: new Date() })
+        .where(eq(landingHero.id, existing.id))
+        .returning();
+      res.json(updated);
+    } else {
+      const [created] = await db.insert(landingHero)
+        .values({ headline, subheadline, badgeText, ctaText, backgroundImageUrl })
+        .returning();
+      res.json(created);
+    }
+  } catch (error) {
+    console.error('[Admin] Failed to update landing hero:', error);
+    res.status(500).json({ error: 'Failed to update landing hero' });
+  }
+});
+
+// Fairy Updates
+router.get('/api/admin/fairy-updates', async (req: Request, res: Response) => {
+  try {
+    const updates = await db.select().from(fairyUpdates).orderBy(asc(fairyUpdates.sortOrder));
+    res.json(updates);
+  } catch (error) {
+    console.error('[Admin] Failed to fetch fairy updates:', error);
+    res.status(500).json({ error: 'Failed to fetch fairy updates' });
+  }
+});
+
+router.post('/api/admin/fairy-updates', async (req: Request, res: Response) => {
+  try {
+    const { title, description, imageUrl, iconType, sortOrder, isActive } = req.body;
+    const [update] = await db.insert(fairyUpdates).values({
+      title, description, imageUrl, iconType, sortOrder: sortOrder || 0, isActive: isActive ?? true
+    }).returning();
+    res.json(update);
+  } catch (error) {
+    console.error('[Admin] Failed to create fairy update:', error);
+    res.status(500).json({ error: 'Failed to create fairy update' });
+  }
+});
+
+router.put('/api/admin/fairy-updates/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { title, description, imageUrl, iconType, sortOrder, isActive } = req.body;
+    const [updated] = await db.update(fairyUpdates)
+      .set({ title, description, imageUrl, iconType, sortOrder, isActive, updatedAt: new Date() })
+      .where(eq(fairyUpdates.id, parseInt(id)))
+      .returning();
+    res.json(updated);
+  } catch (error) {
+    console.error('[Admin] Failed to update fairy update:', error);
+    res.status(500).json({ error: 'Failed to update fairy update' });
+  }
+});
+
+router.delete('/api/admin/fairy-updates/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    await db.delete(fairyUpdates).where(eq(fairyUpdates.id, parseInt(id)));
+    res.json({ success: true });
+  } catch (error) {
+    console.error('[Admin] Failed to delete fairy update:', error);
+    res.status(500).json({ error: 'Failed to delete fairy update' });
+  }
+});
+
+// Kiki Profile
+router.get('/api/admin/kiki-profile', async (req: Request, res: Response) => {
+  try {
+    const [profile] = await db.select().from(kikiProfile).limit(1);
+    res.json(profile || null);
+  } catch (error) {
+    console.error('[Admin] Failed to fetch Kiki profile:', error);
+    res.status(500).json({ error: 'Failed to fetch Kiki profile' });
+  }
+});
+
+router.put('/api/admin/kiki-profile', async (req: Request, res: Response) => {
+  try {
+    const { name, title, bio, photoUrl, stats } = req.body;
+    const [existing] = await db.select().from(kikiProfile).limit(1);
+    
+    if (existing) {
+      const [updated] = await db.update(kikiProfile)
+        .set({ name, title, bio, photoUrl, stats, updatedAt: new Date() })
+        .where(eq(kikiProfile.id, existing.id))
+        .returning();
+      res.json(updated);
+    } else {
+      const [created] = await db.insert(kikiProfile)
+        .values({ name, title, bio, photoUrl, stats })
+        .returning();
+      res.json(created);
+    }
+  } catch (error) {
+    console.error('[Admin] Failed to update Kiki profile:', error);
+    res.status(500).json({ error: 'Failed to update Kiki profile' });
+  }
+});
+
+// Reviews
+router.get('/api/admin/reviews', async (req: Request, res: Response) => {
+  try {
+    const allReviews = await db.select().from(reviews).orderBy(asc(reviews.sortOrder));
+    res.json(allReviews);
+  } catch (error) {
+    console.error('[Admin] Failed to fetch reviews:', error);
+    res.status(500).json({ error: 'Failed to fetch reviews' });
+  }
+});
+
+router.post('/api/admin/reviews', async (req: Request, res: Response) => {
+  try {
+    const { reviewerName, reviewerLocation, reviewText, rating, photoUrl, isVerified, isFeatured, sortOrder } = req.body;
+    const [review] = await db.insert(reviews).values({
+      reviewerName, reviewerLocation, reviewText, rating: rating || 5, photoUrl,
+      isVerified: isVerified ?? false, isFeatured: isFeatured ?? false, sortOrder: sortOrder || 0
+    }).returning();
+    res.json(review);
+  } catch (error) {
+    console.error('[Admin] Failed to create review:', error);
+    res.status(500).json({ error: 'Failed to create review' });
+  }
+});
+
+router.put('/api/admin/reviews/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { reviewerName, reviewerLocation, reviewText, rating, photoUrl, isVerified, isFeatured, sortOrder } = req.body;
+    const [updated] = await db.update(reviews)
+      .set({ reviewerName, reviewerLocation, reviewText, rating, photoUrl, isVerified, isFeatured, sortOrder, updatedAt: new Date() })
+      .where(eq(reviews.id, parseInt(id)))
+      .returning();
+    res.json(updated);
+  } catch (error) {
+    console.error('[Admin] Failed to update review:', error);
+    res.status(500).json({ error: 'Failed to update review' });
+  }
+});
+
+router.delete('/api/admin/reviews/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    await db.delete(reviews).where(eq(reviews.id, parseInt(id)));
+    res.json({ success: true });
+  } catch (error) {
+    console.error('[Admin] Failed to delete review:', error);
+    res.status(500).json({ error: 'Failed to delete review' });
+  }
+});
+
+// FAQs
+router.get('/api/admin/faqs', async (req: Request, res: Response) => {
+  try {
+    const allFaqs = await db.select().from(faqs).orderBy(asc(faqs.sortOrder));
+    res.json(allFaqs);
+  } catch (error) {
+    console.error('[Admin] Failed to fetch FAQs:', error);
+    res.status(500).json({ error: 'Failed to fetch FAQs' });
+  }
+});
+
+router.post('/api/admin/faqs', async (req: Request, res: Response) => {
+  try {
+    const { question, answer, category, sortOrder, isActive } = req.body;
+    const [faq] = await db.insert(faqs).values({
+      question, answer, category, sortOrder: sortOrder || 0, isActive: isActive ?? true
+    }).returning();
+    res.json(faq);
+  } catch (error) {
+    console.error('[Admin] Failed to create FAQ:', error);
+    res.status(500).json({ error: 'Failed to create FAQ' });
+  }
+});
+
+router.put('/api/admin/faqs/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { question, answer, category, sortOrder, isActive } = req.body;
+    const [updated] = await db.update(faqs)
+      .set({ question, answer, category, sortOrder, isActive, updatedAt: new Date() })
+      .where(eq(faqs.id, parseInt(id)))
+      .returning();
+    res.json(updated);
+  } catch (error) {
+    console.error('[Admin] Failed to update FAQ:', error);
+    res.status(500).json({ error: 'Failed to update FAQ' });
+  }
+});
+
+router.delete('/api/admin/faqs/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    await db.delete(faqs).where(eq(faqs.id, parseInt(id)));
+    res.json({ success: true });
+  } catch (error) {
+    console.error('[Admin] Failed to delete FAQ:', error);
+    res.status(500).json({ error: 'Failed to delete FAQ' });
+  }
+});
+
+// Copy Sections
+router.get('/api/admin/copy-sections', async (req: Request, res: Response) => {
+  try {
+    const sections = await db.select().from(copySections);
+    res.json(sections);
+  } catch (error) {
+    console.error('[Admin] Failed to fetch copy sections:', error);
+    res.status(500).json({ error: 'Failed to fetch copy sections' });
+  }
+});
+
+router.post('/api/admin/copy-sections', async (req: Request, res: Response) => {
+  try {
+    const { key, label, content, page } = req.body;
+    const [section] = await db.insert(copySections).values({ key, label, content, page }).returning();
+    res.json(section);
+  } catch (error) {
+    console.error('[Admin] Failed to create copy section:', error);
+    res.status(500).json({ error: 'Failed to create copy section' });
+  }
+});
+
+router.put('/api/admin/copy-sections/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { key, label, content, page } = req.body;
+    const [updated] = await db.update(copySections)
+      .set({ key, label, content, page, updatedAt: new Date() })
+      .where(eq(copySections.id, parseInt(id)))
+      .returning();
+    res.json(updated);
+  } catch (error) {
+    console.error('[Admin] Failed to update copy section:', error);
+    res.status(500).json({ error: 'Failed to update copy section' });
+  }
+});
+
+router.delete('/api/admin/copy-sections/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    await db.delete(copySections).where(eq(copySections.id, parseInt(id)));
+    res.json({ success: true });
+  } catch (error) {
+    console.error('[Admin] Failed to delete copy section:', error);
+    res.status(500).json({ error: 'Failed to delete copy section' });
   }
 });
 

@@ -1,9 +1,9 @@
 import { Router, Request, Response } from 'express';
 import { storage } from './storage';
 import { db } from './db';
-import { emailTemplates, trackerSessions } from '../shared/schema';
+import { emailTemplates, trackerSessions, landingHero, fairyUpdates, kikiProfile, reviews, faqs, copySections } from '../shared/schema';
 import { sendTrackingEmail, sendAdminNotificationEmail } from './email';
-import { eq } from 'drizzle-orm';
+import { eq, asc } from 'drizzle-orm';
 
 const router = Router();
 
@@ -227,6 +227,54 @@ router.get('/api/email-templates', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('[API] Email templates fetch error:', error);
     res.status(500).json({ error: 'Failed to fetch email templates' });
+  }
+});
+
+// === PUBLIC LANDING PAGE CMS ENDPOINTS ===
+
+router.get('/api/landing-content', async (req: Request, res: Response) => {
+  try {
+    const [hero] = await db.select().from(landingHero).limit(1);
+    const updates = await db.select().from(fairyUpdates).where(eq(fairyUpdates.isActive, true)).orderBy(asc(fairyUpdates.sortOrder));
+    const [profile] = await db.select().from(kikiProfile).limit(1);
+    const featuredReviews = await db.select().from(reviews).orderBy(asc(reviews.sortOrder));
+    const activeFaqs = await db.select().from(faqs).where(eq(faqs.isActive, true)).orderBy(asc(faqs.sortOrder));
+    const allCopySections = await db.select().from(copySections);
+    
+    res.json({
+      hero: hero || null,
+      fairyUpdates: updates,
+      kikiProfile: profile || null,
+      reviews: featuredReviews,
+      faqs: activeFaqs,
+      copySections: allCopySections.reduce((acc, section) => {
+        acc[section.key] = section.content;
+        return acc;
+      }, {} as Record<string, string | null>),
+    });
+  } catch (error) {
+    console.error('[API] Landing content fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch landing content' });
+  }
+});
+
+router.get('/api/faqs', async (req: Request, res: Response) => {
+  try {
+    const activeFaqs = await db.select().from(faqs).where(eq(faqs.isActive, true)).orderBy(asc(faqs.sortOrder));
+    res.json(activeFaqs);
+  } catch (error) {
+    console.error('[API] FAQs fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch FAQs' });
+  }
+});
+
+router.get('/api/reviews', async (req: Request, res: Response) => {
+  try {
+    const allReviews = await db.select().from(reviews).orderBy(asc(reviews.sortOrder));
+    res.json(allReviews);
+  } catch (error) {
+    console.error('[API] Reviews fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch reviews' });
   }
 });
 
