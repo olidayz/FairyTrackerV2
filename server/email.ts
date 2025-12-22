@@ -143,6 +143,68 @@ export async function sendMorningUnlockEmail(toEmail: string, childName: string,
   }
 }
 
+export async function sendAdminNotificationEmail(parentEmail: string, childName: string, referrer: string | null) {
+  try {
+    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
+    if (!adminEmail) {
+      console.log('[Email] No ADMIN_NOTIFICATION_EMAIL configured, skipping admin notification');
+      return null;
+    }
+
+    const { client, fromEmail } = await getResendClient();
+
+    const bodyHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+</head>
+<body style="margin: 0; padding: 20px; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <div style="max-width: 500px; margin: 0 auto; background-color: white; border-radius: 8px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+    <h2 style="color: #0ea5e9; margin: 0 0 16px 0;">New Tracker Signup!</h2>
+    <table style="width: 100%; border-collapse: collapse;">
+      <tr>
+        <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Child's Name:</td>
+        <td style="padding: 8px 0; color: #1e293b; font-weight: 500;">${childName}</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Parent Email:</td>
+        <td style="padding: 8px 0; color: #1e293b; font-weight: 500;">${parentEmail}</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Referrer:</td>
+        <td style="padding: 8px 0; color: #1e293b; font-weight: 500;">${referrer || 'Direct'}</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Time:</td>
+        <td style="padding: 8px 0; color: #1e293b; font-weight: 500;">${new Date().toLocaleString()}</td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>
+`;
+
+    const { data, error } = await client.emails.send({
+      from: fromEmail || 'Kiki <onboarding@resend.dev>',
+      to: [adminEmail],
+      subject: `New Signup: ${childName}`,
+      html: bodyHtml,
+    });
+
+    if (error) {
+      console.error('[Email] Failed to send admin notification:', error);
+      return null;
+    }
+
+    console.log(`[Email] Sent admin notification for ${childName}, id: ${data?.id}`);
+    return data;
+  } catch (error) {
+    console.error('[Email] Error sending admin notification:', error);
+    return null;
+  }
+}
+
 interface EmailContent {
   type: 'tracking' | 'morning';
   headline: string;

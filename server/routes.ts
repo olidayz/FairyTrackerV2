@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { storage } from './storage';
 import { db } from './db';
 import { emailTemplates, trackerSessions } from '../shared/schema';
-import { sendTrackingEmail } from './email';
+import { sendTrackingEmail, sendAdminNotificationEmail } from './email';
 import { eq } from 'drizzle-orm';
 
 const router = Router();
@@ -61,6 +61,11 @@ router.post('/api/signup', async (req: Request, res: Response) => {
     // Send tracking email immediately
     sendTrackingEmail(email, name, fullTrackerUrl).catch(err => {
       console.error('[Signup] Background email send failed:', err);
+    });
+    
+    // Send admin notification
+    sendAdminNotificationEmail(email, name, req.headers.referer || null).catch(err => {
+      console.error('[Signup] Admin notification failed:', err);
     });
 
     res.json({
