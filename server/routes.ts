@@ -25,7 +25,7 @@ router.post('/api/signup', async (req: Request, res: Response) => {
       user = await storage.createUser(name, email);
     }
 
-    const session = await storage.createTrackerSession(user.id);
+    const session = await storage.createTrackerSession(user.id, name);
 
     const stages = await storage.getStageDefinitions();
     const now = new Date();
@@ -78,7 +78,7 @@ router.post('/api/signup', async (req: Request, res: Response) => {
     if (error.code === '23505') {
       const existingUser = await storage.getUserByEmail(req.body.email);
       if (existingUser) {
-        const newSession = await storage.createTrackerSession(existingUser.id);
+        const newSession = await storage.createTrackerSession(existingUser.id, req.body.name);
         
         const stages = await storage.getStageDefinitions();
         const now = new Date();
@@ -107,8 +107,13 @@ router.post('/api/signup', async (req: Request, res: Response) => {
           .set({ morningEmailScheduledFor: morningEmailTime })
           .where(eq(trackerSessions.id, newSession.id));
         
-        sendTrackingEmail(req.body.email, existingUser.name, fullTrackerUrl).catch(err => {
+        sendTrackingEmail(req.body.email, req.body.name, fullTrackerUrl).catch(err => {
           console.error('[Signup] Background email send failed:', err);
+        });
+        
+        // Send admin notification with the new child name
+        sendAdminNotificationEmail(req.body.email, req.body.name, req.headers.referer || null).catch(err => {
+          console.error('[Signup] Admin notification failed:', err);
         });
 
         return res.json({
@@ -185,7 +190,7 @@ router.get('/api/tracker/:token', async (req: Request, res: Response) => {
     );
 
     res.json({
-      userName: user.name,
+      userName: session.childName || user.name,
       generatedAt: session.generatedAt,
       stages: stages.sort((a, b) => a.orderIndex - b.orderIndex),
     });

@@ -19,6 +19,7 @@ export const trackerSessions = pgTable('tracker_sessions', {
   referrer: text('referrer'),
   morningEmailScheduledFor: timestamp('morning_email_scheduled_for'),
   morningEmailSentAt: timestamp('morning_email_sent_at'),
+  childName: varchar('child_name', { length: 255 }),
 });
 
 export const stageDefinitions = pgTable('stage_definitions', {

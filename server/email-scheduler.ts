@@ -43,11 +43,12 @@ async function checkAndSendPendingEmails() {
         ? `https://${process.env.REPLIT_DEV_DOMAIN}` 
         : 'https://kiki-tracker.replit.app';
       const trackerUrl = `${baseUrl}/tracker/${session.trackerToken}`;
+      const childName = session.childName || user.name;
 
-      console.log(`[EmailScheduler] Sending morning email to ${user.email} for session ${session.id}`);
+      console.log(`[EmailScheduler] Sending morning email to ${user.email} for session ${session.id} (child: ${childName})`);
       
       try {
-        await sendMorningUnlockEmail(user.email, user.name, trackerUrl);
+        await sendMorningUnlockEmail(user.email, childName, trackerUrl);
         
         // Mark as sent
         await db
