@@ -303,9 +303,9 @@ const NewLandingPage = () => {
 
                                     {/* Main Headline */}
                                     <div className="space-y-3">
-                                        <h1 className="font-chrome text-5xl md:text-5xl lg:text-6xl text-white leading-[0.95] tracking-normal">
-                                            Track the Tooth Fairy,<br />
-                                            <span className="text-white">Bring the Magic to Life</span>
+                                        <h1 className="font-chrome text-[2.5rem] sm:text-5xl lg:text-6xl text-white leading-[0.95] tracking-normal">
+                                            Track the Tooth&nbsp;Fairy,<br />
+                                            <span className="text-white">Bring the Magic to&nbsp;Life</span>
                                         </h1>
                                         <p className="text-slate-400 text-lg md:text-xl leading-relaxed font-sans">
                                             A magical experience where the Tooth Fairy sends videos and updates as she flies to pick up their tooth.
