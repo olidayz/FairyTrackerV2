@@ -300,7 +300,7 @@ const NewLandingPage = () => {
 
             <header className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${headerVisible ? 'translate-y-0' : '-translate-y-full'}`}>
                 <div className="mx-4 mt-4">
-                    <div className="max-w-5xl mx-auto bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-2xl px-4 md:px-6 py-3 shadow-2xl">
+                    <div className="max-w-5xl mx-auto bg-slate-900 lg:bg-slate-900/80 lg:backdrop-blur-xl border border-white/10 rounded-2xl px-4 md:px-6 py-3 shadow-2xl">
                         <div className="flex items-center justify-between">
 
                             {/* Left: Hamburger (mobile) or Nav Links (desktop) */}
@@ -346,7 +346,7 @@ const NewLandingPage = () => {
                 {/* Mobile Menu Dropdown */}
                 {mobileMenuOpen && (
                     <div className="lg:hidden mx-4 mt-2">
-                        <div className="bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl">
+                        <div className="bg-slate-900 lg:bg-slate-900/95 lg:backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl">
                             <nav className="flex flex-col gap-4">
                                 <a href="#meet-kiki" onClick={() => setMobileMenuOpen(false)} className="text-slate-300 hover:text-white transition-colors py-2">
                                     Meet Kiki
