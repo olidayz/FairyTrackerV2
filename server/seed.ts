@@ -1,7 +1,6 @@
 import { db } from './db';
-import { stageDefinitions, stageContent, emailTemplates } from '../shared/schema';
-import { seedStageDefinitions, seedStageContent, seedEmailTemplates } from './seed-data';
-import { sql } from 'drizzle-orm';
+import { stageDefinitions, stageContent, emailTemplates, landingImages } from '../shared/schema';
+import { seedStageDefinitions, seedStageContent, seedEmailTemplates, seedLandingImages } from './seed-data';
 
 export async function seedDatabase() {
   try {
@@ -54,6 +53,18 @@ export async function seedDatabase() {
       });
     }
     console.log('[Seed] Email templates seeded');
+
+    for (const img of seedLandingImages) {
+      await db.insert(landingImages).values({
+        key: img.key,
+        label: img.label,
+        description: img.description,
+        imageUrl: img.imageUrl,
+        title: img.title,
+        mediaType: img.mediaType
+      });
+    }
+    console.log('[Seed] Landing images seeded');
 
     console.log('[Seed] Database seeding complete!');
   } catch (error) {

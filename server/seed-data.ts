@@ -82,6 +82,21 @@ export const seedStageContent = [
   }
 ];
 
+export const seedLandingImages = [
+  { id: 1, key: 'logo', label: 'Site Logo', description: 'Main logo shown in header and footer', imageUrl: '/kiki-logo.png', title: null, mediaType: 'image' },
+  { id: 2, key: 'kiki_profile', label: 'Kiki Profile Photo', description: "Kiki's profile picture used throughout the site", imageUrl: '/PFP FULL SIZE KIKI 1.png', title: null, mediaType: 'image' },
+  { id: 3, key: 'fairy_photo', label: 'Fairy Photo', description: 'Main fairy photo shown on landing page', imageUrl: null, title: null, mediaType: 'image' },
+  { id: 4, key: 'hero_background', label: 'Hero Background', description: 'Background image for hero section', imageUrl: null, title: null, mediaType: 'image' },
+  { id: 5, key: 'meet_kiki_photo', label: 'Meet Kiki Photo', description: 'Photo shown in the Meet Kiki section', imageUrl: '/objects/uploads/302f47e0-49db-4a56-b2fc-01c55de46edd', title: null, mediaType: 'image' },
+  { id: 6, key: 'fairy_updates_photo', label: 'Fairy Updates Card Photo', description: 'Photo shown in the Fairy Updates card', imageUrl: null, title: null, mediaType: 'image' },
+  { id: 7, key: 'stage_1_photo', label: 'Stage 1 Photo (The Departure)', description: 'Photo for Stage 1 in the hero carousel', imageUrl: '/objects/uploads/c12a4db5-c86e-4ba2-87cc-2bb79c038c94.webm', title: null, mediaType: 'video' },
+  { id: 8, key: 'stage_2_photo', label: 'Stage 2 Photo (Mid-Flight Magic)', description: 'Photo for Stage 2 in the hero carousel', imageUrl: '/objects/uploads/1f4f378f-e905-4021-b355-78c7eeebcb33.webm', title: null, mediaType: 'video' },
+  { id: 9, key: 'stage_3_photo', label: 'Stage 3 Photo (Cloud Surfing)', description: 'Photo for Stage 3 in the hero carousel', imageUrl: '/objects/uploads/79f2a676-4508-4d0a-b920-f1906beae355.webm', title: null, mediaType: 'video' },
+  { id: 10, key: 'stage_4_photo', label: 'Stage 4 Photo (Final Approach)', description: 'Photo for Stage 4 in the hero carousel', imageUrl: '/objects/uploads/c886fc50-e4d7-4955-815a-ed73004439f8.webm', title: null, mediaType: 'video' },
+  { id: 11, key: 'stage_5_photo', label: 'Stage 5 Photo (Mission Complete)', description: 'Photo for Stage 5 in the hero carousel', imageUrl: '/objects/uploads/408a2651-2ff9-425f-8af1-ec7273ab4fb9.webm', title: null, mediaType: 'video' },
+  { id: 12, key: 'stage_6_photo', label: 'Stage 6 Photo (Morning Surprise)', description: 'Photo for Stage 6 in the hero carousel', imageUrl: '/objects/uploads/0da644da-1ab5-408b-ad70-ccfabc6bd1b1.webm', title: null, mediaType: 'video' },
+];
+
 export const seedEmailTemplates = [
   {
     id: 1,
