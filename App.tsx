@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import NewLandingPage from './NewLandingPage';
 import Tracker from './TrackerPage';
 import BlogListPage from './BlogListPage';
@@ -42,6 +42,13 @@ function App() {
         {/* Admin */}
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/admin/cms" element={<AdminPage />} />
+        
+        {/* Convenience redirects */}
+        <Route path="/blog" element={<Navigate to="/blogs/kikis-blog" replace />} />
+        <Route path="/privacy" element={<Navigate to="/policies/privacy-policy" replace />} />
+        <Route path="/terms" element={<Navigate to="/policies/terms-of-service" replace />} />
+        <Route path="/faq" element={<Navigate to="/pages/faq" replace />} />
+        <Route path="/contact" element={<Navigate to="/pages/contact" replace />} />
       </Routes>
     </Router>
   );
