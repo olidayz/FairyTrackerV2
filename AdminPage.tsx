@@ -121,7 +121,7 @@ interface AnalyticsSummary {
   signups7d: number;
   signups30d: number;
   trackerViews7d: number;
-  trackerViews30d: number;
+  pageViews7d: number;
 }
 
 interface SignupsByDay {
@@ -1150,6 +1150,13 @@ const AdminPage = () => {
                   <span className="text-sm">Tracker Views (7d)</span>
                 </div>
                 <p className="text-2xl font-bold text-cyan-400">{analyticsSummary?.trackerViews7d || 0}</p>
+              </div>
+              <div className="bg-slate-900 border border-slate-800 rounded-lg p-4">
+                <div className="flex items-center gap-2 text-slate-400 mb-2">
+                  <Eye size={18} />
+                  <span className="text-sm">Page Views (7d)</span>
+                </div>
+                <p className="text-2xl font-bold text-fuchsia-400">{analyticsSummary?.pageViews7d || 0}</p>
               </div>
             </div>
 

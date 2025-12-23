@@ -13,10 +13,17 @@ import TermsPage from './TermsPage';
 import ShippingPolicyPage from './ShippingPolicyPage';
 import RefundPolicyPage from './RefundPolicyPage';
 import AdminPage from './AdminPage';
+import { usePageTracking } from './hooks/usePageTracking';
+
+function PageTracker() {
+  usePageTracking();
+  return null;
+}
 
 function App() {
   return (
     <Router>
+      <PageTracker />
       <Routes>
         {/* Main pages */}
         <Route path="/" element={<NewLandingPage />} />

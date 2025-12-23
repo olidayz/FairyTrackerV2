@@ -482,4 +482,31 @@ router.get('/sitemap.xml', async (req: Request, res: Response) => {
   }
 });
 
+router.post('/api/analytics/page-view', async (req: Request, res: Response) => {
+  try {
+    const { path, visitorId, referrer } = req.body;
+    
+    if (!path) {
+      return res.status(400).json({ error: 'Path is required' });
+    }
+
+    const userAgent = req.headers['user-agent'] as string || undefined;
+
+    trackEvent({
+      eventType: 'page_view',
+      referrer: referrer || req.headers.referer as string || undefined,
+      userAgent,
+      metadata: {
+        path,
+        visitorId,
+      },
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('[Analytics] Failed to track page view:', error);
+    res.status(500).json({ error: 'Failed to track page view' });
+  }
+});
+
 export default router;

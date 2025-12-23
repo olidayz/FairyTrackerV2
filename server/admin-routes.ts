@@ -542,6 +542,14 @@ router.get('/api/admin/analytics/summary', async (req: Request, res: Response) =
         gte(analyticsEvents.occurredAt, sevenDaysAgo)
       ));
 
+    const [pageViews7d] = await db
+      .select({ count: count() })
+      .from(analyticsEvents)
+      .where(and(
+        eq(analyticsEvents.eventType, 'page_view'),
+        gte(analyticsEvents.occurredAt, sevenDaysAgo)
+      ));
+
     const [emailsSent7d] = await db
       .select({ count: count() })
       .from(emailEvents)
@@ -568,6 +576,7 @@ router.get('/api/admin/analytics/summary', async (req: Request, res: Response) =
       signups7d: signups7d.count,
       signups30d: signups30d.count,
       trackerViews7d: trackerViews7d.count,
+      pageViews7d: pageViews7d.count,
       emailsSent7d: emailsSent7d.count,
       emailsOpened7d: emailsOpened7d.count,
       emailOpenRate7d: openRate,
@@ -627,6 +636,32 @@ router.get('/api/admin/analytics/tracker-views-by-day', async (req: Request, res
   } catch (error) {
     console.error('[Admin] Failed to fetch tracker views by day:', error);
     res.status(500).json({ error: 'Failed to fetch tracker views by day' });
+  }
+});
+
+router.get('/api/admin/analytics/page-views-by-day', async (req: Request, res: Response) => {
+  try {
+    const days = parseInt(req.query.days as string) || 30;
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+
+    const results = await db
+      .select({
+        date: sql<string>`DATE(${analyticsEvents.occurredAt})`.as('date'),
+        count: count(),
+      })
+      .from(analyticsEvents)
+      .where(and(
+        eq(analyticsEvents.eventType, 'page_view'),
+        gte(analyticsEvents.occurredAt, startDate)
+      ))
+      .groupBy(sql`DATE(${analyticsEvents.occurredAt})`)
+      .orderBy(sql`DATE(${analyticsEvents.occurredAt})`);
+
+    res.json(results);
+  } catch (error) {
+    console.error('[Admin] Failed to fetch page views by day:', error);
+    res.status(500).json({ error: 'Failed to fetch page views by day' });
   }
 });
 
