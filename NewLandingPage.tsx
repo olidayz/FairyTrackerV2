@@ -1240,7 +1240,7 @@ const NewLandingPage = () => {
 
                                     {/* Title - Single line */}
                                     <h2 className="font-chrome text-3xl md:text-4xl lg:text-5xl text-white tracking-wide">
-                                        Meet Kiki the Tooth Fairy
+                                        Meet Kiki the Tooth&nbsp;Fairy
                                     </h2>
 
                                     {/* Paragraphs */}
