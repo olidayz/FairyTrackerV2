@@ -885,13 +885,40 @@ const AdminPage = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Photo URL</label>
-                      <input
-                        type="text"
-                        value={editingReview.photoUrl}
-                        onChange={(e) => setEditingReview({ ...editingReview, photoUrl: e.target.value })}
-                        className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
-                      />
+                      <label className="block text-sm font-medium mb-1">Reviewer Photo</label>
+                      <div className="flex items-center gap-3">
+                        {editingReview.photoUrl && (
+                          <img 
+                            src={editingReview.photoUrl} 
+                            alt="Reviewer" 
+                            className="w-12 h-12 rounded-full object-cover border border-slate-600"
+                          />
+                        )}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            try {
+                              const urlRes = await fetch('/api/uploads/request-url', {
+                                method: 'POST',
+                                headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ filename: file.name, contentType: file.type }),
+                              });
+                              if (!urlRes.ok) throw new Error('Failed to get upload URL');
+                              const { uploadURL, objectPath } = await urlRes.json();
+                              const uploadRes = await fetch(uploadURL, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
+                              if (!uploadRes.ok) throw new Error('Failed to upload');
+                              setEditingReview(prev => prev ? { ...prev, photoUrl: `/objects/${objectPath}` } : prev);
+                            } catch (error) {
+                              console.error('Photo upload failed:', error);
+                              alert('Failed to upload photo');
+                            }
+                          }}
+                          className="text-sm text-slate-400 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-slate-700 file:text-white file:cursor-pointer hover:file:bg-slate-600"
+                        />
+                      </div>
                     </div>
                   </div>
                   <div className="flex gap-4">

@@ -92,7 +92,7 @@ const NewLandingPage = () => {
     // Dynamic CMS content
     const [landingContent, setLandingContent] = useState<{
         hero: { headline: string; subheadline: string; badgeText: string; ctaText: string } | null;
-        reviews: Array<{ id: number; reviewerName: string; reviewerLocation: string; reviewText: string; rating: number }>;
+        reviews: Array<{ id: number; reviewerName: string; reviewerLocation: string; reviewText: string; rating: number; photoUrl?: string | null }>;
         kikiProfile: { name: string; title: string; bio: string; photoUrl: string } | null;
         faqs: Array<{ id: number; question: string; answer: string }>;
         images: Record<string, string | null>;
@@ -235,9 +235,10 @@ const NewLandingPage = () => {
             name: r.reviewerName,
             role: r.reviewerLocation || 'Parent',
             review: r.reviewText,
+            photoUrl: r.photoUrl || null,
             ...colorSchemes[i % colorSchemes.length]
         }))
-        : defaultReviews.map((r, i) => ({ ...r, ...colorSchemes[i % colorSchemes.length] }));
+        : defaultReviews.map((r, i) => ({ ...r, photoUrl: null as string | null, ...colorSchemes[i % colorSchemes.length] }));
 
     const defaultFairyPhoto = "/Fairy photo booth pic.webp";
     
@@ -1356,8 +1357,12 @@ const NewLandingPage = () => {
 
                                                 <div className="relative z-10 flex flex-col items-center gap-5">
                                                     {/* Avatar */}
-                                                    <div className="w-14 h-14 md:w-20 md:h-20 rounded-full bg-white/20 border-4 border-white/50 flex items-center justify-center shadow-lg">
-                                                        <span className="font-chrome text-xl md:text-3xl text-white">{review.name.charAt(0)}</span>
+                                                    <div className="w-14 h-14 md:w-20 md:h-20 rounded-full bg-white/20 border-4 border-white/50 flex items-center justify-center shadow-lg overflow-hidden">
+                                                        {review.photoUrl ? (
+                                                            <img src={review.photoUrl} alt={review.name} className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            <span className="font-chrome text-xl md:text-3xl text-white">{review.name.charAt(0)}</span>
+                                                        )}
                                                     </div>
 
                                                     {/* Name & Role */}
