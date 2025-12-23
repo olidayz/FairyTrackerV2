@@ -19,9 +19,10 @@ const MapUpdater = ({ center, zoom }: { center: [number, number], zoom: number }
     return null;
 };
 
-// Video component that handles autoplay properly
-const AutoPlayVideo = ({ src, isActive, className }: { src: string; isActive: boolean; className: string }) => {
+// Video component that handles autoplay properly with better mobile support
+const AutoPlayVideo = ({ src, isActive, shouldPreload, className }: { src: string; isActive: boolean; shouldPreload?: boolean; className: string }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
+    const [isLoaded, setIsLoaded] = useState(false);
     
     useEffect(() => {
         const video = videoRef.current;
@@ -35,23 +36,32 @@ const AutoPlayVideo = ({ src, isActive, className }: { src: string; isActive: bo
     }, [isActive, src]);
     
     const handleLoadedData = () => {
+        setIsLoaded(true);
         if (isActive && videoRef.current) {
             videoRef.current.play().catch(() => {});
         }
     };
     
     return (
-        <video
-            ref={videoRef}
-            src={src}
-            muted
-            loop
-            playsInline
-            autoPlay={isActive}
-            preload={isActive ? "auto" : "metadata"}
-            onLoadedData={handleLoadedData}
-            className={className}
-        />
+        <>
+            {!isLoaded && isActive && (
+                <div className={`${className} bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center`}>
+                    <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+                </div>
+            )}
+            <video
+                ref={videoRef}
+                src={src}
+                muted
+                loop
+                playsInline
+                autoPlay={isActive}
+                preload={isActive || shouldPreload ? "auto" : "metadata"}
+                onLoadedData={handleLoadedData}
+                className={`${className} ${!isLoaded && isActive ? 'opacity-0' : 'opacity-100'}`}
+                style={{ transition: 'opacity 0.3s' }}
+            />
+        </>
     );
 };
 
@@ -576,6 +586,7 @@ const NewLandingPage = () => {
                                                         <AutoPlayVideo
                                                             src={stage.image}
                                                             isActive={isActive}
+                                                            shouldPreload={isNext || isPrev}
                                                             className="absolute inset-0 w-full h-full object-cover transition-transform duration-[8s] group-hover/card:scale-110"
                                                         />
                                                     ) : (
