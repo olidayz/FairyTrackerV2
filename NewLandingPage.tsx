@@ -1344,7 +1344,7 @@ const NewLandingPage = () => {
                                     >
                                         {/* Card with ring wrapper */}
                                         <div className={`${review.bg} ${review.glow} rounded-[2rem] shadow-2xl ring-4 ring-white/50`}>
-                                            <div className="relative p-6 md:p-10 rounded-[2rem] overflow-hidden">
+                                            <div className="relative p-6 md:p-10 rounded-[2rem] overflow-hidden min-h-[320px] md:min-h-[380px] flex flex-col">
                                                 {/* Shine */}
                                                 <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/25 to-transparent pointer-events-none rounded-t-[2rem]" />
 
@@ -1355,7 +1355,7 @@ const NewLandingPage = () => {
                                                     </svg>
                                                 </div>
 
-                                                <div className="relative z-10 flex flex-col items-center gap-5">
+                                                <div className="relative z-10 flex flex-col items-center gap-5 flex-1 justify-between">
                                                     {/* Avatar */}
                                                     <div className="w-14 h-14 md:w-20 md:h-20 rounded-full bg-white/20 border-4 border-white/50 flex items-center justify-center shadow-lg overflow-hidden">
                                                         {review.photoUrl ? (
@@ -1372,7 +1372,7 @@ const NewLandingPage = () => {
                                                     </div>
 
                                                     {/* Review */}
-                                                    <p className="text-white text-base md:text-2xl font-medium italic leading-relaxed">
+                                                    <p className="text-white text-base md:text-2xl font-medium italic leading-relaxed line-clamp-4 text-center">
                                                         "{review.review}"
                                                     </p>
 
