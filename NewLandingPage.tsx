@@ -65,6 +65,8 @@ const NewLandingPage = () => {
     const trackerIframeRef = useRef<HTMLIFrameElement>(null);
     const [touchStart, setTouchStart] = useState<number | null>(null);
     const [touchEnd, setTouchEnd] = useState<number | null>(null);
+    const [reviewTouchStart, setReviewTouchStart] = useState<number | null>(null);
+    const [reviewTouchEnd, setReviewTouchEnd] = useState<number | null>(null);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [fairyPosition, setFairyPosition] = useState(0);
     
@@ -1301,7 +1303,25 @@ const NewLandingPage = () => {
                         </div>
 
                         {/* Review Cards Carousel - 5 Card Stack */}
-                        <div className="relative h-[350px] md:h-[450px] flex items-center justify-center">
+                        <div 
+                            className="relative h-[350px] md:h-[450px] flex items-center justify-center touch-pan-y"
+                            onTouchStart={(e) => setReviewTouchStart(e.targetTouches[0].clientX)}
+                            onTouchMove={(e) => setReviewTouchEnd(e.targetTouches[0].clientX)}
+                            onTouchEnd={() => {
+                                if (!reviewTouchStart || !reviewTouchEnd) return;
+                                const distance = reviewTouchStart - reviewTouchEnd;
+                                const isSwipe = Math.abs(distance) > 50;
+                                if (isSwipe) {
+                                    if (distance > 0) {
+                                        setActiveReview(prev => (prev + 1) % reviews.length);
+                                    } else {
+                                        setActiveReview(prev => (prev - 1 + reviews.length) % reviews.length);
+                                    }
+                                }
+                                setReviewTouchStart(null);
+                                setReviewTouchEnd(null);
+                            }}
+                        >
                             {reviews.map((review, index) => {
                                 const isActive = index === activeReview;
                                 const isPrev = index === (activeReview - 1 + reviews.length) % reviews.length;
