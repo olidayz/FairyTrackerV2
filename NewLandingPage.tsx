@@ -909,9 +909,9 @@ const NewLandingPage = () => {
                                             </div>
                                         </div>
 
-                                        {/* Child's Name Input - BIGGER */}
+                                        {/* Child's First Name Input - BIGGER */}
                                         <div>
-                                            <label className="block text-white font-bold text-lg mb-2">Child's Name</label>
+                                            <label className="block text-white font-bold text-lg mb-2">Child's First Name</label>
                                             <p className="text-slate-400 text-sm mb-3">We use the name to customize the experience.</p>
                                             <input
                                                 type="text"

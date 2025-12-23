@@ -27,7 +27,7 @@ const EmailContainer = ({ subject, preheader, children }: { subject: string, pre
   </div>
 );
 
-const SAMPLE_CHILD_NAME = "[Child's Name]";
+const SAMPLE_CHILD_NAME = "[Child's First Name]";
 
 const renderBodyWithPlaceholder = (text: string | null, childName = SAMPLE_CHILD_NAME) => {
   if (!text) return null;
