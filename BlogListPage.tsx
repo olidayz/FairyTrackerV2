@@ -65,10 +65,10 @@ const BlogListPage = () => {
             <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
                 <div className="absolute inset-0 bg-gradient-to-b from-[#0a1020] via-[#0c1428] to-[#080e1a]" />
 
-                {/* Ambient glows */}
-                <div className="absolute top-0 left-1/4 w-[1000px] h-[1000px] bg-cyan-500/10 rounded-full blur-[150px] mix-blend-screen" />
-                <div className="absolute bottom-0 right-0 w-[800px] h-[800px] bg-teal-500/8 rounded-full blur-[120px] mix-blend-screen" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[600px] bg-fuchsia-500/5 rounded-full blur-[200px] mix-blend-screen" />
+                {/* Ambient glows - Safari-safe radial gradients (responsive sizing) */}
+                <div className="absolute top-0 left-1/4 w-[500px] h-[500px] md:w-[800px] md:h-[800px] lg:w-[1000px] lg:h-[1000px]" style={{ background: 'radial-gradient(circle, rgba(34, 211, 238, 0.08) 0%, transparent 70%)' }} />
+                <div className="absolute bottom-0 right-0 w-[400px] h-[400px] md:w-[600px] md:h-[600px] lg:w-[800px] lg:h-[800px]" style={{ background: 'radial-gradient(circle, rgba(45, 212, 191, 0.06) 0%, transparent 70%)' }} />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] md:w-[900px] md:h-[450px] lg:w-[1200px] lg:h-[600px]" style={{ background: 'radial-gradient(ellipse, rgba(217, 70, 239, 0.04) 0%, transparent 70%)' }} />
 
                 {/* Grid overlay */}
                 <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(34, 211, 238, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(34, 211, 238, 0.3) 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
