@@ -58,7 +58,14 @@ The Admin panel (/admin) provides full CMS capabilities:
 - **Stage Content**: Configure each tracker stage with front card image (via upload), location text, status text, video URL, image URL, and message text
 - **Email Templates**: Customize email content for tracking links, morning unlock, and admin notifications
 - **Landing Page Content**: Manage hero section, fairy updates, Kiki profile, reviews, FAQs, and copy sections
+- **Copy Editor**: Self-service inline text editor for all UI copy (form labels, buttons, error messages, section headers) - grouped by page with auto-save and 30-second cache TTL for near-instant updates
 - **Site Assets**: Manage downloadable assets and media files
+
+### Copy Management (useCopy Hook)
+- Frontend pages use `useCopy()` hook to fetch CMS copy with fallback defaults
+- 30-second cache TTL with automatic refetch on tab visibility change
+- CopyEditor invalidates cache on save so updates appear immediately
+- 56 copy sections seeded covering form/errors/landing/tracker/contact/faq/footer/misc
 
 ### File Upload (Object Storage)
 - Uses Replit Object Storage with presigned URL upload flow
