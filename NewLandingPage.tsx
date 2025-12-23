@@ -1304,7 +1304,7 @@ const NewLandingPage = () => {
 
                         {/* Review Cards Carousel - 5 Card Stack */}
                         <div 
-                            className="relative h-[420px] md:h-[480px] flex items-center justify-center touch-pan-y"
+                            className="relative h-[360px] md:h-[480px] flex items-center justify-center touch-pan-y"
                             onTouchStart={(e) => setReviewTouchStart(e.targetTouches[0].clientX)}
                             onTouchMove={(e) => setReviewTouchEnd(e.targetTouches[0].clientX)}
                             onTouchEnd={() => {
@@ -1364,7 +1364,7 @@ const NewLandingPage = () => {
                                     >
                                         {/* Card with ring wrapper */}
                                         <div className={`${review.bg} ${review.glow} rounded-[2rem] shadow-2xl ring-4 ring-white/50`}>
-                                            <div className="relative p-6 md:p-10 rounded-[2rem] overflow-hidden h-[380px] md:h-[420px] flex flex-col">
+                                            <div className="relative p-6 md:p-10 rounded-[2rem] overflow-hidden h-[340px] md:h-[420px] flex flex-col">
                                                 {/* Shine */}
                                                 <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/25 to-transparent pointer-events-none rounded-t-[2rem]" />
 
