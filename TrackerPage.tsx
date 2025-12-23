@@ -1391,7 +1391,7 @@ function Tracker() {
                   stage={stage}
                   isActive={stage.type === 'active'}
                   isLocked={isNextBatchAvailable}
-                  isMorning={true}
+
                   isCompleted={stage.type === 'completed'}
                   onClick={() => handleUnlock(stage)}
                   index={index + 3}

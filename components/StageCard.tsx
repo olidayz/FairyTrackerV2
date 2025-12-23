@@ -18,7 +18,6 @@ interface StageCardProps {
    isActive: boolean;
    isLocked: boolean;
    isCompleted: boolean;
-   isMorning?: boolean;
    onClick: () => void;
    onNext?: () => void;
    isLastStage?: boolean;
@@ -26,7 +25,7 @@ interface StageCardProps {
 }
 
 export const StageCard: React.FC<StageCardProps> = ({
-   stage, isActive, isLocked, isCompleted, isMorning = false, onClick, onNext, isLastStage, index
+   stage, isActive, isLocked, isCompleted, onClick, onNext, isLastStage, index
 }) => {
    const [isFlipped, setIsFlipped] = useState(false);
    const [isHovered, setIsHovered] = useState(false);
@@ -138,10 +137,6 @@ export const StageCard: React.FC<StageCardProps> = ({
                >
                   <div className={`rounded-[2rem] bg-gradient-to-b from-slate-900/90 to-slate-950/90 ring-4 ${theme.ring}/40 overflow-visible shadow-[0_20px_50px_rgba(0,0,0,0.4)] relative`}>
                      <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-white/5 to-transparent pointer-events-none rounded-t-[2rem]" />
-                     {/* Morning blur overlay - Safari-safe radial gradient (no backdrop-filter) */}
-                     {isMorning && isLocked && (
-                        <div className="absolute inset-0 rounded-[2rem] z-20 pointer-events-none" style={{ background: 'radial-gradient(circle at center, rgba(15, 23, 42, 0.75) 0%, rgba(15, 23, 42, 0.92) 100%)' }} />
-                     )}
                      <div className={`relative h-[480px] md:h-96 flex flex-col ${isInverted ? 'md:flex-row-reverse' : 'md:flex-row'} items-center p-6 md:p-10 z-10`}>
                         <div className={`flex-1 flex flex-col items-center text-center ${isInverted ? 'md:items-end md:text-right' : 'md:items-start md:text-left'} space-y-1 md:space-y-6 w-full pt-4 md:pt-0`}>
                            <div className={`absolute -top-5 left-1/2 -translate-x-1/2 md:static md:translate-x-0 md:inline-block px-5 py-1.5 ${theme.badge} text-white border-2 ${theme.badgeBorder} shadow-lg rounded-lg transform -rotate-2 group-hover:rotate-0 transition-transform z-50`}>
