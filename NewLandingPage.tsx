@@ -1053,7 +1053,7 @@ const NewLandingPage = () => {
                 </section>
 
                 {/* ========== SECTION 2.75: PEEK INSIDE THE TRACKER ========== */}
-                <section className="relative py-24 px-4 overflow-hidden">
+                <section className="relative py-12 md:py-24 px-4 overflow-hidden">
                     {/* Thin glowing line divider */}
                     <div className="absolute inset-x-0 top-0 flex justify-center">
                         <div className="w-1/2 h-px bg-gradient-to-r from-transparent via-fuchsia-500/50 to-transparent" />
