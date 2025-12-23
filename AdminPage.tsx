@@ -904,7 +904,7 @@ const AdminPage = () => {
                               const urlRes = await fetch('/api/uploads/request-url', {
                                 method: 'POST',
                                 headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ filename: file.name, contentType: file.type }),
+                                body: JSON.stringify({ name: file.name, contentType: file.type }),
                               });
                               if (!urlRes.ok) throw new Error('Failed to get upload URL');
                               const { uploadURL, objectPath } = await urlRes.json();
