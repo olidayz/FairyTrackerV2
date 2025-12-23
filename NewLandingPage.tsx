@@ -85,6 +85,13 @@ const NewLandingPage = () => {
     const [formError, setFormError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     
+    const [contactName, setContactName] = useState('');
+    const [contactEmail, setContactEmail] = useState('');
+    const [contactMessage, setContactMessage] = useState('');
+    const [contactSubmitting, setContactSubmitting] = useState(false);
+    const [contactStatus, setContactStatus] = useState<'idle' | 'success' | 'error'>('idle');
+    const [contactError, setContactError] = useState('');
+    
     // Dynamic live counter for social proof
     const [liveCount, setLiveCount] = useState(() => Math.floor(Math.random() * 30) + 35); // Start between 35-65
     
@@ -182,6 +189,51 @@ const NewLandingPage = () => {
             setFormError(error.message || get('error_generic'));
         } finally {
             setIsSubmitting(false);
+        }
+    };
+
+    const handleContactSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setContactStatus('idle');
+        setContactError('');
+        
+        if (!contactName.trim() || !contactEmail.trim() || !contactMessage.trim()) {
+            setContactError('Please fill in all fields');
+            setContactStatus('error');
+            return;
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(contactEmail.trim())) {
+            setContactError('Please enter a valid email address');
+            setContactStatus('error');
+            return;
+        }
+
+        setContactSubmitting(true);
+
+        try {
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: contactName.trim(), email: contactEmail.trim(), message: contactMessage.trim() }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to send message');
+            }
+
+            setContactStatus('success');
+            setContactName('');
+            setContactEmail('');
+            setContactMessage('');
+        } catch (error: any) {
+            setContactStatus('error');
+            setContactError(error.message || 'Something went wrong. Please try again.');
+        } finally {
+            setContactSubmitting(false);
         }
     };
 
@@ -1611,38 +1663,74 @@ const NewLandingPage = () => {
                                             </h2>
                                         </div>
 
-                                        <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
-                                            <div>
-                                                <label className="block text-white font-bold text-sm mb-2">Your Name</label>
-                                                <input
-                                                    type="text"
-                                                    placeholder="Sarah"
-                                                    className="w-full px-5 py-4 bg-white border-2 border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/20 transition-all shadow-inner"
-                                                />
+                                        {contactStatus === 'success' ? (
+                                            <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-6 text-center">
+                                                <div className="text-4xl mb-3">✨</div>
+                                                <h3 className="text-xl font-bold text-white mb-2">Message Sent!</h3>
+                                                <p className="text-slate-300">Thank you for reaching out. We'll get back to you soon!</p>
+                                                <button
+                                                    onClick={() => setContactStatus('idle')}
+                                                    className="mt-4 text-cyan-400 hover:text-cyan-300 text-sm font-medium"
+                                                >
+                                                    Send another message
+                                                </button>
                                             </div>
-                                            <div>
-                                                <label className="block text-white font-bold text-sm mb-2">Email Address</label>
-                                                <input
-                                                    type="email"
-                                                    placeholder="sarah@email.com"
-                                                    className="w-full px-5 py-4 bg-white border-2 border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/20 transition-all shadow-inner"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-white font-bold text-sm mb-2">Message</label>
-                                                <textarea
-                                                    rows={4}
-                                                    placeholder="Hi! I had a question about..."
-                                                    className="w-full px-5 py-4 bg-white border-2 border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/20 transition-all shadow-inner resize-none"
-                                                />
-                                            </div>
-                                            <button
-                                                type="submit"
-                                                className="w-full bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600 text-white py-4 rounded-xl font-sans font-extrabold uppercase tracking-tight shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all hover:-translate-y-1 active:translate-y-1 border-b-[4px] border-[#1e40af] active:border-b-0"
-                                            >
-                                                Send Message ✨
-                                            </button>
-                                        </form>
+                                        ) : (
+                                            <form className="space-y-5" onSubmit={handleContactSubmit}>
+                                                {contactStatus === 'error' && (
+                                                    <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 text-red-300 text-sm">
+                                                        {contactError}
+                                                    </div>
+                                                )}
+                                                <div>
+                                                    <label className="block text-white font-bold text-sm mb-2">Your Name</label>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Sarah"
+                                                        value={contactName}
+                                                        onChange={(e) => setContactName(e.target.value)}
+                                                        disabled={contactSubmitting}
+                                                        className="w-full px-5 py-4 bg-white border-2 border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/20 transition-all shadow-inner disabled:opacity-50"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-white font-bold text-sm mb-2">Email Address</label>
+                                                    <input
+                                                        type="email"
+                                                        placeholder="sarah@email.com"
+                                                        value={contactEmail}
+                                                        onChange={(e) => setContactEmail(e.target.value)}
+                                                        disabled={contactSubmitting}
+                                                        className="w-full px-5 py-4 bg-white border-2 border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/20 transition-all shadow-inner disabled:opacity-50"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-white font-bold text-sm mb-2">Message</label>
+                                                    <textarea
+                                                        rows={4}
+                                                        placeholder="Hi! I had a question about..."
+                                                        value={contactMessage}
+                                                        onChange={(e) => setContactMessage(e.target.value)}
+                                                        disabled={contactSubmitting}
+                                                        className="w-full px-5 py-4 bg-white border-2 border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/20 transition-all shadow-inner resize-none disabled:opacity-50"
+                                                    />
+                                                </div>
+                                                <button
+                                                    type="submit"
+                                                    disabled={contactSubmitting}
+                                                    className="w-full bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600 text-white py-4 rounded-xl font-sans font-extrabold uppercase tracking-tight shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all hover:-translate-y-1 active:translate-y-1 border-b-[4px] border-[#1e40af] active:border-b-0 disabled:opacity-50 disabled:hover:translate-y-0 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                                >
+                                                    {contactSubmitting ? (
+                                                        <>
+                                                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                            Sending...
+                                                        </>
+                                                    ) : (
+                                                        'Send Message'
+                                                    )}
+                                                </button>
+                                            </form>
+                                        )}
                                     </div>
                                 </div>
                             </div>
