@@ -304,3 +304,58 @@ function generateEmailHtml(content: EmailContent): string {
 </html>
 `;
 }
+
+export async function sendContactFormEmail(name: string, email: string, message: string) {
+  try {
+    const { client, fromEmail } = await getResendClient();
+    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'hello@kikithetoothfairy.co';
+    const sender = fromEmail || 'Kiki the Tooth Fairy <onboarding@resend.dev>';
+    
+    const result = await client.emails.send({
+      from: sender,
+      to: adminEmail,
+      replyTo: email,
+      subject: `Contact Form: Message from ${name}`,
+      html: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #0f172a; border-radius: 12px; overflow: hidden;">
+    <div style="background-color: #020617; padding: 32px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+      <p style="color: #22d3ee; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.2em; margin: 0;">Contact Form Submission</p>
+    </div>
+    <div style="background-color: #1e293b; padding: 40px 32px;">
+      <h1 style="color: white; font-size: 24px; font-weight: bold; margin: 0 0 24px 0;">New Message from ${name}</h1>
+      <div style="background-color: #0f172a; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+        <p style="color: #94a3b8; font-size: 12px; text-transform: uppercase; margin: 0 0 4px 0;">From</p>
+        <p style="color: white; font-size: 16px; margin: 0;">${name}</p>
+      </div>
+      <div style="background-color: #0f172a; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+        <p style="color: #94a3b8; font-size: 12px; text-transform: uppercase; margin: 0 0 4px 0;">Email</p>
+        <p style="color: #22d3ee; font-size: 16px; margin: 0;"><a href="mailto:${email}" style="color: #22d3ee;">${email}</a></p>
+      </div>
+      <div style="background-color: #0f172a; border-radius: 8px; padding: 16px;">
+        <p style="color: #94a3b8; font-size: 12px; text-transform: uppercase; margin: 0 0 8px 0;">Message</p>
+        <p style="color: white; font-size: 16px; line-height: 1.6; margin: 0; white-space: pre-wrap;">${message}</p>
+      </div>
+    </div>
+    <div style="background-color: #020617; padding: 24px; text-align: center;">
+      <p style="color: #64748b; font-size: 11px; margin: 0;">Reply directly to this email to respond to ${name}</p>
+    </div>
+  </div>
+</body>
+</html>
+      `,
+    });
+
+    console.log('[Email] Contact form email sent:', result);
+    return result;
+  } catch (error) {
+    console.error('[Email] Failed to send contact form email:', error);
+    throw error;
+  }
+}

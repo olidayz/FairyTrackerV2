@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { storage } from './storage';
 import { db } from './db';
 import { emailTemplates, trackerSessions, landingHero, fairyUpdates, kikiProfile, reviews, faqs, copySections, stageContent, stageDefinitions, landingImages } from '../shared/schema';
-import { sendTrackingEmail, sendAdminNotificationEmail } from './email';
+import { sendTrackingEmail, sendAdminNotificationEmail, sendContactFormEmail } from './email';
 import { eq, asc } from 'drizzle-orm';
 import { trackEvent, trackEmailEvent } from './analytics';
 
@@ -479,6 +479,28 @@ router.get('/sitemap.xml', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('[Sitemap] Error generating sitemap:', error);
     res.status(500).send('Error generating sitemap');
+  }
+});
+
+router.post('/api/contact', async (req: Request, res: Response) => {
+  try {
+    const { name, email, message } = req.body;
+
+    if (!name || !email || !message) {
+      return res.status(400).json({ error: 'Name, email, and message are required' });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: 'Invalid email format' });
+    }
+
+    await sendContactFormEmail(name, email, message);
+
+    res.json({ success: true, message: 'Message sent successfully' });
+  } catch (error) {
+    console.error('[Contact] Failed to send contact form:', error);
+    res.status(500).json({ error: 'Failed to send message. Please try again.' });
   }
 });
 
