@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx server/index.ts & vite",
     "build": "vite build",
-    "build:prod": "npm install && vite build && drizzle-kit push",
+    "build:prod": "npm install && vite build && drizzle-kit push --force",
     "start": "NODE_ENV=production tsx server/index.ts",
     "preview": "vite preview",
     "db:push": "drizzle-kit push"
