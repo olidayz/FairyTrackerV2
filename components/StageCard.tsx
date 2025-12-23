@@ -228,7 +228,6 @@ export const StageCard: React.FC<StageCardProps> = ({
                                  src={stage.videoUrl}
                                  className="w-full h-full object-cover"
                                  playsInline
-                                 muted
                                  loop
                                  onEnded={() => setIsVideoPlaying(false)}
                               />
