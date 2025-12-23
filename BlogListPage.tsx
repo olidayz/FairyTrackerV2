@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { BookOpen, Clock, User, ArrowRight, ChevronsRight, Sparkles, Menu, X } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
+import Header from './components/Header';
 import Footer from './components/Footer';
 
 interface BlogPost {
@@ -16,9 +17,6 @@ interface BlogPost {
 
 const BlogListPage = () => {
     const navigate = useNavigate();
-    const [headerVisible, setHeaderVisible] = useState(true);
-    const [lastScrollY, setLastScrollY] = useState(0);
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -34,29 +32,6 @@ const BlogListPage = () => {
                 setLoading(false);
             });
     }, []);
-
-    // Card color variations matching landing page bento
-    const cardColors = [
-        { badge: 'from-cyan-400 to-blue-500', ring: 'ring-cyan-500/20 group-hover:ring-cyan-500/40' },
-        { badge: 'from-fuchsia-500 to-purple-600', ring: 'ring-fuchsia-500/20 group-hover:ring-fuchsia-500/40' },
-        { badge: 'from-amber-400 to-orange-500', ring: 'ring-amber-500/20 group-hover:ring-amber-500/40' },
-        { badge: 'from-lime-400 to-green-500', ring: 'ring-lime-500/20 group-hover:ring-lime-500/40' },
-        { badge: 'from-pink-500 to-rose-600', ring: 'ring-pink-500/20 group-hover:ring-pink-500/40' },
-    ];
-
-    useEffect(() => {
-        const handleScroll = () => {
-            const currentScrollY = window.scrollY;
-            if (currentScrollY > lastScrollY && currentScrollY > 100) {
-                setHeaderVisible(false);
-            } else {
-                setHeaderVisible(true);
-            }
-            setLastScrollY(currentScrollY);
-        };
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, [lastScrollY]);
 
     return (
         <div className="min-h-screen bg-[#0a1020] text-white font-sans selection:bg-cyan-500/30 overflow-x-hidden">
@@ -74,60 +49,7 @@ const BlogListPage = () => {
                 <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(34, 211, 238, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(34, 211, 238, 0.3) 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
             </div>
 
-            {/* ========== FLOATING HEADER (MATCHING LANDING PAGE) ========== */}
-            <header className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${headerVisible ? 'translate-y-0' : '-translate-y-full'}`}>
-                <div className="mx-4 mt-4">
-                    <div className="max-w-5xl mx-auto bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-2xl px-4 md:px-6 py-3 shadow-2xl">
-                        <div className="flex items-center justify-between">
-
-                            {/* Left: Hamburger (mobile) or Logo */}
-                            <div className="flex items-center gap-4">
-                                <button
-                                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                                    className="lg:hidden p-2 text-slate-300 hover:text-white transition-colors"
-                                >
-                                    {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                                </button>
-                                <Link to="/" className="flex items-center">
-                                    <div className="w-16 h-16 rounded-xl overflow-hidden">
-                                        <img src="/kiki-logo.png" alt="Kiki" className="w-full h-full object-cover" />
-                                    </div>
-                                </Link>
-                            </div>
-
-                            {/* Desktop nav */}
-                            <nav className="hidden lg:flex items-center gap-6">
-                                <Link to="/" className="text-sm text-slate-300 hover:text-white transition-colors">Home</Link>
-                                <Link to="/blog" className="text-sm text-slate-300 hover:text-white transition-colors">Stories</Link>
-                            </nav>
-
-                            {/* CTA */}
-                            <button
-                                onClick={() => navigate('/')}
-                                className="bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-700 text-white px-4 md:px-5 py-2.5 rounded-xl font-sans font-extrabold text-xs md:text-sm uppercase tracking-tight shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_25px_rgba(59,130,246,0.6)] transition-all transform hover:-translate-y-0.5 active:translate-y-0.5 border-b-[3px] border-indigo-900 active:border-b-0"
-                            >
-                                Start Tracking
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Mobile Menu Dropdown */}
-                {mobileMenuOpen && (
-                    <div className="lg:hidden mx-4 mt-2">
-                        <div className="bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl">
-                            <nav className="flex flex-col gap-4">
-                                <Link to="/" onClick={() => setMobileMenuOpen(false)} className="text-slate-300 hover:text-white transition-colors py-2">
-                                    Home
-                                </Link>
-                                <Link to="/blog" onClick={() => setMobileMenuOpen(false)} className="text-slate-300 hover:text-white transition-colors py-2">
-                                    Stories
-                                </Link>
-                            </nav>
-                        </div>
-                    </div>
-                )}
-            </header>
+            <Header />
 
 
             <main className="relative z-10 pt-32 pb-24 px-4">

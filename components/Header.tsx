@@ -53,6 +53,9 @@ const Header = () => {
                                 <Link to="/#faq" className="text-sm text-slate-300 hover:text-white transition-colors">
                                     FAQ
                                 </Link>
+                                <Link to="/blogs/kikis-blog" className="text-sm text-slate-300 hover:text-white transition-colors">
+                                    Blog
+                                </Link>
                             </nav>
                         </div>
 
@@ -88,6 +91,9 @@ const Header = () => {
                             </Link>
                             <Link to="/#faq" onClick={() => setMobileMenuOpen(false)} className="text-slate-300 hover:text-white transition-colors py-2">
                                 FAQ
+                            </Link>
+                            <Link to="/blogs/kikis-blog" onClick={() => setMobileMenuOpen(false)} className="text-slate-300 hover:text-white transition-colors py-2">
+                                Blog
                             </Link>
                         </nav>
                     </div>

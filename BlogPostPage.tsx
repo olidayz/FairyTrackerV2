@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Clock, User, ArrowLeft, ChevronsRight, Share2, Bookmark, Sparkles } from 'lucide-react';
+import { ArrowLeft, Share2, Bookmark } from 'lucide-react';
+import Header from './components/Header';
 import Footer from './components/Footer';
 
 interface BlogPost {
@@ -22,9 +23,6 @@ const BlogPostPage = () => {
     const [loading, setLoading] = useState(true);
     const [notFound, setNotFound] = useState(false);
 
-    const [headerVisible, setHeaderVisible] = useState(true);
-    const [lastScrollY, setLastScrollY] = useState(0);
-
     useEffect(() => {
         if (!slug) return;
         
@@ -45,20 +43,6 @@ const BlogPostPage = () => {
             setLoading(false);
         });
     }, [slug]);
-
-    useEffect(() => {
-        const handleScroll = () => {
-            const currentScrollY = window.scrollY;
-            if (currentScrollY > lastScrollY && currentScrollY > 100) {
-                setHeaderVisible(false);
-            } else {
-                setHeaderVisible(true);
-            }
-            setLastScrollY(currentScrollY);
-        };
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, [lastScrollY]);
 
     if (loading) {
         return (
@@ -97,30 +81,7 @@ const BlogPostPage = () => {
                 <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(34, 211, 238, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(34, 211, 238, 0.3) 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
             </div>
 
-            {/* ========== FLOATING HEADER (MATCHING LANDING PAGE) ========== */}
-            <header className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${headerVisible ? 'translate-y-0' : '-translate-y-full'}`}>
-                <div className="mx-4 mt-4">
-                    <div className="max-w-5xl mx-auto bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-3 shadow-2xl">
-                        <div className="flex items-center justify-between">
-                            <Link to="/" className="flex items-center">
-                                <div className="w-16 h-16 rounded-xl overflow-hidden">
-                                    <img src="/kiki-logo.png" alt="Kiki" className="w-full h-full object-cover" />
-                                </div>
-                            </Link>
-                            <nav className="flex items-center gap-6">
-                                <Link to="/" className="text-sm text-slate-300 hover:text-white transition-colors">Home</Link>
-                                <Link to="/blog" className="text-sm text-slate-300 hover:text-white transition-colors">Stories</Link>
-                                <button
-                                    onClick={() => navigate('/')}
-                                    className="bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-700 text-white px-5 py-2.5 rounded-xl font-sans font-extrabold text-sm uppercase tracking-tight shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_25px_rgba(59,130,246,0.6)] transition-all transform hover:-translate-y-0.5 active:translate-y-0.5 border-b-[3px] border-indigo-900 active:border-b-0"
-                                >
-                                    Start Tracking
-                                </button>
-                            </nav>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <Header />
 
             <main className="relative z-10 pt-24 pb-24">
                 <div className="container mx-auto max-w-5xl px-4">
@@ -155,7 +116,7 @@ const BlogPostPage = () => {
 
                     {/* Featured Image */}
                     {post.featuredImageUrl && (
-                    <div className="relative aspect-[21/9] rounded-2xl overflow-hidden border border-white/10 mb-16 shadow-xl">
+                    <div className="relative aspect-[16/9] rounded-2xl overflow-hidden border border-white/10 mb-16 shadow-xl">
                         <img
                             src={post.featuredImageUrl}
                             alt={post.title}

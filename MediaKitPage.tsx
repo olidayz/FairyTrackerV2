@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
     Download,
@@ -14,6 +14,7 @@ import {
     Activity,
     Users
 } from 'lucide-react';
+import Header from './components/Header';
 import Footer from './components/Footer';
 
 // === HELPER COMPONENTS ===
@@ -78,23 +79,7 @@ const NeonPanel = ({
 
 const MediaKitPage = () => {
     const navigate = useNavigate();
-    const [headerVisible, setHeaderVisible] = useState(true);
-    const [lastScrollY, setLastScrollY] = useState(0);
     const trackerIframeRef = useRef<HTMLIFrameElement>(null);
-
-    useEffect(() => {
-        const handleScroll = () => {
-            const currentScrollY = window.scrollY;
-            if (currentScrollY > lastScrollY && currentScrollY > 100) {
-                setHeaderVisible(false);
-            } else {
-                setHeaderVisible(true);
-            }
-            setLastScrollY(currentScrollY);
-        };
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, [lastScrollY]);
 
     const assets = [
         { title: "Kiki Official Logo", type: "Logo Pack", icon: "💎", color: "cyan" },
@@ -139,35 +124,13 @@ const MediaKitPage = () => {
             {/* === FIXED BACKGROUND === */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
                 <div className="absolute inset-0 bg-gradient-to-b from-[#0a1020] via-[#0c1428] to-[#080e1a]" />
-                <div className="absolute top-0 left-1/4 w-[1000px] h-[1000px] bg-cyan-500/10 rounded-full blur-[150px] mix-blend-screen" />
-                <div className="absolute bottom-0 right-0 w-[800px] h-[800px] bg-teal-500/8 rounded-full blur-[120px] mix-blend-screen" />
+                {/* Ambient glows - Safari-safe radial gradients (responsive sizing) */}
+                <div className="absolute top-0 left-1/4 w-[500px] h-[500px] md:w-[800px] md:h-[800px] lg:w-[1000px] lg:h-[1000px]" style={{ background: 'radial-gradient(circle, rgba(34, 211, 238, 0.08) 0%, transparent 70%)' }} />
+                <div className="absolute bottom-0 right-0 w-[400px] h-[400px] md:w-[600px] md:h-[600px] lg:w-[800px] lg:h-[800px]" style={{ background: 'radial-gradient(circle, rgba(45, 212, 191, 0.06) 0%, transparent 70%)' }} />
                 <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(34, 211, 238, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(34, 211, 238, 0.3) 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
             </div>
 
-            {/* ========== FLOATING HEADER ========== */}
-            <header className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${headerVisible ? 'translate-y-0' : '-translate-y-full'}`}>
-                <div className="mx-4 mt-4">
-                    <div className="max-w-5xl mx-auto bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-3 shadow-2xl">
-                        <div className="flex items-center justify-between">
-                            <Link to="/" className="flex items-center">
-                                <div className="w-14 h-14 rounded-xl overflow-hidden">
-                                    <img src="/kiki-logo.png" alt="Kiki" className="w-full h-full object-cover" />
-                                </div>
-                            </Link>
-                            <nav className="flex items-center gap-6">
-                                <Link to="/" className="text-sm text-slate-300 hover:text-white transition-colors">Home</Link>
-                                <Link to="/blog" className="text-sm text-slate-300 hover:text-white transition-colors">Blog</Link>
-                                <button
-                                    onClick={() => navigate('/')}
-                                    className="bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-700 text-white px-5 py-2.5 rounded-xl font-sans font-extrabold text-sm uppercase tracking-tight shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_25px_rgba(59,130,246,0.6)] transition-all transform hover:-translate-y-0.5 active:translate-y-0.5 border-b-[3px] border-indigo-900 active:border-b-0"
-                                >
-                                    Start Tracking
-                                </button>
-                            </nav>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <Header />
 
             <div className="relative z-10 pt-32 pb-24">
 
