@@ -1106,7 +1106,7 @@ const NewLandingPage = () => {
                                     </div>
 
                                     {/* Browser Content - Scrollable Iframe */}
-                                    <div className="relative aspect-[16/9] bg-[#02040a] overflow-hidden">
+                                    <div className="relative aspect-[3/4] md:aspect-[16/9] bg-[#02040a] overflow-hidden">
                                         {/* Actual iframe to TrackerPage - SCROLLABLE */}
                                         <iframe
                                             ref={trackerIframeRef}
