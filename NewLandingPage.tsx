@@ -1344,7 +1344,7 @@ const NewLandingPage = () => {
                                     >
                                         {/* Card with ring wrapper */}
                                         <div className={`${review.bg} ${review.glow} rounded-[2rem] shadow-2xl ring-4 ring-white/50`}>
-                                            <div className="relative p-5 md:p-10 rounded-[2rem] overflow-hidden h-[260px] md:h-[380px] flex flex-col">
+                                            <div className="relative p-6 md:p-10 rounded-[2rem] overflow-hidden h-[320px] md:h-[380px] flex flex-col">
                                                 {/* Shine */}
                                                 <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/25 to-transparent pointer-events-none rounded-t-[2rem]" />
 
