@@ -574,7 +574,8 @@ const NewLandingPage = () => {
 
                                                 {/* Media Content (Video or Image) */}
                                                 {(() => {
-                                                    const shouldLoad = isActive || isNext || isPrev;
+                                                    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+                                                    const shouldLoad = isMobile ? isActive : (isActive || isNext || isPrev);
                                                     
                                                     if (!shouldLoad) {
                                                         return (
@@ -586,7 +587,7 @@ const NewLandingPage = () => {
                                                         <AutoPlayVideo
                                                             src={stage.image}
                                                             isActive={isActive}
-                                                            shouldPreload={isNext || isPrev}
+                                                            shouldPreload={!isMobile && (isNext || isPrev)}
                                                             className="absolute inset-0 w-full h-full object-cover transition-transform duration-[8s] group-hover/card:scale-110"
                                                         />
                                                     ) : (
