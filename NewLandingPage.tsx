@@ -4,6 +4,7 @@ import { Star, ChevronsRight, ArrowRight, Menu, X } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useCopy } from './lib/useCopy';
 
 // Component to fix map sizing issues
 const MapUpdater = ({ center, zoom }: { center: [number, number], zoom: number }) => {
@@ -56,6 +57,7 @@ const AutoPlayVideo = ({ src, isActive, className }: { src: string; isActive: bo
 
 const NewLandingPage = () => {
     const navigate = useNavigate();
+    const { get } = useCopy();
     const [activeStage, setActiveStage] = useState(1);
     const [activeReview, setActiveReview] = useState(0);
     const [headerVisible, setHeaderVisible] = useState(true);
@@ -105,18 +107,18 @@ const NewLandingPage = () => {
         setFormError('');
         
         if (!childName.trim()) {
-            setFormError("Please enter your child's name");
+            setFormError(get('error_name_required'));
             return;
         }
         
         if (!email.trim()) {
-            setFormError('Please enter your email');
+            setFormError(get('error_email_required'));
             return;
         }
         
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            setFormError('Please enter a valid email address');
+            setFormError(get('error_email_invalid'));
             return;
         }
         
@@ -137,7 +139,7 @@ const NewLandingPage = () => {
             
             navigate(data.trackerUrl);
         } catch (error: any) {
-            setFormError(error.message || 'Something went wrong. Please try again.');
+            setFormError(error.message || get('error_generic'));
         } finally {
             setIsSubmitting(false);
         }
@@ -873,10 +875,10 @@ const NewLandingPage = () => {
                                 <span className="text-xs font-bold text-lime-300 uppercase tracking-widest">Ready to Launch</span>
                             </div>
                             <h2 className="font-chrome text-4xl md:text-5xl lg:text-6xl text-white uppercase tracking-normal mb-4">
-                                Start the Magic
+                                {get('section_start_magic')}
                             </h2>
                             <p className="text-slate-400 text-lg max-w-xl mx-auto">
-                                Enter your details and the Tooth Fairy will begin preparing for her big adventure.
+                                {get('section_start_magic_desc')}
                             </p>
                         </div>
 
@@ -905,14 +907,14 @@ const NewLandingPage = () => {
                                         <div className="flex justify-center">
                                             <div className="inline-flex items-center gap-3 px-5 py-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full">
                                                 <div className="w-3 h-3 bg-cyan-400 rounded-full animate-pulse" />
-                                                <span className="text-sm font-bold text-cyan-300">48 families tracking tonight ✨</span>
+                                                <span className="text-sm font-bold text-cyan-300">{get('live_counter')} ✨</span>
                                             </div>
                                         </div>
 
                                         {/* Child's First Name Input - BIGGER */}
                                         <div>
-                                            <label className="block text-white font-bold text-lg mb-2">Child's First Name</label>
-                                            <p className="text-slate-400 text-sm mb-3">We use the name to customize the experience.</p>
+                                            <label className="block text-white font-bold text-lg mb-2">{get('form_child_name_label')}</label>
+                                            <p className="text-slate-400 text-sm mb-3">{get('form_child_name_desc')}</p>
                                             <input
                                                 type="text"
                                                 placeholder="Enter name..."
@@ -924,8 +926,8 @@ const NewLandingPage = () => {
 
                                         {/* Email Input - BIGGER */}
                                         <div>
-                                            <label className="block text-white font-bold text-lg mb-2">Your Email</label>
-                                            <p className="text-slate-400 text-sm mb-3">We'll send your tracker link. Nothing else.</p>
+                                            <label className="block text-white font-bold text-lg mb-2">{get('form_email_label')}</label>
+                                            <p className="text-slate-400 text-sm mb-3">{get('form_email_desc')}</p>
                                             <input
                                                 type="email"
                                                 placeholder="your@email.com"
@@ -948,7 +950,7 @@ const NewLandingPage = () => {
                                             disabled={isSubmitting}
                                             className="w-full bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600 text-white px-8 py-6 rounded-xl font-sans font-extrabold text-xl uppercase tracking-tight shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all transform hover:-translate-y-1 active:translate-y-1 border-b-[4px] border-[#1e40af] active:border-b-0 flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
                                         >
-                                            <span>{isSubmitting ? 'Creating Your Tracker...' : 'Start Tracking'}</span>
+                                            <span>{isSubmitting ? get('form_submit_button_loading') : get('form_submit_button')}</span>
                                             {!isSubmitting && <span className="text-2xl">✨</span>}
                                         </button>
 

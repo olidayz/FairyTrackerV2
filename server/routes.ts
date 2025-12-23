@@ -332,6 +332,20 @@ router.get('/api/landing-content', async (req: Request, res: Response) => {
   }
 });
 
+router.get('/api/copy', async (req: Request, res: Response) => {
+  try {
+    const allCopy = await db.select().from(copySections);
+    const copyMap = allCopy.reduce((acc, section) => {
+      acc[section.key] = section.content || '';
+      return acc;
+    }, {} as Record<string, string>);
+    res.json(copyMap);
+  } catch (error) {
+    console.error('[API] Copy fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch copy' });
+  }
+});
+
 router.get('/api/faqs', async (req: Request, res: Response) => {
   try {
     const activeFaqs = await db.select().from(faqs).where(eq(faqs.isActive, true)).orderBy(asc(faqs.sortOrder));

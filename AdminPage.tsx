@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, FileText, Image, Video, Settings, Plus, Trash2, Save, Edit2, X, Mail, LayoutDashboard, Star, HelpCircle, Type, BarChart3, Users, Eye, Send, MousePointer } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import CopyEditor from './components/CopyEditor';
 
 interface LandingHero {
   id?: number;
@@ -1059,105 +1060,7 @@ const AdminPage = () => {
             </div>
           </div>
         ) : activeTab === 'copy' ? (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-lg font-semibold">Copy Sections</h2>
-              <button
-                onClick={() => setEditingCopy({ key: '', label: '', content: '', page: 'landing' })}
-                className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 rounded-lg transition-colors"
-              >
-                <Plus size={18} />
-                New Section
-              </button>
-            </div>
-
-            {editingCopy && (
-              <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 space-y-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-medium">{editingCopy.id ? 'Edit Section' : 'New Section'}</h3>
-                  <button onClick={() => setEditingCopy(null)} className="text-slate-400 hover:text-white">
-                    <X size={20} />
-                  </button>
-                </div>
-                <div className="grid gap-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Key (unique ID)</label>
-                      <input
-                        type="text"
-                        value={editingCopy.key}
-                        onChange={(e) => setEditingCopy({ ...editingCopy, key: e.target.value })}
-                        className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
-                        placeholder="hero_tagline"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Label</label>
-                      <input
-                        type="text"
-                        value={editingCopy.label}
-                        onChange={(e) => setEditingCopy({ ...editingCopy, label: e.target.value })}
-                        className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
-                        placeholder="Hero Tagline"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Page</label>
-                    <select
-                      value={editingCopy.page}
-                      onChange={(e) => setEditingCopy({ ...editingCopy, page: e.target.value })}
-                      className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
-                    >
-                      <option value="landing">Landing Page</option>
-                      <option value="tracker">Tracker Page</option>
-                      <option value="faq">FAQ Page</option>
-                      <option value="global">Global</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Content</label>
-                    <textarea
-                      value={editingCopy.content}
-                      onChange={(e) => setEditingCopy({ ...editingCopy, content: e.target.value })}
-                      className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
-                      rows={4}
-                    />
-                  </div>
-                  <button
-                    onClick={() => saveCopySection(editingCopy)}
-                    className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 rounded-lg transition-colors w-fit"
-                  >
-                    <Save size={18} />
-                    Save Section
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <div className="grid gap-4">
-              {copySections.map((section) => (
-                <div key={section.id} className="bg-slate-900 border border-slate-800 rounded-lg p-4 flex items-center justify-between">
-                  <div className="flex-1">
-                    <h3 className="font-medium">{section.label}</h3>
-                    <p className="text-sm text-slate-400">Key: {section.key}</p>
-                    <p className="text-xs text-cyan-400 mt-1">Page: {section.page}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => setEditingCopy(section)} className="p-2 text-slate-400 hover:text-white">
-                      <Edit2 size={18} />
-                    </button>
-                    <button onClick={() => section.id && deleteCopySection(section.id)} className="p-2 text-red-400 hover:text-red-300">
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                </div>
-              ))}
-              {copySections.length === 0 && (
-                <p className="text-center py-8 text-slate-500">No copy sections yet. Add your first section!</p>
-              )}
-            </div>
-          </div>
+          <CopyEditor authHeaders={getAuthHeaders()} />
         ) : activeTab === 'images' ? (
           <LandingImagesEditor 
             images={landingImagesList} 
