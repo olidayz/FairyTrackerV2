@@ -910,7 +910,7 @@ const AdminPage = () => {
                               const { uploadURL, objectPath } = await urlRes.json();
                               const uploadRes = await fetch(uploadURL, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
                               if (!uploadRes.ok) throw new Error('Failed to upload');
-                              setEditingReview(prev => prev ? { ...prev, photoUrl: `/objects/${objectPath}` } : prev);
+                              setEditingReview(prev => prev ? { ...prev, photoUrl: objectPath } : prev);
                             } catch (error) {
                               console.error('Photo upload failed:', error);
                               alert('Failed to upload photo');
