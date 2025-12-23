@@ -92,7 +92,13 @@ export const StageCard: React.FC<StageCardProps> = ({
    }, [isFlipped]);
 
    const handleFlip = () => setIsFlipped(true);
-   const handleFlipBack = () => setIsFlipped(false);
+   const handleFlipBack = () => {
+      if (videoRef.current) {
+         videoRef.current.pause();
+         setIsVideoPlaying(false);
+      }
+      setIsFlipped(false);
+   };
 
    return (
       <div className={`relative w-full mb-16 md:mb-24 ${isFlipped ? 'z-50' : 'z-10'}`}>
