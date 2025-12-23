@@ -374,7 +374,7 @@ const NewLandingPage = () => {
                             {/* Right: CTA */}
                             <button
                                 onClick={handleEnter}
-                                className="relative overflow-hidden bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-700 text-white px-4 md:px-5 py-2.5 rounded-xl font-sans font-extrabold text-xs md:text-sm uppercase tracking-tight shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_25px_rgba(59,130,246,0.6)] transition-all transform hover:-translate-y-0.5 active:translate-y-0.5 border-b-[3px] border-indigo-900 active:border-b-0"
+                                className="relative overflow-hidden bg-gradient-to-r from-teal-400 via-cyan-500 to-blue-600 text-white px-4 md:px-5 py-2.5 rounded-xl font-sans font-extrabold text-xs md:text-sm uppercase tracking-tight shadow-[0_0_20px_rgba(34,211,238,0.4)] hover:shadow-[0_0_25px_rgba(34,211,238,0.6)] transition-all transform hover:-translate-y-0.5 active:translate-y-0.5 border-b-[3px] border-cyan-800 active:border-b-0"
                             >
                                 Start Tracking
                             </button>
@@ -463,7 +463,7 @@ const NewLandingPage = () => {
                                     </div>
 
                                     {/* Social Proof */}
-                                    <div className="flex items-center justify-center lg:justify-start pt-1">
+                                    <div className="flex items-center justify-start pt-1">
                                         <div className="relative bg-gradient-to-r from-slate-800/80 to-slate-900/80 backdrop-blur-sm px-5 py-3 rounded-2xl border border-white/10 shadow-lg hover:shadow-[0_0_30px_rgba(34,211,238,0.2)] transition-all group">
                                             <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500/20 to-fuchsia-500/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity" />
                                             <div className="relative flex items-center gap-4">
