@@ -494,7 +494,7 @@ const NewLandingPage = () => {
 
                             {/* RIGHT SIDE: Stage Cards Stack */}
                             <div
-                                className="relative h-[280px] md:h-[600px] flex items-center justify-center touch-pan-y mt-8 md:mt-0"
+                                className="relative h-[340px] md:h-[600px] flex items-center justify-center touch-pan-y mt-8 md:mt-0"
                                 style={{ perspective: '1500px' }}
                                 onTouchStart={(e) => setTouchStart(e.targetTouches[0].clientX)}
                                 onTouchMove={(e) => setTouchEnd(e.targetTouches[0].clientX)}
