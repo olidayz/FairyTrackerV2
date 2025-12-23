@@ -14,12 +14,16 @@ export const storage = {
     return user || null;
   },
 
-  async createTrackerSession(userId: number, childName?: string) {
+  async createTrackerSession(userId: number, childName?: string, referralData?: { utmSource?: string; utmMedium?: string; utmCampaign?: string; referrer?: string }) {
     const trackerToken = uuidv4().replace(/-/g, '');
     const [session] = await db.insert(trackerSessions).values({
       userId,
       trackerToken,
       childName,
+      utmSource: referralData?.utmSource,
+      utmMedium: referralData?.utmMedium,
+      utmCampaign: referralData?.utmCampaign,
+      referrer: referralData?.referrer,
     }).returning();
     return session;
   },

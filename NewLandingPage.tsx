@@ -124,11 +124,23 @@ const NewLandingPage = () => {
         
         setIsSubmitting(true);
         
+        // Capture UTM parameters from URL for referral tracking
+        const urlParams = new URLSearchParams(window.location.search);
+        const utmSource = urlParams.get('utm_source') || undefined;
+        const utmMedium = urlParams.get('utm_medium') || undefined;
+        const utmCampaign = urlParams.get('utm_campaign') || undefined;
+        
         try {
             const response = await fetch('/api/signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: childName.trim(), email: email.trim() }),
+                body: JSON.stringify({ 
+                    name: childName.trim(), 
+                    email: email.trim(),
+                    utmSource,
+                    utmMedium,
+                    utmCampaign,
+                }),
             });
             
             const data = await response.json();
