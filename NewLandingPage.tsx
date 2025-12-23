@@ -73,6 +73,22 @@ const NewLandingPage = () => {
     const [formError, setFormError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     
+    // Dynamic live counter for social proof
+    const [liveCount, setLiveCount] = useState(() => Math.floor(Math.random() * 30) + 35); // Start between 35-65
+    
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setLiveCount(prev => {
+                // Randomly add or subtract 1-3 to simulate real-time activity
+                const change = Math.floor(Math.random() * 5) - 2; // -2 to +2
+                const newCount = prev + change;
+                // Keep within realistic range (25-85)
+                return Math.max(25, Math.min(85, newCount));
+            });
+        }, 4000 + Math.random() * 3000); // Every 4-7 seconds
+        return () => clearInterval(interval);
+    }, []);
+    
     // Dynamic CMS content
     const [landingContent, setLandingContent] = useState<{
         hero: { headline: string; subheadline: string; badgeText: string; ctaText: string } | null;
@@ -919,7 +935,7 @@ const NewLandingPage = () => {
                                         <div className="flex justify-center">
                                             <div className="inline-flex items-center gap-3 px-5 py-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full">
                                                 <div className="w-3 h-3 bg-cyan-400 rounded-full animate-pulse" />
-                                                <span className="text-sm font-bold text-cyan-300">{get('live_counter')} ✨</span>
+                                                <span className="text-sm font-bold text-cyan-300">{liveCount} families tracking tonight ✨</span>
                                             </div>
                                         </div>
 
