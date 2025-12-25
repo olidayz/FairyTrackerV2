@@ -82,6 +82,17 @@ export const siteAssets = pgTable('site_assets', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+export const pressLogos = pgTable('press_logos', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  imageUrl: text('image_url').notNull(),
+  linkUrl: text('link_url'),
+  sortOrder: integer('sort_order').default(0),
+  isActive: boolean('is_active').default(true),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type TrackerSession = typeof trackerSessions.$inferSelect;

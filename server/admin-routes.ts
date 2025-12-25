@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { db } from './db';
-import { blogPosts, stageDefinitions, stageContent, siteAssets, emailTemplates, landingHero, fairyUpdates, kikiProfile, reviews, faqs, copySections, landingImages, analyticsEvents, emailEvents, users, trackerSessions } from '../shared/schema';
+import { blogPosts, stageDefinitions, stageContent, siteAssets, emailTemplates, landingHero, fairyUpdates, kikiProfile, reviews, faqs, copySections, landingImages, analyticsEvents, emailEvents, users, trackerSessions, pressLogos } from '../shared/schema';
 import { eq, asc, sql, gte, and, count, desc } from 'drizzle-orm';
 
 const router = Router();
@@ -772,6 +772,59 @@ router.get('/api/admin/analytics/traffic-sources', async (req: Request, res: Res
   } catch (error) {
     console.error('[Admin] Failed to fetch traffic sources:', error);
     res.status(500).json({ error: 'Failed to fetch traffic sources' });
+  }
+});
+
+router.get('/api/admin/press-logos', async (req: Request, res: Response) => {
+  try {
+    const logos = await db.select().from(pressLogos).orderBy(asc(pressLogos.sortOrder));
+    res.json(logos);
+  } catch (error) {
+    console.error('[Admin] Failed to fetch press logos:', error);
+    res.status(500).json({ error: 'Failed to fetch press logos' });
+  }
+});
+
+router.post('/api/admin/press-logos', async (req: Request, res: Response) => {
+  try {
+    const { name, imageUrl, linkUrl, sortOrder, isActive } = req.body;
+    const [logo] = await db.insert(pressLogos).values({
+      name,
+      imageUrl,
+      linkUrl,
+      sortOrder: sortOrder || 0,
+      isActive: isActive ?? true,
+    }).returning();
+    res.json(logo);
+  } catch (error) {
+    console.error('[Admin] Failed to create press logo:', error);
+    res.status(500).json({ error: 'Failed to create press logo' });
+  }
+});
+
+router.put('/api/admin/press-logos/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { name, imageUrl, linkUrl, sortOrder, isActive } = req.body;
+    const [updated] = await db.update(pressLogos)
+      .set({ name, imageUrl, linkUrl, sortOrder, isActive, updatedAt: new Date() })
+      .where(eq(pressLogos.id, parseInt(id)))
+      .returning();
+    res.json(updated);
+  } catch (error) {
+    console.error('[Admin] Failed to update press logo:', error);
+    res.status(500).json({ error: 'Failed to update press logo' });
+  }
+});
+
+router.delete('/api/admin/press-logos/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    await db.delete(pressLogos).where(eq(pressLogos.id, parseInt(id)));
+    res.json({ success: true });
+  } catch (error) {
+    console.error('[Admin] Failed to delete press logo:', error);
+    res.status(500).json({ error: 'Failed to delete press logo' });
   }
 });
 

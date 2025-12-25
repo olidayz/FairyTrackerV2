@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { storage } from './storage';
 import { db } from './db';
-import { emailTemplates, trackerSessions, landingHero, fairyUpdates, kikiProfile, reviews, faqs, copySections, stageContent, stageDefinitions, landingImages } from '../shared/schema';
+import { emailTemplates, trackerSessions, landingHero, fairyUpdates, kikiProfile, reviews, faqs, copySections, stageContent, stageDefinitions, landingImages, pressLogos } from '../shared/schema';
 import { sendTrackingEmail, sendAdminNotificationEmail, sendContactFormEmail } from './email';
 import { eq, asc } from 'drizzle-orm';
 import { trackEvent, trackEmailEvent } from './analytics';
@@ -307,6 +307,7 @@ router.get('/api/landing-content', async (req: Request, res: Response) => {
     const activeFaqs = await db.select().from(faqs).where(eq(faqs.isActive, true)).orderBy(asc(faqs.sortOrder));
     const allCopySections = await db.select().from(copySections);
     const allLandingImages = await db.select().from(landingImages);
+    const activeLogos = await db.select().from(pressLogos).where(eq(pressLogos.isActive, true)).orderBy(asc(pressLogos.sortOrder));
     
     res.json({
       hero: hero || null,
@@ -314,6 +315,7 @@ router.get('/api/landing-content', async (req: Request, res: Response) => {
       kikiProfile: profile || null,
       reviews: featuredReviews,
       faqs: activeFaqs,
+      pressLogos: activeLogos,
       copySections: allCopySections.reduce((acc, section) => {
         acc[section.key] = section.content;
         return acc;
