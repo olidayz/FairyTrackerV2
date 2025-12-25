@@ -1177,14 +1177,48 @@ const AdminPage = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">Image URL</label>
-                    <input
-                      type="text"
-                      value={editingPressLogo.imageUrl}
-                      onChange={(e) => setEditingPressLogo({ ...editingPressLogo, imageUrl: e.target.value })}
-                      className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
-                      placeholder="/press-logo-name.png"
-                    />
+                    <label className="block text-sm font-medium mb-1">Logo Image</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={editingPressLogo.imageUrl}
+                        onChange={(e) => setEditingPressLogo({ ...editingPressLogo, imageUrl: e.target.value })}
+                        className="flex-1 px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                        placeholder="Image URL or upload"
+                      />
+                      <label className="px-4 py-2 bg-fuchsia-600 hover:bg-fuchsia-700 rounded-lg cursor-pointer transition-colors text-sm font-medium">
+                        Upload
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            try {
+                              const urlRes = await fetch('/api/uploads/request-url', {
+                                method: 'POST',
+                                headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ name: file.name, contentType: file.type }),
+                              });
+                              if (!urlRes.ok) throw new Error('Failed to get upload URL');
+                              const { uploadURL, objectPath } = await urlRes.json();
+                              const uploadRes = await fetch(uploadURL, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
+                              if (!uploadRes.ok) throw new Error('Failed to upload');
+                              setEditingPressLogo(prev => prev ? { ...prev, imageUrl: objectPath } : prev);
+                            } catch (error) {
+                              console.error('Logo upload failed:', error);
+                              alert('Failed to upload logo');
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
+                    {editingPressLogo.imageUrl && (
+                      <div className="mt-2 p-2 bg-slate-800 rounded inline-block">
+                        <img src={editingPressLogo.imageUrl} alt="Preview" className="h-8 object-contain" />
+                      </div>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">Link URL (optional)</label>
