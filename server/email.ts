@@ -166,7 +166,12 @@ export async function sendMorningUnlockEmail(toEmail: string, childName: string,
   }
 }
 
-export async function sendAdminNotificationEmail(parentEmail: string, childName: string, referrer: string | null) {
+export async function sendAdminNotificationEmail(
+  parentEmail: string, 
+  childName: string, 
+  referrer: string | null,
+  utmData?: { utmSource?: string; utmMedium?: string; utmCampaign?: string }
+) {
   try {
     const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
     if (!adminEmail) {
@@ -175,6 +180,10 @@ export async function sendAdminNotificationEmail(parentEmail: string, childName:
     }
 
     const { client, fromEmail } = await getResendClient();
+
+    const source = utmData?.utmSource || 'Direct';
+    const medium = utmData?.utmMedium || '-';
+    const campaign = utmData?.utmCampaign || '-';
 
     const bodyHtml = `
 <!DOCTYPE html>
@@ -195,12 +204,20 @@ export async function sendAdminNotificationEmail(parentEmail: string, childName:
         <td style="padding: 8px 0; color: #1e293b; font-weight: 500;">${parentEmail}</td>
       </tr>
       <tr>
-        <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Referrer:</td>
-        <td style="padding: 8px 0; color: #1e293b; font-weight: 500;">${referrer || 'Direct'}</td>
+        <td style="padding: 8px 0; color: #64748b; font-size: 14px; border-top: 1px solid #e2e8f0;">Source:</td>
+        <td style="padding: 8px 0; color: #0ea5e9; font-weight: 600; border-top: 1px solid #e2e8f0;">${source}</td>
       </tr>
       <tr>
-        <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Time:</td>
-        <td style="padding: 8px 0; color: #1e293b; font-weight: 500;">${new Date().toLocaleString()}</td>
+        <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Medium:</td>
+        <td style="padding: 8px 0; color: #1e293b; font-weight: 500;">${medium}</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Campaign:</td>
+        <td style="padding: 8px 0; color: #1e293b; font-weight: 500;">${campaign}</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0; color: #64748b; font-size: 14px; border-top: 1px solid #e2e8f0;">Time:</td>
+        <td style="padding: 8px 0; color: #1e293b; font-weight: 500; border-top: 1px solid #e2e8f0;">${new Date().toLocaleString()}</td>
       </tr>
     </table>
   </div>

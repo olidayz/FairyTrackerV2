@@ -125,7 +125,7 @@ router.post('/api/signup', async (req: Request, res: Response) => {
       await new Promise(resolve => setTimeout(resolve, 600));
       
       try {
-        await sendAdminNotificationEmail(email, name, req.headers.referer || null);
+        await sendAdminNotificationEmail(email, name, req.headers.referer || null, { utmSource, utmMedium, utmCampaign });
         console.log('[Signup] Admin notification sent successfully');
       } catch (err) {
         console.error('[Signup] Admin notification failed:', err);
@@ -181,7 +181,8 @@ router.post('/api/signup', async (req: Request, res: Response) => {
           await new Promise(resolve => setTimeout(resolve, 600));
           
           try {
-            await sendAdminNotificationEmail(req.body.email, req.body.name, req.headers.referer || null);
+            const { utmSource, utmMedium, utmCampaign } = req.body;
+            await sendAdminNotificationEmail(req.body.email, req.body.name, req.headers.referer || null, { utmSource, utmMedium, utmCampaign });
             console.log('[Signup] Admin notification sent successfully');
           } catch (err) {
             console.error('[Signup] Admin notification failed:', err);
