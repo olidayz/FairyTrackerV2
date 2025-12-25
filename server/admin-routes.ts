@@ -711,6 +711,9 @@ router.get('/api/admin/analytics/recent-signups', async (req: Request, res: Resp
         childName: trackerSessions.childName,
         generatedAt: trackerSessions.generatedAt,
         referrer: trackerSessions.referrer,
+        utmSource: trackerSessions.utmSource,
+        utmMedium: trackerSessions.utmMedium,
+        utmCampaign: trackerSessions.utmCampaign,
         email: users.email,
       })
       .from(trackerSessions)
@@ -722,6 +725,53 @@ router.get('/api/admin/analytics/recent-signups', async (req: Request, res: Resp
   } catch (error) {
     console.error('[Admin] Failed to fetch recent signups:', error);
     res.status(500).json({ error: 'Failed to fetch recent signups' });
+  }
+});
+
+router.get('/api/admin/analytics/traffic-sources', async (req: Request, res: Response) => {
+  try {
+    const days = parseInt(req.query.days as string) || 30;
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+
+    const bySource = await db
+      .select({
+        source: trackerSessions.utmSource,
+        count: count(),
+      })
+      .from(trackerSessions)
+      .where(gte(trackerSessions.generatedAt, startDate))
+      .groupBy(trackerSessions.utmSource)
+      .orderBy(desc(count()));
+
+    const byMedium = await db
+      .select({
+        medium: trackerSessions.utmMedium,
+        count: count(),
+      })
+      .from(trackerSessions)
+      .where(gte(trackerSessions.generatedAt, startDate))
+      .groupBy(trackerSessions.utmMedium)
+      .orderBy(desc(count()));
+
+    const byCampaign = await db
+      .select({
+        campaign: trackerSessions.utmCampaign,
+        count: count(),
+      })
+      .from(trackerSessions)
+      .where(gte(trackerSessions.generatedAt, startDate))
+      .groupBy(trackerSessions.utmCampaign)
+      .orderBy(desc(count()));
+
+    res.json({
+      bySource: bySource.map(s => ({ source: s.source || 'Direct', count: s.count })),
+      byMedium: byMedium.map(m => ({ medium: m.medium || 'None', count: m.count })),
+      byCampaign: byCampaign.map(c => ({ campaign: c.campaign || 'None', count: c.count })),
+    });
+  } catch (error) {
+    console.error('[Admin] Failed to fetch traffic sources:', error);
+    res.status(500).json({ error: 'Failed to fetch traffic sources' });
   }
 });
 

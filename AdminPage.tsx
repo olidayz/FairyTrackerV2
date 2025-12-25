@@ -148,9 +148,18 @@ interface EmailMetrics {
 interface RecentSignup {
   id: number;
   childName: string;
-  parentEmail: string;
-  createdAt: string;
-  trackerToken: string | null;
+  email: string;
+  generatedAt: string;
+  referrer: string | null;
+  utmSource: string | null;
+  utmMedium: string | null;
+  utmCampaign: string | null;
+}
+
+interface TrafficSources {
+  bySource: Array<{ source: string; count: number }>;
+  byMedium: Array<{ medium: string; count: number }>;
+  byCampaign: Array<{ campaign: string; count: number }>;
 }
 
 const AdminPage = () => {
@@ -171,6 +180,7 @@ const AdminPage = () => {
   const [trackerViewsByDay, setTrackerViewsByDay] = useState<TrackerViewsByDay[]>([]);
   const [emailMetrics, setEmailMetrics] = useState<EmailMetrics | null>(null);
   const [recentSignups, setRecentSignups] = useState<RecentSignup[]>([]);
+  const [trafficSources, setTrafficSources] = useState<TrafficSources | null>(null);
   const [loading, setLoading] = useState(true);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [editingStage, setEditingStage] = useState<{ stage: StageDefinition; content: StageContent | null } | null>(null);
@@ -254,18 +264,20 @@ const AdminPage = () => {
         const res = await fetch('/api/admin/landing-images', { headers: getAuthHeaders() });
         if (res.ok) setLandingImagesList(await res.json());
       } else if (activeTab === 'analytics') {
-        const [summaryRes, signupsRes, viewsRes, emailRes, recentRes] = await Promise.all([
+        const [summaryRes, signupsRes, viewsRes, emailRes, recentRes, sourcesRes] = await Promise.all([
           fetch('/api/admin/analytics/summary', { headers: getAuthHeaders() }),
           fetch('/api/admin/analytics/signups-by-day', { headers: getAuthHeaders() }),
           fetch('/api/admin/analytics/tracker-views-by-day', { headers: getAuthHeaders() }),
           fetch('/api/admin/analytics/email-metrics', { headers: getAuthHeaders() }),
-          fetch('/api/admin/analytics/recent-signups', { headers: getAuthHeaders() })
+          fetch('/api/admin/analytics/recent-signups', { headers: getAuthHeaders() }),
+          fetch('/api/admin/analytics/traffic-sources', { headers: getAuthHeaders() })
         ]);
         if (summaryRes.ok) setAnalyticsSummary(await summaryRes.json());
         if (signupsRes.ok) setSignupsByDay(await signupsRes.json());
         if (viewsRes.ok) setTrackerViewsByDay(await viewsRes.json());
         if (emailRes.ok) setEmailMetrics(await emailRes.json());
         if (recentRes.ok) setRecentSignups(await recentRes.json());
+        if (sourcesRes.ok) setTrafficSources(await sourcesRes.json());
       }
     } catch (error) {
       console.error('Failed to fetch data:', error);
@@ -1245,6 +1257,57 @@ const AdminPage = () => {
               </div>
             </div>
 
+            {/* Traffic Sources */}
+            {trafficSources && (
+              <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">Traffic Sources (Last 30 Days)</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div>
+                    <h4 className="text-sm font-medium text-slate-400 mb-3">By Source</h4>
+                    <div className="space-y-2">
+                      {trafficSources.bySource.slice(0, 5).map((item, i) => (
+                        <div key={i} className="flex justify-between items-center">
+                          <span className="text-sm">{item.source}</span>
+                          <span className="text-sm font-medium text-cyan-400">{item.count}</span>
+                        </div>
+                      ))}
+                      {trafficSources.bySource.length === 0 && (
+                        <p className="text-slate-500 text-sm">No data</p>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-slate-400 mb-3">By Medium</h4>
+                    <div className="space-y-2">
+                      {trafficSources.byMedium.slice(0, 5).map((item, i) => (
+                        <div key={i} className="flex justify-between items-center">
+                          <span className="text-sm">{item.medium}</span>
+                          <span className="text-sm font-medium text-fuchsia-400">{item.count}</span>
+                        </div>
+                      ))}
+                      {trafficSources.byMedium.length === 0 && (
+                        <p className="text-slate-500 text-sm">No data</p>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-slate-400 mb-3">By Campaign</h4>
+                    <div className="space-y-2">
+                      {trafficSources.byCampaign.slice(0, 5).map((item, i) => (
+                        <div key={i} className="flex justify-between items-center">
+                          <span className="text-sm">{item.campaign}</span>
+                          <span className="text-sm font-medium text-amber-400">{item.count}</span>
+                        </div>
+                      ))}
+                      {trafficSources.byCampaign.length === 0 && (
+                        <p className="text-slate-500 text-sm">No data</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Recent Signups Table */}
             <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
               <h3 className="text-lg font-semibold mb-4">Recent Signups</h3>
@@ -1254,32 +1317,27 @@ const AdminPage = () => {
                     <tr className="border-b border-slate-700">
                       <th className="py-2 px-4 text-slate-400 font-medium">Child Name</th>
                       <th className="py-2 px-4 text-slate-400 font-medium">Parent Email</th>
+                      <th className="py-2 px-4 text-slate-400 font-medium">Source</th>
                       <th className="py-2 px-4 text-slate-400 font-medium">Date</th>
-                      <th className="py-2 px-4 text-slate-400 font-medium">Tracker</th>
                     </tr>
                   </thead>
                   <tbody>
                     {recentSignups.map((signup) => (
                       <tr key={signup.id} className="border-b border-slate-800 hover:bg-slate-800/50">
                         <td className="py-2 px-4">{signup.childName}</td>
-                        <td className="py-2 px-4 text-slate-400">{signup.parentEmail}</td>
-                        <td className="py-2 px-4 text-slate-400">
-                          {new Date(signup.createdAt).toLocaleDateString()}
-                        </td>
+                        <td className="py-2 px-4 text-slate-400">{signup.email}</td>
                         <td className="py-2 px-4">
-                          {signup.trackerToken ? (
-                            <a 
-                              href={`/tracker/${signup.trackerToken}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-cyan-400 hover:text-cyan-300 flex items-center gap-1"
-                            >
-                              <MousePointer size={14} />
-                              View
-                            </a>
+                          {signup.utmSource ? (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-cyan-500/20 text-cyan-300">
+                              {signup.utmSource}
+                              {signup.utmMedium && <span className="text-slate-500 ml-1">/ {signup.utmMedium}</span>}
+                            </span>
                           ) : (
-                            <span className="text-slate-500">-</span>
+                            <span className="text-slate-500">Direct</span>
                           )}
+                        </td>
+                        <td className="py-2 px-4 text-slate-400">
+                          {new Date(signup.generatedAt).toLocaleDateString()}
                         </td>
                       </tr>
                     ))}
