@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, FileText, Image, Video, Settings, Plus, Trash2, Save, Edit2, X, Mail, LayoutDashboard, Star, HelpCircle, Type, BarChart3, Users, Eye, Send, MousePointer } from 'lucide-react';
+import { ArrowLeft, FileText, Image, Video, Settings, Plus, Trash2, Save, Edit2, X, Mail, LayoutDashboard, Star, HelpCircle, Type, BarChart3, Users, Eye, Send, MousePointer, Award } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import CopyEditor from './components/CopyEditor';
 
@@ -162,10 +162,21 @@ interface TrafficSources {
   byCampaign: Array<{ campaign: string; count: number }>;
 }
 
+interface PressLogo {
+  id: number;
+  name: string;
+  imageUrl: string;
+  linkUrl: string | null;
+  sortOrder: number;
+  isActive: boolean;
+}
+
 const AdminPage = () => {
-  const [activeTab, setActiveTab] = useState<'blog' | 'stages' | 'emails' | 'assets' | 'landing' | 'reviews' | 'faqs' | 'copy' | 'images' | 'analytics'>('analytics');
+  const [activeTab, setActiveTab] = useState<'blog' | 'stages' | 'emails' | 'assets' | 'landing' | 'reviews' | 'faqs' | 'copy' | 'images' | 'analytics' | 'press'>('analytics');
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [stages, setStages] = useState<StageDefinition[]>([]);
+  const [pressLogos, setPressLogos] = useState<PressLogo[]>([]);
+  const [editingPressLogo, setEditingPressLogo] = useState<PressLogo | null>(null);
   const [stageContents, setStageContents] = useState<StageContent[]>([]);
   const [emailTemplates, setEmailTemplates] = useState<EmailTemplate[]>([]);
   const [landingHero, setLandingHero] = useState<LandingHero | null>(null);
@@ -263,6 +274,9 @@ const AdminPage = () => {
       } else if (activeTab === 'images') {
         const res = await fetch('/api/admin/landing-images', { headers: getAuthHeaders() });
         if (res.ok) setLandingImagesList(await res.json());
+      } else if (activeTab === 'press') {
+        const res = await fetch('/api/admin/press-logos', { headers: getAuthHeaders() });
+        if (res.ok) setPressLogos(await res.json());
       } else if (activeTab === 'analytics') {
         const [summaryRes, signupsRes, viewsRes, emailRes, recentRes, sourcesRes] = await Promise.all([
           fetch('/api/admin/analytics/summary', { headers: getAuthHeaders() }),
@@ -465,6 +479,7 @@ const AdminPage = () => {
     { id: 'emails', label: 'Emails', icon: Mail },
     { id: 'landing', label: 'Landing Hero', icon: LayoutDashboard },
     { id: 'images', label: 'Site Images', icon: Image },
+    { id: 'press', label: 'Press Logos', icon: Award },
     { id: 'reviews', label: 'Reviews', icon: Star },
     { id: 'faqs', label: 'FAQs', icon: HelpCircle },
     { id: 'copy', label: 'Copy Sections', icon: Type },
@@ -1129,6 +1144,163 @@ const AdminPage = () => {
             }}
             getAuthHeaders={getAuthHeaders}
           />
+        ) : activeTab === 'press' ? (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-lg font-semibold">Press Logos</h2>
+              <button
+                onClick={() => setEditingPressLogo({ id: 0, name: '', imageUrl: '', linkUrl: null, sortOrder: pressLogos.length, isActive: true })}
+                className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 rounded-lg font-medium transition-colors"
+              >
+                <Plus size={18} />
+                Add Logo
+              </button>
+            </div>
+            
+            {editingPressLogo && (
+              <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-medium">{editingPressLogo.id ? 'Edit Logo' : 'Add Logo'}</h3>
+                  <button onClick={() => setEditingPressLogo(null)} className="text-slate-400 hover:text-white">
+                    <X size={20} />
+                  </button>
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Name</label>
+                    <input
+                      type="text"
+                      value={editingPressLogo.name}
+                      onChange={(e) => setEditingPressLogo({ ...editingPressLogo, name: e.target.value })}
+                      className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                      placeholder="e.g., Forbes"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Image URL</label>
+                    <input
+                      type="text"
+                      value={editingPressLogo.imageUrl}
+                      onChange={(e) => setEditingPressLogo({ ...editingPressLogo, imageUrl: e.target.value })}
+                      className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                      placeholder="/press-logo-name.png"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Link URL (optional)</label>
+                    <input
+                      type="text"
+                      value={editingPressLogo.linkUrl || ''}
+                      onChange={(e) => setEditingPressLogo({ ...editingPressLogo, linkUrl: e.target.value || null })}
+                      className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                      placeholder="https://forbes.com/article-about-us"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Sort Order</label>
+                    <input
+                      type="number"
+                      value={editingPressLogo.sortOrder}
+                      onChange={(e) => setEditingPressLogo({ ...editingPressLogo, sortOrder: parseInt(e.target.value) || 0 })}
+                      className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="isActive"
+                    checked={editingPressLogo.isActive}
+                    onChange={(e) => setEditingPressLogo({ ...editingPressLogo, isActive: e.target.checked })}
+                    className="w-4 h-4"
+                  />
+                  <label htmlFor="isActive" className="text-sm">Active (visible on site)</label>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={async () => {
+                      try {
+                        const method = editingPressLogo.id ? 'PUT' : 'POST';
+                        const url = editingPressLogo.id 
+                          ? `/api/admin/press-logos/${editingPressLogo.id}` 
+                          : '/api/admin/press-logos';
+                        const res = await fetch(url, {
+                          method,
+                          headers: getAuthHeaders(),
+                          body: JSON.stringify(editingPressLogo),
+                        });
+                        if (res.ok) {
+                          setEditingPressLogo(null);
+                          fetchData();
+                        }
+                      } catch (error) {
+                        console.error('Failed to save press logo:', error);
+                      }
+                    }}
+                    className="px-4 py-2 bg-cyan-500 hover:bg-cyan-600 rounded-lg font-medium transition-colors flex items-center gap-2"
+                  >
+                    <Save size={18} />
+                    Save
+                  </button>
+                  <button
+                    onClick={() => setEditingPressLogo(null)}
+                    className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {pressLogos.map((logo) => (
+                <div key={logo.id} className="bg-slate-900 border border-slate-800 rounded-lg p-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-20 h-10 bg-slate-800 rounded flex items-center justify-center">
+                      <img src={logo.imageUrl} alt={logo.name} className="max-h-full max-w-full object-contain" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium">{logo.name}</p>
+                      <p className={`text-xs ${logo.isActive ? 'text-green-400' : 'text-slate-500'}`}>
+                        {logo.isActive ? 'Active' : 'Hidden'}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setEditingPressLogo(logo)}
+                        className="p-2 text-slate-400 hover:text-cyan-400 transition-colors"
+                      >
+                        <Edit2 size={16} />
+                      </button>
+                      <button
+                        onClick={async () => {
+                          if (!confirm('Delete this logo?')) return;
+                          try {
+                            const res = await fetch(`/api/admin/press-logos/${logo.id}`, {
+                              method: 'DELETE',
+                              headers: getAuthHeaders(),
+                            });
+                            if (res.ok) fetchData();
+                          } catch (error) {
+                            console.error('Failed to delete press logo:', error);
+                          }
+                        }}
+                        className="p-2 text-slate-400 hover:text-red-400 transition-colors"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {pressLogos.length === 0 && (
+              <div className="text-center text-slate-500 py-8">
+                No press logos yet. Add one to get started.
+              </div>
+            )}
+          </div>
         ) : activeTab === 'analytics' ? (
           <div className="space-y-6">
             <h2 className="text-lg font-semibold">Analytics Dashboard</h2>

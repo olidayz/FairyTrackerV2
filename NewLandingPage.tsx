@@ -114,10 +114,11 @@ const NewLandingPage = () => {
         reviews: Array<{ id: number; reviewerName: string; reviewerLocation: string; reviewText: string; rating: number; photoUrl?: string | null }>;
         kikiProfile: { name: string; title: string; bio: string; photoUrl: string } | null;
         faqs: Array<{ id: number; question: string; answer: string }>;
+        pressLogos: Array<{ id: number; name: string; imageUrl: string; linkUrl?: string | null }>;
         images: Record<string, string | null>;
         stageTitles: Record<string, string>;
         mediaTypes: Record<string, string>;
-    }>({ hero: null, reviews: [], kikiProfile: null, faqs: [], images: {}, stageTitles: {}, mediaTypes: {} });
+    }>({ hero: null, reviews: [], kikiProfile: null, faqs: [], pressLogos: [], images: {}, stageTitles: {}, mediaTypes: {} });
     
     // Stage content from CMS (same as tracker)
     const [stageContent, setStageContent] = useState<Array<{
@@ -1614,17 +1615,23 @@ const NewLandingPage = () => {
 
                         {/* Logo Grid */}
                         <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16">
-                            {[
-                                { src: "/press-logo-gohtech.png", alt: "Gohtech" },
-                                { src: "/press-logo-ap.png", alt: "Associated Press" },
-                                { src: "/press-logo-forbes.png", alt: "Forbes" },
-                                { src: "/press-logo-techcrunch.png", alt: "TechCrunch" }
-                            ].map((logo, idx) => (
+                            {(landingContent.pressLogos.length > 0 ? landingContent.pressLogos : [
+                                { id: 1, name: "Gohtech", imageUrl: "/press-logo-gohtech.png" },
+                                { id: 2, name: "Associated Press", imageUrl: "/press-logo-ap.png" },
+                                { id: 3, name: "Forbes", imageUrl: "/press-logo-forbes.png" },
+                                { id: 4, name: "TechCrunch", imageUrl: "/press-logo-techcrunch.png" }
+                            ]).map((logo) => (
                                 <div
-                                    key={idx}
+                                    key={logo.id}
                                     className="w-24 h-12 flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity"
                                 >
-                                    <img src={logo.src} alt={logo.alt} className="max-h-full max-w-full object-contain" />
+                                    {logo.linkUrl ? (
+                                        <a href={logo.linkUrl} target="_blank" rel="noopener noreferrer">
+                                            <img src={logo.imageUrl} alt={logo.name} className="max-h-full max-w-full object-contain" />
+                                        </a>
+                                    ) : (
+                                        <img src={logo.imageUrl} alt={logo.name} className="max-h-full max-w-full object-contain" />
+                                    )}
                                 </div>
                             ))}
                         </div>
