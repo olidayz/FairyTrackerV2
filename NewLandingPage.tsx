@@ -428,7 +428,7 @@ const NewLandingPage = () => {
                             {/* Center: Logo */}
                             <div className="absolute left-1/2 -translate-x-1/2">
                                 <div className="w-16 h-16 rounded-xl overflow-hidden">
-                                    <img src="/kiki-logo.png" alt="Kiki" className="w-full h-full object-cover" />
+                                    <img src="/kiki-logo.png" alt="Kiki the Tooth Fairy Logo" className="w-full h-full object-cover" />
                                 </div>
                             </div>
 
