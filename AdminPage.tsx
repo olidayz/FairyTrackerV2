@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, FileText, Image, Video, Settings, Plus, Trash2, Save, Edit2, X, Mail, LayoutDashboard, Star, HelpCircle, Type, BarChart3, Users, Eye, Send, MousePointer, Award } from 'lucide-react';
+import { ArrowLeft, FileText, Image, Video, Settings, Plus, Trash2, Save, Edit2, X, Mail, LayoutDashboard, Star, HelpCircle, Type, BarChart3, Users, Eye, Send, MousePointer, Award, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import CopyEditor from './components/CopyEditor';
 
@@ -187,6 +187,7 @@ const AdminPage = () => {
   const [copySections, setCopySections] = useState<CopySection[]>([]);
   const [landingImagesList, setLandingImagesList] = useState<LandingImage[]>([]);
   const [analyticsSummary, setAnalyticsSummary] = useState<AnalyticsSummary | null>(null);
+  const [importingSeo, setImportingSeo] = useState(false);
   const [signupsByDay, setSignupsByDay] = useState<SignupsByDay[]>([]);
   const [trackerViewsByDay, setTrackerViewsByDay] = useState<TrackerViewsByDay[]>([]);
   const [emailMetrics, setEmailMetrics] = useState<EmailMetrics | null>(null);
@@ -568,13 +569,43 @@ const AdminPage = () => {
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-lg font-semibold">Blog Posts</h2>
-              <button
-                onClick={() => setEditingPost({ id: 0, slug: '', title: '', excerpt: '', content: '', featuredImageUrl: '', status: 'draft', publishedAt: null, metaTitle: '', metaDescription: '' })}
-                className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 rounded-lg transition-colors"
-              >
-                <Plus size={18} />
-                New Post
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={async () => {
+                    if (!confirm('Import SEO meta titles and descriptions from Shopify? This will update any matching blog posts.')) return;
+                    setImportingSeo(true);
+                    try {
+                      const res = await fetch('/api/admin/import-shopify-blog-seo', {
+                        method: 'POST',
+                        headers: getAuthHeaders(),
+                      });
+                      const data = await res.json();
+                      if (res.ok) {
+                        alert(data.message);
+                        fetchData();
+                      } else {
+                        alert(data.error || 'Failed to import');
+                      }
+                    } catch (error) {
+                      alert('Failed to import SEO from Shopify');
+                    } finally {
+                      setImportingSeo(false);
+                    }
+                  }}
+                  disabled={importingSeo}
+                  className="flex items-center gap-2 px-4 py-2 bg-fuchsia-600 hover:bg-fuchsia-700 disabled:bg-slate-600 rounded-lg transition-colors"
+                >
+                  <Download size={18} />
+                  {importingSeo ? 'Importing...' : 'Import SEO from Shopify'}
+                </button>
+                <button
+                  onClick={() => setEditingPost({ id: 0, slug: '', title: '', excerpt: '', content: '', featuredImageUrl: '', status: 'draft', publishedAt: null, metaTitle: '', metaDescription: '' })}
+                  className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 rounded-lg transition-colors"
+                >
+                  <Plus size={18} />
+                  New Post
+                </button>
+              </div>
             </div>
 
             {editingPost && (

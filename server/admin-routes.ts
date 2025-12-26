@@ -828,4 +828,90 @@ router.delete('/api/admin/press-logos/:id', async (req: Request, res: Response) 
   }
 });
 
+router.post('/api/admin/import-shopify-blog-seo', async (req: Request, res: Response) => {
+  try {
+    const shopifyStoreUrl = process.env.SHOPIFY_STORE_URL;
+    const shopifyAccessToken = process.env.SHOPIFY_ACCESS_TOKEN;
+    
+    if (!shopifyStoreUrl || !shopifyAccessToken) {
+      return res.status(400).json({ error: 'Shopify credentials not configured' });
+    }
+    
+    // Fetch all articles from Shopify GraphQL API
+    const query = `
+      query {
+        articles(first: 250) {
+          edges {
+            node {
+              id
+              handle
+              title
+              seo {
+                title
+                description
+              }
+            }
+          }
+        }
+      }
+    `;
+    
+    const shopifyRes = await fetch(`https://${shopifyStoreUrl}/admin/api/2024-01/graphql.json`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Access-Token': shopifyAccessToken,
+      },
+      body: JSON.stringify({ query }),
+    });
+    
+    if (!shopifyRes.ok) {
+      const errorText = await shopifyRes.text();
+      console.error('[Admin] Shopify API error:', errorText);
+      return res.status(500).json({ error: 'Failed to fetch from Shopify' });
+    }
+    
+    const shopifyData = await shopifyRes.json();
+    const articles = shopifyData.data?.articles?.edges || [];
+    
+    let updated = 0;
+    let notFound = 0;
+    
+    for (const { node } of articles) {
+      const slug = node.handle;
+      const seoTitle = node.seo?.title || null;
+      const seoDescription = node.seo?.description || null;
+      
+      // Only update if there's SEO data
+      if (seoTitle || seoDescription) {
+        const result = await db.update(blogPosts)
+          .set({
+            metaTitle: seoTitle,
+            metaDescription: seoDescription,
+            updatedAt: new Date(),
+          })
+          .where(eq(blogPosts.slug, slug))
+          .returning();
+        
+        if (result.length > 0) {
+          updated++;
+        } else {
+          notFound++;
+        }
+      }
+    }
+    
+    res.json({ 
+      success: true, 
+      message: `Imported SEO data for ${updated} blog posts. ${notFound} articles not found in database.`,
+      updated,
+      notFound,
+      totalArticles: articles.length
+    });
+  } catch (error) {
+    console.error('[Admin] Failed to import Shopify blog SEO:', error);
+    res.status(500).json({ error: 'Failed to import blog SEO from Shopify' });
+  }
+});
+
 export default router;

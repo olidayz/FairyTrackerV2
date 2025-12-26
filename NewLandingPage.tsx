@@ -1623,7 +1623,7 @@ const NewLandingPage = () => {
                             ]).map((logo) => (
                                 <div
                                     key={logo.id}
-                                    className="w-24 h-12 flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity"
+                                    className="w-40 h-20 flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity"
                                 >
                                     {logo.linkUrl ? (
                                         <a href={logo.linkUrl} target="_blank" rel="noopener noreferrer">

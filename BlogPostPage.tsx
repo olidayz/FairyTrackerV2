@@ -13,6 +13,8 @@ interface BlogPost {
     featuredImageUrl: string | null;
     status: string;
     createdAt: string;
+    metaTitle: string | null;
+    metaDescription: string | null;
 }
 
 const BlogPostPage = () => {
@@ -26,6 +28,11 @@ const BlogPostPage = () => {
     useEffect(() => {
         if (!slug) return;
         
+        const originalTitle = document.title;
+        const originalDesc = document.querySelector('meta[name="description"]')?.getAttribute('content') || '';
+        const originalOgTitle = document.querySelector('meta[property="og:title"]')?.getAttribute('content') || '';
+        const originalOgDesc = document.querySelector('meta[property="og:description"]')?.getAttribute('content') || '';
+        
         Promise.all([
             fetch(`/api/blog/${slug}`).then(res => res.ok ? res.json() : null),
             fetch('/api/blog').then(res => res.json())
@@ -35,6 +42,38 @@ const BlogPostPage = () => {
             } else {
                 setPost(postData);
                 setOtherPosts(allPosts.filter((p: BlogPost) => p.slug !== slug).slice(0, 2));
+                
+                // Update page meta tags
+                const metaTitle = postData.metaTitle || postData.title;
+                const metaDesc = postData.metaDescription || postData.excerpt || `Read about ${postData.title} on Kiki's Blog`;
+                
+                document.title = `${metaTitle} | Kiki the Tooth Fairy`;
+                
+                // Update or create meta description
+                let descMeta = document.querySelector('meta[name="description"]');
+                if (!descMeta) {
+                    descMeta = document.createElement('meta');
+                    descMeta.setAttribute('name', 'description');
+                    document.head.appendChild(descMeta);
+                }
+                descMeta.setAttribute('content', metaDesc);
+                
+                // Update Open Graph tags
+                let ogTitle = document.querySelector('meta[property="og:title"]');
+                if (!ogTitle) {
+                    ogTitle = document.createElement('meta');
+                    ogTitle.setAttribute('property', 'og:title');
+                    document.head.appendChild(ogTitle);
+                }
+                ogTitle.setAttribute('content', metaTitle);
+                
+                let ogDesc = document.querySelector('meta[property="og:description"]');
+                if (!ogDesc) {
+                    ogDesc = document.createElement('meta');
+                    ogDesc.setAttribute('property', 'og:description');
+                    document.head.appendChild(ogDesc);
+                }
+                ogDesc.setAttribute('content', metaDesc);
             }
             setLoading(false);
         }).catch(err => {
@@ -42,6 +81,17 @@ const BlogPostPage = () => {
             setNotFound(true);
             setLoading(false);
         });
+        
+        // Cleanup: restore original meta tags when navigating away
+        return () => {
+            document.title = originalTitle;
+            const descMeta = document.querySelector('meta[name="description"]');
+            if (descMeta) descMeta.setAttribute('content', originalDesc);
+            const ogTitleMeta = document.querySelector('meta[property="og:title"]');
+            if (ogTitleMeta) ogTitleMeta.setAttribute('content', originalOgTitle);
+            const ogDescMeta = document.querySelector('meta[property="og:description"]');
+            if (ogDescMeta) ogDescMeta.setAttribute('content', originalOgDesc);
+        };
     }, [slug]);
 
     if (loading) {
