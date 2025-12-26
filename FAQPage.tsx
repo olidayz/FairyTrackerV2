@@ -21,6 +21,10 @@ const FAQPage = () => {
     if (metaDesc) {
       metaDesc.setAttribute('content', 'Find answers to common questions about Kiki the Tooth Fairy Tracker. Learn how the magical tooth fairy tracking experience works for your child.');
     }
+    const canonical = document.querySelector('link[rel="canonical"]');
+    if (canonical) {
+      canonical.setAttribute('href', 'https://kikithetoothfairy.co/pages/faq');
+    }
   }, []);
 
   useEffect(() => {

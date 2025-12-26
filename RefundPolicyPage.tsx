@@ -9,6 +9,10 @@ const RefundPolicyPage = () => {
         if (metaDesc) {
             metaDesc.setAttribute('content', 'Understand our refund policy for Kiki the Tooth Fairy personalized videos. Learn about eligibility, non-refundable situations, and how to request support.');
         }
+        const canonical = document.querySelector('link[rel="canonical"]');
+        if (canonical) {
+            canonical.setAttribute('href', 'https://kikithetoothfairy.co/policies/refund-policy');
+        }
     }, []);
 
     return (

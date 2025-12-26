@@ -9,6 +9,10 @@ const PrivacyPolicyPage = () => {
         if (metaDesc) {
             metaDesc.setAttribute('content', 'Learn how Kiki the Tooth Fairy collects, uses, and protects your personal information. Read our privacy policy for complete details.');
         }
+        const canonical = document.querySelector('link[rel="canonical"]');
+        if (canonical) {
+            canonical.setAttribute('href', 'https://kikithetoothfairy.co/policies/privacy-policy');
+        }
     }, []);
 
     return (

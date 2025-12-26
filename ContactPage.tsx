@@ -16,6 +16,10 @@ const ContactPage = () => {
         if (metaDesc) {
             metaDesc.setAttribute('content', 'Get in touch with Kiki the Tooth Fairy. We\'d love to hear from you! Send us a message and we\'ll respond as soon as possible.');
         }
+        const canonical = document.querySelector('link[rel="canonical"]');
+        if (canonical) {
+            canonical.setAttribute('href', 'https://kikithetoothfairy.co/pages/contact');
+        }
     }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {

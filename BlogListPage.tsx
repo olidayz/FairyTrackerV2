@@ -26,6 +26,10 @@ const BlogListPage = () => {
         if (metaDesc) {
             metaDesc.setAttribute('content', 'Discover magical tooth fairy stories, parenting tips, and traditions on Kiki\'s Blog. Expert advice for making your child\'s tooth fairy experience unforgettable.');
         }
+        const canonical = document.querySelector('link[rel="canonical"]');
+        if (canonical) {
+            canonical.setAttribute('href', 'https://kikithetoothfairy.co/blogs/kikis-blog');
+        }
     }, []);
 
     useEffect(() => {

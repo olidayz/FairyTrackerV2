@@ -1094,6 +1094,10 @@ function Tracker() {
     if (metaDesc) {
       metaDesc.setAttribute('content', 'Track the tooth fairy\'s magical journey in real-time! Watch Kiki fly across the world to collect your tooth with personalized video updates.');
     }
+    const canonical = document.querySelector('link[rel="canonical"]');
+    if (canonical) {
+      canonical.setAttribute('href', 'https://kikithetoothfairy.co/tracker');
+    }
   }, [userName]);
 
   // Timer-based auto-unlock (6 hours)

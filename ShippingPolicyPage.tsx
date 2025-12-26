@@ -9,6 +9,10 @@ const ShippingPolicyPage = () => {
         if (metaDesc) {
             metaDesc.setAttribute('content', 'Learn about digital delivery for Kiki the Tooth Fairy personalized videos. All products are delivered instantly via email - no physical shipping required.');
         }
+        const canonical = document.querySelector('link[rel="canonical"]');
+        if (canonical) {
+            canonical.setAttribute('href', 'https://kikithetoothfairy.co/policies/shipping-policy');
+        }
     }, []);
 
     return (

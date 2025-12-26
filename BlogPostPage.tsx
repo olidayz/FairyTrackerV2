@@ -74,6 +74,12 @@ const BlogPostPage = () => {
                     document.head.appendChild(ogDesc);
                 }
                 ogDesc.setAttribute('content', metaDesc);
+                
+                // Update canonical URL for this blog post
+                const canonical = document.querySelector('link[rel="canonical"]');
+                if (canonical) {
+                    canonical.setAttribute('href', `https://kikithetoothfairy.co/blogs/kikis-blog/${slug}`);
+                }
             }
             setLoading(false);
         }).catch(err => {

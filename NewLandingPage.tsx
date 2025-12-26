@@ -95,6 +95,19 @@ const NewLandingPage = () => {
     // Dynamic live counter for social proof
     const [liveCount, setLiveCount] = useState(() => Math.floor(Math.random() * 30) + 35); // Start between 35-65
     
+    // Set homepage meta tags and canonical
+    useEffect(() => {
+        document.title = 'Kiki the Tooth Fairy | Free Live Tracker & Personalized Videos';
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) {
+            metaDesc.setAttribute('content', 'Track the tooth fairy in real-time with our free magical tracker! Watch Kiki\'s journey with 6 personalized video updates as she visits your child.');
+        }
+        const canonical = document.querySelector('link[rel="canonical"]');
+        if (canonical) {
+            canonical.setAttribute('href', 'https://kikithetoothfairy.co/');
+        }
+    }, []);
+    
     useEffect(() => {
         const interval = setInterval(() => {
             setLiveCount(prev => {

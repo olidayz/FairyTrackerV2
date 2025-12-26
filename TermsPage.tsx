@@ -9,6 +9,10 @@ const TermsPage = () => {
         if (metaDesc) {
             metaDesc.setAttribute('content', 'Read the terms and conditions for using Kiki the Tooth Fairy services. Understand your rights and responsibilities as a user.');
         }
+        const canonical = document.querySelector('link[rel="canonical"]');
+        if (canonical) {
+            canonical.setAttribute('href', 'https://kikithetoothfairy.co/policies/terms-of-service');
+        }
     }, []);
 
     return (
