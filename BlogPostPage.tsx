@@ -97,6 +97,12 @@ const BlogPostPage = () => {
             if (ogTitleMeta) ogTitleMeta.setAttribute('content', originalOgTitle);
             const ogDescMeta = document.querySelector('meta[property="og:description"]');
             if (ogDescMeta) ogDescMeta.setAttribute('content', originalOgDesc);
+            
+            // Restore original canonical
+            const canonical = document.querySelector('link[rel="canonical"]');
+            if (canonical) {
+                canonical.setAttribute('href', 'https://kikithetoothfairy.co/');
+            }
         };
     }, [slug]);
 
