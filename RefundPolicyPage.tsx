@@ -1,8 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 
 const RefundPolicyPage = () => {
+    useEffect(() => {
+        document.title = 'Refund Policy | Kiki the Tooth Fairy';
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) {
+            metaDesc.setAttribute('content', 'Understand our refund policy for Kiki the Tooth Fairy personalized videos. Learn about eligibility, non-refundable situations, and how to request support.');
+        }
+    }, []);
+
     return (
         <div className="min-h-screen bg-[#0a1020] text-white font-sans">
             {/* Background */}

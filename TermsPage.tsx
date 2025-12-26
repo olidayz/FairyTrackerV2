@@ -1,8 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 
 const TermsPage = () => {
+    useEffect(() => {
+        document.title = 'Terms of Service | Kiki the Tooth Fairy';
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) {
+            metaDesc.setAttribute('content', 'Read the terms and conditions for using Kiki the Tooth Fairy services. Understand your rights and responsibilities as a user.');
+        }
+    }, []);
+
     return (
         <div className="min-h-screen bg-[#0a1020] text-white font-sans">
             {/* Background */}

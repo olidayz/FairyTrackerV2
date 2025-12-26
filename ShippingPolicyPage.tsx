@@ -1,8 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 
 const ShippingPolicyPage = () => {
+    useEffect(() => {
+        document.title = 'Shipping Policy | Kiki the Tooth Fairy';
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) {
+            metaDesc.setAttribute('content', 'Learn about digital delivery for Kiki the Tooth Fairy personalized videos. All products are delivered instantly via email - no physical shipping required.');
+        }
+    }, []);
+
     return (
         <div className="min-h-screen bg-[#0a1020] text-white font-sans">
             {/* Background */}

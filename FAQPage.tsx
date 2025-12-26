@@ -16,6 +16,14 @@ const FAQPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    document.title = 'Frequently Asked Questions | Kiki the Tooth Fairy';
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', 'Find answers to common questions about Kiki the Tooth Fairy Tracker. Learn how the magical tooth fairy tracking experience works for your child.');
+    }
+  }, []);
+
+  useEffect(() => {
     const fetchFaqs = async () => {
       try {
         const res = await fetch('/api/faqs');

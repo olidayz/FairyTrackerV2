@@ -1084,6 +1084,18 @@ function Tracker() {
 
   const morningRef = useRef<HTMLDivElement>(null);
 
+  // Set page meta tags
+  useEffect(() => {
+    const title = userName && userName !== 'Your Child' 
+      ? `${userName}'s Tooth Fairy Tracker | Kiki the Tooth Fairy`
+      : 'Tooth Fairy Tracker | Kiki the Tooth Fairy';
+    document.title = title;
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', 'Track the tooth fairy\'s magical journey in real-time! Watch Kiki fly across the world to collect your tooth with personalized video updates.');
+    }
+  }, [userName]);
+
   // Timer-based auto-unlock (6 hours)
   useEffect(() => {
     // Don't run timer if already unlocked

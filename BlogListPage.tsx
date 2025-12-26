@@ -21,6 +21,14 @@ const BlogListPage = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        document.title = "Kiki's Blog - Tooth Fairy Stories & Tips | Kiki the Tooth Fairy";
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) {
+            metaDesc.setAttribute('content', 'Discover magical tooth fairy stories, parenting tips, and traditions on Kiki\'s Blog. Expert advice for making your child\'s tooth fairy experience unforgettable.');
+        }
+    }, []);
+
+    useEffect(() => {
         fetch('/api/blog')
             .then(res => res.json())
             .then(data => {

@@ -1,8 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 
 const PrivacyPolicyPage = () => {
+    useEffect(() => {
+        document.title = 'Privacy Policy | Kiki the Tooth Fairy';
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) {
+            metaDesc.setAttribute('content', 'Learn how Kiki the Tooth Fairy collects, uses, and protects your personal information. Read our privacy policy for complete details.');
+        }
+    }, []);
+
     return (
         <div className="min-h-screen bg-[#0a1020] text-white font-sans">
             {/* Background */}
