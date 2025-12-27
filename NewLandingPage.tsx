@@ -198,6 +198,15 @@ const NewLandingPage = () => {
                 throw new Error(data.error || 'Signup failed');
             }
             
+            // Push form submission event to dataLayer for GA4 tracking
+            if (typeof window !== 'undefined') {
+                (window as any).dataLayer = (window as any).dataLayer || [];
+                (window as any).dataLayer.push({
+                    'event': 'form_submission',
+                    'form_name': 'signup_form'
+                });
+            }
+            
             navigate(data.trackerUrl);
         } catch (error: any) {
             setFormError(error.message || get('error_generic'));
