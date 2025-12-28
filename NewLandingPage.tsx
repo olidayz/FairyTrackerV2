@@ -5,6 +5,7 @@ import { MapContainer, TileLayer, Marker, Polyline, useMap } from 'react-leaflet
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useCopy } from './lib/useCopy';
+import { captureAttribution, getAttributionForSignup } from './lib/attribution';
 
 // Component to fix map sizing issues
 const MapUpdater = ({ center, zoom }: { center: [number, number], zoom: number }) => {
@@ -95,6 +96,11 @@ const NewLandingPage = () => {
     // Dynamic live counter for social proof
     const [liveCount, setLiveCount] = useState(() => Math.floor(Math.random() * 30) + 35); // Start between 35-65
     
+    // Capture attribution data (UTM params, referrer) on first visit
+    useEffect(() => {
+        captureAttribution();
+    }, []);
+    
     // Set homepage meta tags and canonical
     useEffect(() => {
         document.title = 'Kiki the Tooth Fairy | Free Live Tracker & Personalized Videos';
@@ -173,11 +179,8 @@ const NewLandingPage = () => {
         
         setIsSubmitting(true);
         
-        // Capture UTM parameters from URL for referral tracking
-        const urlParams = new URLSearchParams(window.location.search);
-        const utmSource = urlParams.get('utm_source') || undefined;
-        const utmMedium = urlParams.get('utm_medium') || undefined;
-        const utmCampaign = urlParams.get('utm_campaign') || undefined;
+        // Get attribution data (UTM params + referrer) from stored first-touch or current URL
+        const attribution = getAttributionForSignup();
         
         try {
             const response = await fetch('/api/signup', {
@@ -186,9 +189,10 @@ const NewLandingPage = () => {
                 body: JSON.stringify({ 
                     name: childName.trim(), 
                     email: email.trim(),
-                    utmSource,
-                    utmMedium,
-                    utmCampaign,
+                    utmSource: attribution.utmSource,
+                    utmMedium: attribution.utmMedium,
+                    utmCampaign: attribution.utmCampaign,
+                    referrer: attribution.referrer,
                 }),
             });
             

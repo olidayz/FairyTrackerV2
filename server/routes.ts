@@ -45,7 +45,7 @@ router.post('/api/webhooks/resend', async (req: Request, res: Response) => {
 
 router.post('/api/signup', async (req: Request, res: Response) => {
   try {
-    const { name, email, utmSource, utmMedium, utmCampaign } = req.body;
+    const { name, email, utmSource, utmMedium, utmCampaign, referrer: bodyReferrer } = req.body;
 
     if (!name || !email) {
       return res.status(400).json({ error: 'Name and email are required' });
@@ -61,7 +61,8 @@ router.post('/api/signup', async (req: Request, res: Response) => {
       user = await storage.createUser(name, email);
     }
 
-    const referrer = req.headers.referer as string || undefined;
+    // Use referrer from request body (captured on first visit) or fall back to header
+    const referrer = bodyReferrer || (req.headers.referer as string) || undefined;
     const session = await storage.createTrackerSession(user.id, name, {
       utmSource,
       utmMedium,
