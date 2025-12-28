@@ -858,9 +858,9 @@ router.post('/api/admin/import-shopify-blog-seo', async (req: Request, res: Resp
     
     // Log the URL we're about to fetch (excluding sensitive token)
     const formattedUrl = shopifyStoreUrl.replace(/\/$/, '').replace(/^https?:\/\//, '');
-    console.log(`[Admin] Fetching from Shopify: https://${formattedUrl}/admin/api/2024-04/graphql.json`);
+    console.log(`[Admin] Fetching from Shopify: https://${formattedUrl}/admin/api/2024-07/graphql.json`);
     
-    const shopifyRes = await fetch(`https://${formattedUrl}/admin/api/2024-04/graphql.json`, {
+    const shopifyRes = await fetch(`https://${formattedUrl}/admin/api/2024-07/graphql.json`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
