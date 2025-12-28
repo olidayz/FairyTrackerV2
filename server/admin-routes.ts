@@ -856,7 +856,11 @@ router.post('/api/admin/import-shopify-blog-seo', async (req: Request, res: Resp
       }
     `;
     
-    const shopifyRes = await fetch(`https://${shopifyStoreUrl}/admin/api/2024-01/graphql.json`, {
+    // Log the URL we're about to fetch (excluding sensitive token)
+    const formattedUrl = shopifyStoreUrl.replace(/\/$/, '').replace(/^https?:\/\//, '');
+    console.log(`[Admin] Fetching from Shopify: https://${formattedUrl}/admin/api/2024-04/graphql.json`);
+    
+    const shopifyRes = await fetch(`https://${formattedUrl}/admin/api/2024-04/graphql.json`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -867,8 +871,16 @@ router.post('/api/admin/import-shopify-blog-seo', async (req: Request, res: Resp
     
     if (!shopifyRes.ok) {
       const errorText = await shopifyRes.text();
-      console.error('[Admin] Shopify API error:', errorText);
-      return res.status(500).json({ error: 'Failed to fetch from Shopify' });
+      console.error(`[Admin] Shopify API error (${shopifyRes.status}):`, errorText);
+      
+      // Fallback: Try a different API version or handle common issues
+      if (shopifyRes.status === 404) {
+        return res.status(500).json({ 
+          error: 'Shopify API endpoint not found. Please verify your store URL and API version permissions.',
+          status: 404
+        });
+      }
+      return res.status(500).json({ error: `Shopify API Error: ${shopifyRes.status}` });
     }
     
     const shopifyData = await shopifyRes.json();
