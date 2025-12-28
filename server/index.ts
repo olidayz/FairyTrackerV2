@@ -1,11 +1,13 @@
 import 'dotenv/config';
 import express from 'express';
 import path from 'path';
+import fs from 'fs';
 import routes from './routes';
 import adminRoutes from './admin-routes';
 import { startEmailScheduler } from './email-scheduler';
 import { registerObjectStorageRoutes } from './replit_integrations/object_storage';
 import { seedDatabase } from './seed';
+import { seoMiddleware } from './seo-middleware';
 
 const app = express();
 const PORT = process.env.NODE_ENV === 'production' ? 5000 : (process.env.PORT || 3001);
@@ -29,8 +31,17 @@ registerObjectStorageRoutes(app);
 const distPath = path.resolve(process.cwd(), 'dist');
 app.use(express.static(distPath));
 
-app.get('/*splat', (req, res) => {
-  res.sendFile(path.join(distPath, 'index.html'));
+app.get('/*splat', async (req, res) => {
+  try {
+    const indexPath = path.join(distPath, 'index.html');
+    const indexHtml = fs.readFileSync(indexPath, 'utf-8');
+    const modifiedHtml = await seoMiddleware(req.path, indexHtml);
+    res.setHeader('Content-Type', 'text/html');
+    res.send(modifiedHtml);
+  } catch (error) {
+    console.error('Error serving page with SEO:', error);
+    res.sendFile(path.join(distPath, 'index.html'));
+  }
 });
 
 app.listen(PORT, '0.0.0.0', async () => {
