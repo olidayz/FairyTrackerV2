@@ -837,7 +837,8 @@ router.post('/api/admin/import-shopify-blog-seo', async (req: Request, res: Resp
       return res.status(400).json({ error: 'Shopify credentials not configured' });
     }
     
-    // Fetch all articles from Shopify GraphQL API
+    // Fetch all articles with SEO metafields from Shopify GraphQL API
+    // In API 2024-07, Article type doesn't expose 'seo' directly, so we use metafields
     const query = `
       query {
         articles(first: 250) {
@@ -846,15 +847,20 @@ router.post('/api/admin/import-shopify-blog-seo', async (req: Request, res: Resp
               id
               handle
               title
+              metafield(namespace: "global", key: "title_tag") {
+                value
+              }
+              descriptionMetafield: metafield(namespace: "global", key: "description_tag") {
+                value
+              }
             }
           }
         }
       }
     `;
     
-    // Log the URL we're about to fetch (excluding sensitive token)
     const formattedUrl = shopifyStoreUrl.replace(/\/$/, '').replace(/^https?:\/\//, '');
-    console.log(`[Admin] Fetching from Shopify: https://${formattedUrl}/admin/api/2024-07/graphql.json`);
+    console.log(`[Admin] Fetching articles with SEO metafields from Shopify...`);
     
     const shopifyRes = await fetch(`https://${formattedUrl}/admin/api/2024-07/graphql.json`, {
       method: 'POST',
@@ -869,7 +875,6 @@ router.post('/api/admin/import-shopify-blog-seo', async (req: Request, res: Resp
       const errorText = await shopifyRes.text();
       console.error(`[Admin] Shopify API error (${shopifyRes.status}):`, errorText);
       
-      // Fallback: Try a different API version or handle common issues
       if (shopifyRes.status === 404) {
         return res.status(500).json({ 
           error: 'Shopify API endpoint not found. Please verify your store URL and API version permissions.',
@@ -881,7 +886,6 @@ router.post('/api/admin/import-shopify-blog-seo', async (req: Request, res: Resp
     
     const shopifyData = await shopifyRes.json();
     
-    // Check if there are errors in the GraphQL response
     if (shopifyData.errors) {
       console.error('[Admin] Shopify GraphQL Errors:', shopifyData.errors);
       return res.status(500).json({ error: 'Shopify GraphQL error', details: shopifyData.errors });
@@ -891,36 +895,32 @@ router.post('/api/admin/import-shopify-blog-seo', async (req: Request, res: Resp
     
     let updated = 0;
     let notFound = 0;
+    let seoFound = 0;
     
     for (const { node } of articles) {
       const slug = node.handle;
       
-      // Try to fetch SEO via REST API fallback since GraphQL 'seo' field is missing in 2024-07
-      let seoTitle = null;
-      let seoDescription = null;
+      // Extract SEO from metafields
+      let seoTitle = node.metafield?.value || null;
+      let seoDescription = node.descriptionMetafield?.value || null;
       
-      try {
-        const restRes = await fetch(`https://${formattedUrl}/admin/api/2024-07/articles/${node.id.split('/').pop()}.json`, {
-          headers: {
-            'X-Shopify-Access-Token': shopifyAccessToken,
-          }
-        });
-        if (restRes.ok) {
-          const restData = await restRes.json();
-          // Metafields in REST are often separate, but sometimes SEO is in the object
-          // For now we match slug and update if we find something.
-          // Since the user says "it says imported but not added", it means the update failed or had nulls.
-          // Let's at least ensure we are trying to update the metaTitle/metaDescription.
-        }
-      } catch (e) {
-        console.error(`[Admin] Failed to fetch REST SEO for ${slug}:`, e);
+      // Truncate to fit database constraints (meta_title: 160 chars, meta_description: 160 chars)
+      if (seoTitle && seoTitle.length > 160) {
+        seoTitle = seoTitle.substring(0, 157) + '...';
+      }
+      if (seoDescription && seoDescription.length > 160) {
+        seoDescription = seoDescription.substring(0, 157) + '...';
+      }
+      
+      if (seoTitle || seoDescription) {
+        seoFound++;
+        console.log(`[Admin] Found SEO for ${slug}: Title="${seoTitle}", Desc="${seoDescription?.substring(0, 50)}..."`);
       }
 
       const result = await db.update(blogPosts)
         .set({
-          // If we had the data, we'd put it here. 
-          // Since GraphQL failed on 'seo', we are hitting nulls.
-          // I will add a mock update with specific strings if title matches just to verify persistence.
+          metaTitle: seoTitle,
+          metaDescription: seoDescription,
           updatedAt: new Date(),
         })
         .where(eq(blogPosts.slug, slug))
@@ -933,11 +933,14 @@ router.post('/api/admin/import-shopify-blog-seo', async (req: Request, res: Resp
       }
     }
     
+    console.log(`[Admin] SEO Import Complete: ${updated} updated, ${notFound} not found, ${seoFound} had SEO data`);
+    
     res.json({ 
       success: true, 
-      message: `Sync attempt complete. Matched ${updated} posts. Note: SEO fields ('seo') are currently restricted in the Shopify API version used (2024-07).`,
+      message: `Imported SEO data for ${updated} blog posts. ${seoFound} articles had SEO metafields. ${notFound} articles not found in database.`,
       updated,
       notFound,
+      seoFound,
       totalArticles: articles.length
     });
   } catch (error) {
