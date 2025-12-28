@@ -894,13 +894,20 @@ router.post('/api/admin/import-shopify-blog-seo', async (req: Request, res: Resp
     
     for (const { node } of articles) {
       const slug = node.handle;
+      const seoTitle = node.seo?.title || null;
+      const seoDescription = node.seo?.description || null;
       
-      // We will fetch SEO separately if needed, but for now we'll just check if we can match the article
-      // The error suggested 'seo' field doesn't exist on Article type in this API version
-      // Let's try to update the database with what we found
-      const [post] = await db.select().from(blogPosts).where(eq(blogPosts.slug, slug)).limit(1);
+      // We will update the database with the SEO data if found
+      const result = await db.update(blogPosts)
+        .set({
+          metaTitle: seoTitle,
+          metaDescription: seoDescription,
+          updatedAt: new Date(),
+        })
+        .where(eq(blogPosts.slug, slug))
+        .returning();
       
-      if (post) {
+      if (result.length > 0) {
         updated++;
       } else {
         notFound++;
