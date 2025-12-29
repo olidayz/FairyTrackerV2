@@ -16,10 +16,12 @@ export function captureAttribution(): void {
   
   const existing = getStoredAttribution();
   if (existing && existing.capturedAt) {
+    console.log('[Attribution] Already captured, skipping. Stored:', existing);
     return;
   }
   
   const urlParams = new URLSearchParams(window.location.search);
+  const rawReferrer = document.referrer || '';
   
   const attribution: AttributionData = {
     utmSource: urlParams.get('utm_source') || undefined,
@@ -27,33 +29,33 @@ export function captureAttribution(): void {
     utmCampaign: urlParams.get('utm_campaign') || undefined,
     utmTerm: urlParams.get('utm_term') || undefined,
     utmContent: urlParams.get('utm_content') || undefined,
-    referrer: document.referrer || undefined,
-    landingPage: window.location.pathname,
+    referrer: rawReferrer || undefined,
+    landingPage: window.location.pathname + window.location.search,
     capturedAt: new Date().toISOString(),
   };
   
-  const hasExternalReferrer = attribution.referrer && 
-    !attribution.referrer.includes(window.location.hostname) &&
-    !attribution.referrer.includes('replit.dev') &&
-    !attribution.referrer.includes('replit.com');
+  const isInternalReferrer = rawReferrer && (
+    rawReferrer.includes(window.location.hostname) ||
+    rawReferrer.includes('kikithetoothfairy.co')
+  );
   
+  const hasExternalReferrer = rawReferrer && !isInternalReferrer;
   const hasUtmParams = attribution.utmSource || attribution.utmMedium || attribution.utmCampaign;
   
-  if (hasExternalReferrer || hasUtmParams) {
-    try {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(attribution));
-    } catch (e) {
-      console.warn('[Attribution] Failed to store attribution data:', e);
-    }
-  } else if (!existing) {
-    try {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
-        landingPage: window.location.pathname,
-        capturedAt: new Date().toISOString(),
-      }));
-    } catch (e) {
-      console.warn('[Attribution] Failed to store attribution data:', e);
-    }
+  console.log('[Attribution] Capturing:', {
+    referrer: rawReferrer,
+    isInternalReferrer,
+    hasExternalReferrer,
+    hasUtmParams,
+    utmSource: attribution.utmSource,
+    landingPage: attribution.landingPage,
+  });
+  
+  try {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(attribution));
+    console.log('[Attribution] Stored:', attribution);
+  } catch (e) {
+    console.warn('[Attribution] Failed to store attribution data:', e);
   }
 }
 
@@ -80,14 +82,18 @@ export function getAttributionForSignup(): {
 } {
   const stored = getStoredAttribution();
   const urlParams = new URLSearchParams(window.location.search);
+  const currentReferrer = document.referrer || undefined;
   
-  // First-touch attribution: prioritize stored values over current URL
-  return {
+  const result = {
     utmSource: stored?.utmSource || urlParams.get('utm_source') || undefined,
     utmMedium: stored?.utmMedium || urlParams.get('utm_medium') || undefined,
     utmCampaign: stored?.utmCampaign || urlParams.get('utm_campaign') || undefined,
-    referrer: stored?.referrer || document.referrer || undefined,
+    referrer: stored?.referrer || currentReferrer,
   };
+  
+  console.log('[Attribution] For signup:', result);
+  
+  return result;
 }
 
 export function clearAttribution(): void {

@@ -5,7 +5,7 @@ import { MapContainer, TileLayer, Marker, Polyline, useMap } from 'react-leaflet
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useCopy } from './lib/useCopy';
-import { captureAttribution, getAttributionForSignup } from './lib/attribution';
+import { getAttributionForSignup } from './lib/attribution';
 
 // Component to fix map sizing issues
 const MapUpdater = ({ center, zoom }: { center: [number, number], zoom: number }) => {
@@ -95,11 +95,6 @@ const NewLandingPage = () => {
     
     // Dynamic live counter for social proof
     const [liveCount, setLiveCount] = useState(() => Math.floor(Math.random() * 30) + 35); // Start between 35-65
-    
-    // Capture attribution data (UTM params, referrer) on first visit
-    useEffect(() => {
-        captureAttribution();
-    }, []);
     
     // Set homepage meta tags and canonical
     useEffect(() => {

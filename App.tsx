@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import NewLandingPage from './NewLandingPage';
 import Tracker from './TrackerPage';
@@ -14,9 +14,15 @@ import ShippingPolicyPage from './ShippingPolicyPage';
 import RefundPolicyPage from './RefundPolicyPage';
 import AdminPage from './AdminPage';
 import { usePageTracking } from './hooks/usePageTracking';
+import { captureAttribution } from './lib/attribution';
 
 function PageTracker() {
   usePageTracking();
+  
+  useEffect(() => {
+    captureAttribution();
+  }, []);
+  
   return null;
 }
 
