@@ -13,6 +13,7 @@ import TermsPage from './TermsPage';
 import ShippingPolicyPage from './ShippingPolicyPage';
 import RefundPolicyPage from './RefundPolicyPage';
 import AdminPage from './AdminPage';
+import IntentLandingTemplate from './IntentLandingTemplate';
 import { usePageTracking } from './hooks/usePageTracking';
 import { captureAttribution } from './lib/attribution';
 
@@ -55,6 +56,9 @@ function App() {
         {/* Admin */}
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/admin/cms" element={<AdminPage />} />
+        
+        {/* Templates (draft, noindex) */}
+        <Route path="/templates/intent-landing" element={<IntentLandingTemplate />} />
         
         {/* Convenience redirects */}
         <Route path="/blog" element={<Navigate to="/blogs/kikis-blog" replace />} />
