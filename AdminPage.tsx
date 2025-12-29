@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, FileText, Image, Video, Settings, Plus, Trash2, Save, Edit2, X, Mail, LayoutDashboard, Star, HelpCircle, Type, BarChart3, Users, Eye, Send, MousePointer, Award, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import CopyEditor from './components/CopyEditor';
+import RichTextEditor from './components/RichTextEditor';
 
 interface LandingHero {
   id?: number;
@@ -1650,11 +1651,9 @@ const BlogPostEditor = ({ post, onSave, onCancel }: { post: BlogPost; onSave: (p
 
         <div>
           <label className="block text-sm font-medium mb-1">Content</label>
-          <textarea
-            value={formData.content}
-            onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-            rows={8}
-            className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500"
+          <RichTextEditor
+            content={formData.content}
+            onChange={(html) => setFormData({ ...formData, content: html })}
           />
         </div>
 
