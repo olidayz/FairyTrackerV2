@@ -101,8 +101,8 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
   };
 
   return (
-    <div className="border border-slate-600 rounded-lg overflow-hidden bg-slate-800">
-      <div className="flex flex-wrap gap-1 p-2 bg-slate-700 border-b border-slate-600">
+    <div className="border border-slate-600 rounded-lg overflow-hidden bg-slate-800 max-h-[600px] flex flex-col">
+      <div className="flex flex-wrap gap-1 p-2 bg-slate-700 border-b border-slate-600 sticky top-0 z-10 shrink-0">
         <MenuButton
           onClick={() => editor.chain().focus().toggleBold().run()}
           isActive={editor.isActive('bold')}
@@ -209,7 +209,9 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
         </MenuButton>
       </div>
       
-      <EditorContent editor={editor} />
+      <div className="overflow-y-auto flex-1">
+        <EditorContent editor={editor} />
+      </div>
     </div>
   );
 }
