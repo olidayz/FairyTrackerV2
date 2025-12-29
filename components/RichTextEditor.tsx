@@ -4,10 +4,11 @@ import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import Underline from '@tiptap/extension-underline';
+import Iframe from './extensions/IframeExtension';
 import { 
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
   List, ListOrdered, Quote, Code, Heading1, Heading2, Heading3,
-  Link as LinkIcon, Image as ImageIcon, Undo, Redo, Minus
+  Link as LinkIcon, Image as ImageIcon, Undo, Redo, Minus, MonitorPlay
 } from 'lucide-react';
 
 interface RichTextEditorProps {
@@ -61,6 +62,12 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
         },
       }),
       Underline,
+      Iframe.configure({
+        allowFullscreen: true,
+        HTMLAttributes: {
+          class: 'w-full rounded-lg',
+        },
+      }),
     ],
     content: content || '',
     onUpdate: ({ editor }) => {
@@ -97,6 +104,14 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
     const url = window.prompt('Enter image URL:');
     if (url) {
       editor.chain().focus().setImage({ src: url }).run();
+    }
+  };
+
+  const addIframe = () => {
+    const src = window.prompt('Enter iframe URL (e.g., /tracker or a YouTube embed URL):');
+    if (src) {
+      const height = window.prompt('Enter height (default: 600):', '600') || '600';
+      editor.chain().focus().setIframe({ src, height }).run();
     }
   };
 
@@ -191,6 +206,9 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
         </MenuButton>
         <MenuButton onClick={addImage}>
           <ImageIcon size={18} />
+        </MenuButton>
+        <MenuButton onClick={addIframe}>
+          <MonitorPlay size={18} />
         </MenuButton>
         
         <div className="w-px bg-slate-600 mx-1" />
