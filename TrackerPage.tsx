@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { StageCard } from './components/StageCard';
 import Footer from './components/Footer';
-// MissionModal removed - flip card handles reveals now
+import { useTrackerBehavior } from './hooks/useTrackerBehavior';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 
@@ -1083,6 +1083,8 @@ function Tracker() {
   const [timeRemaining, setTimeRemaining] = useState(6 * 60 * 60); // 6 hours in seconds
 
   const morningRef = useRef<HTMLDivElement>(null);
+  
+  const { onStageView, onCardFlip, onVideoStart, onVideoComplete } = useTrackerBehavior(token || null);
 
   // Set page meta tags
   useEffect(() => {
@@ -1349,6 +1351,10 @@ function Tracker() {
                     const nextEl = document.getElementById(`stage-${nextId}`);
                     if (nextEl) nextEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
                   }}
+                  onStageView={onStageView}
+                  onCardFlip={onCardFlip}
+                  onVideoStart={onVideoStart}
+                  onVideoComplete={onVideoComplete}
                 />
               </div>
             ))}
@@ -1407,7 +1413,6 @@ function Tracker() {
                   stage={stage}
                   isActive={stage.type === 'active'}
                   isLocked={isNextBatchAvailable}
-
                   isCompleted={stage.type === 'completed'}
                   onClick={() => handleUnlock(stage)}
                   index={index + 3}
@@ -1417,6 +1422,10 @@ function Tracker() {
                     const nextEl = document.getElementById(`stage-${nextId}`);
                     if (nextEl) nextEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
                   }}
+                  onStageView={onStageView}
+                  onCardFlip={onCardFlip}
+                  onVideoStart={onVideoStart}
+                  onVideoComplete={onVideoComplete}
                 />
               </div>
             ))}

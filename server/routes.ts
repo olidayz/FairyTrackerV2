@@ -45,7 +45,7 @@ router.post('/api/webhooks/resend', async (req: Request, res: Response) => {
 
 router.post('/api/signup', async (req: Request, res: Response) => {
   try {
-    const { name, email, utmSource, utmMedium, utmCampaign, referrer: bodyReferrer, derivedSource, landingPage } = req.body;
+    const { name, email, utmSource, utmMedium, utmCampaign, referrer: bodyReferrer, derivedSource, landingPage, journey } = req.body;
 
     if (!name || !email) {
       return res.status(400).json({ error: 'Name and email are required' });
@@ -104,6 +104,13 @@ router.post('/api/signup', async (req: Request, res: Response) => {
         utmSource,
         utmMedium,
         utmCampaign,
+        journey: journey ? {
+          sessionId: journey.sessionId,
+          totalPages: journey.totalPages,
+          totalTimeSeconds: journey.totalTimeSeconds,
+          pageViews: journey.pageViews,
+          ctaClicks: journey.ctaClicks,
+        } : undefined,
       },
     });
 
@@ -368,6 +375,38 @@ router.get('/api/faqs', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('[API] FAQs fetch error:', error);
     res.status(500).json({ error: 'Failed to fetch FAQs' });
+  }
+});
+
+router.post('/api/tracker-events', async (req: Request, res: Response) => {
+  try {
+    const { trackerToken, eventType, stageSlug, metadata } = req.body;
+    
+    if (!trackerToken || !eventType) {
+      return res.status(400).json({ error: 'trackerToken and eventType are required' });
+    }
+    
+    const session = await storage.getTrackerSessionByToken(trackerToken);
+    if (!session) {
+      return res.status(404).json({ error: 'Session not found' });
+    }
+    
+    await trackEvent({
+      eventType,
+      trackerSessionId: session.id,
+      userId: session.userId,
+      source: 'tracker',
+      userAgent: req.headers['user-agent'] as string || undefined,
+      metadata: {
+        stageSlug,
+        ...metadata,
+      },
+    });
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('[API] Tracker event error:', error);
+    res.status(500).json({ error: 'Failed to track event' });
   }
 });
 

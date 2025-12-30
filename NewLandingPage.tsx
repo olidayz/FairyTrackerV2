@@ -6,6 +6,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useCopy } from './lib/useCopy';
 import { getAttributionForSignup } from './lib/attribution';
+import { trackCtaClick, getJourneyForSignup } from './lib/journeyTracking';
 
 // Component to fix map sizing issues
 const MapUpdater = ({ center, zoom }: { center: [number, number], zoom: number }) => {
@@ -174,8 +175,10 @@ const NewLandingPage = () => {
         
         setIsSubmitting(true);
         
-        // Get attribution data (UTM params + referrer) from stored first-touch or current URL
+        trackCtaClick('signup_submit', 'Start Tracking');
+        
         const attribution = getAttributionForSignup();
+        const journey = getJourneyForSignup();
         
         try {
             const response = await fetch('/api/signup', {
@@ -190,6 +193,7 @@ const NewLandingPage = () => {
                     referrer: attribution.referrer,
                     derivedSource: attribution.derivedSource,
                     landingPage: attribution.landingPage,
+                    journey: journey,
                 }),
             });
             

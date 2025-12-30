@@ -16,9 +16,11 @@ import AdminPage from './AdminPage';
 import IntentLandingTemplate from './IntentLandingTemplate';
 import { usePageTracking } from './hooks/usePageTracking';
 import { captureAttribution } from './lib/attribution';
+import { useJourneyTracking } from './hooks/useJourneyTracking';
 
 function PageTracker() {
   usePageTracking();
+  useJourneyTracking();
   
   useEffect(() => {
     captureAttribution();

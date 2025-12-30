@@ -4,6 +4,7 @@ import { Star, ChevronDown, ChevronUp, ArrowRight } from 'lucide-react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import { getAttributionForSignup } from './lib/attribution';
+import { trackCtaClick, getJourneyForSignup } from './lib/journeyTracking';
 
 const IntentLandingTemplate = () => {
     const navigate = useNavigate();
@@ -49,7 +50,11 @@ const IntentLandingTemplate = () => {
         }
         
         setIsSubmitting(true);
+        
+        trackCtaClick('signup_submit', 'Start Tracking');
+        
         const attribution = getAttributionForSignup();
+        const journey = getJourneyForSignup();
         
         try {
             const response = await fetch('/api/signup', {
@@ -64,6 +69,7 @@ const IntentLandingTemplate = () => {
                     referrer: attribution.referrer,
                     derivedSource: attribution.derivedSource,
                     landingPage: attribution.landingPage,
+                    journey: journey,
                 }),
             });
             

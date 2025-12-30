@@ -988,4 +988,82 @@ router.get('/api/admin/attribution-debug', async (req: Request, res: Response) =
   }
 });
 
+router.get('/api/admin/user-journeys', async (req: Request, res: Response) => {
+  try {
+    const signups = await db
+      .select({
+        id: analyticsEvents.id,
+        trackerSessionId: analyticsEvents.trackerSessionId,
+        eventType: analyticsEvents.eventType,
+        source: analyticsEvents.source,
+        referrer: analyticsEvents.referrer,
+        metadata: analyticsEvents.metadata,
+        occurredAt: analyticsEvents.occurredAt,
+      })
+      .from(analyticsEvents)
+      .where(eq(analyticsEvents.eventType, 'signup'))
+      .orderBy(desc(analyticsEvents.occurredAt))
+      .limit(50);
+    
+    const journeysWithData = signups.map(signup => {
+      const journey = (signup.metadata as any)?.journey || null;
+      return {
+        ...signup,
+        journey,
+      };
+    });
+    
+    res.json(journeysWithData);
+  } catch (error) {
+    console.error('[Admin] Failed to fetch user journeys:', error);
+    res.status(500).json({ error: 'Failed to fetch user journeys' });
+  }
+});
+
+router.get('/api/admin/tracker-engagement', async (req: Request, res: Response) => {
+  try {
+    const trackerEvents = await db
+      .select({
+        id: analyticsEvents.id,
+        trackerSessionId: analyticsEvents.trackerSessionId,
+        eventType: analyticsEvents.eventType,
+        metadata: analyticsEvents.metadata,
+        occurredAt: analyticsEvents.occurredAt,
+      })
+      .from(analyticsEvents)
+      .where(sql`event_type IN ('tracker_visit', 'stage_view', 'card_flip', 'video_start', 'video_complete', 'tracker_exit')`)
+      .orderBy(desc(analyticsEvents.occurredAt))
+      .limit(200);
+    
+    const eventCounts = await db
+      .select({
+        eventType: analyticsEvents.eventType,
+        count: sql<number>`count(*)::int`,
+      })
+      .from(analyticsEvents)
+      .where(sql`event_type IN ('tracker_visit', 'stage_view', 'card_flip', 'video_start', 'video_complete', 'tracker_exit')`)
+      .groupBy(analyticsEvents.eventType);
+    
+    const stageBreakdown = await db
+      .select({
+        stageSlug: sql<string>`metadata->>'stageSlug'`,
+        eventType: analyticsEvents.eventType,
+        count: sql<number>`count(*)::int`,
+      })
+      .from(analyticsEvents)
+      .where(sql`event_type IN ('stage_view', 'card_flip', 'video_start', 'video_complete') AND metadata->>'stageSlug' IS NOT NULL`)
+      .groupBy(sql`metadata->>'stageSlug'`, analyticsEvents.eventType)
+      .orderBy(sql`metadata->>'stageSlug'`);
+    
+    res.json({
+      recentEvents: trackerEvents,
+      eventCounts,
+      stageBreakdown,
+    });
+  } catch (error) {
+    console.error('[Admin] Failed to fetch tracker engagement:', error);
+    res.status(500).json({ error: 'Failed to fetch tracker engagement' });
+  }
+});
+
 export default router;

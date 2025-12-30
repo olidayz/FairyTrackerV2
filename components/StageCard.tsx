@@ -4,6 +4,7 @@ import { LucideIcon, Play, Radio, X, Clock, ArrowDown, CircleCheck } from 'lucid
 interface StageCardProps {
    stage: {
       id: number;
+      slug?: string;
       title: string;
       subtext: string;
       icon: LucideIcon;
@@ -22,10 +23,15 @@ interface StageCardProps {
    onNext?: () => void;
    isLastStage?: boolean;
    index: number;
+   onStageView?: (stageSlug: string) => void;
+   onCardFlip?: (stageSlug: string) => void;
+   onVideoStart?: (stageSlug: string) => void;
+   onVideoComplete?: (stageSlug: string, watchTime: number) => void;
 }
 
 export const StageCard: React.FC<StageCardProps> = ({
-   stage, isActive, isLocked, isCompleted, onClick, onNext, isLastStage, index
+   stage, isActive, isLocked, isCompleted, onClick, onNext, isLastStage, index,
+   onStageView, onCardFlip, onVideoStart, onVideoComplete
 }) => {
    const [isFlipped, setIsFlipped] = useState(false);
    const [isHovered, setIsHovered] = useState(false);
@@ -38,7 +44,9 @@ export const StageCard: React.FC<StageCardProps> = ({
    const frontRef = useRef<HTMLDivElement>(null);
    const backRef = useRef<HTMLDivElement>(null);
    const videoRef = useRef<HTMLVideoElement>(null);
+   const cardContainerRef = useRef<HTMLDivElement>(null);
    const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+   const viewTrackedRef = useRef(false);
    const [containerHeight, setContainerHeight] = useState<number | 'auto'>('auto');
 
    const isInverted = index % 2 !== 0;
@@ -57,6 +65,28 @@ export const StageCard: React.FC<StageCardProps> = ({
          }
       };
    }, []);
+
+   useEffect(() => {
+      if (!cardContainerRef.current || !onStageView || viewTrackedRef.current) return;
+      
+      const observer = new IntersectionObserver(
+         (entries) => {
+            entries.forEach((entry) => {
+               if (entry.isIntersecting && !viewTrackedRef.current) {
+                  viewTrackedRef.current = true;
+                  const slug = stage.slug || `stage-${stage.id}`;
+                  onStageView(slug);
+                  observer.disconnect();
+               }
+            });
+         },
+         { threshold: 0.5 }
+      );
+      
+      observer.observe(cardContainerRef.current);
+      
+      return () => observer.disconnect();
+   }, [stage.id, stage.slug, onStageView]);
 
    useEffect(() => {
       if (hideTimeoutRef.current) {
@@ -91,17 +121,40 @@ export const StageCard: React.FC<StageCardProps> = ({
       }
    }, [isFlipped]);
 
-   const handleFlip = () => setIsFlipped(true);
+   const videoStartTimeRef = useRef<number | null>(null);
+   
+   const handleFlip = () => {
+      setIsFlipped(true);
+      const stageSlug = stage.slug || `stage-${stage.id}`;
+      onCardFlip?.(stageSlug);
+   };
+   
    const handleFlipBack = () => {
       if (videoRef.current) {
          videoRef.current.pause();
+         if (isVideoPlaying && videoStartTimeRef.current) {
+            const watchTime = Math.round((Date.now() - videoStartTimeRef.current) / 1000);
+            const stageSlug = stage.slug || `stage-${stage.id}`;
+            onVideoComplete?.(stageSlug, watchTime);
+         }
          setIsVideoPlaying(false);
+         videoStartTimeRef.current = null;
       }
       setIsFlipped(false);
    };
+   
+   const handleVideoPlay = () => {
+      setIsVideoPlaying(true);
+      videoStartTimeRef.current = Date.now();
+      const stageSlug = stage.slug || `stage-${stage.id}`;
+      onVideoStart?.(stageSlug);
+      if (videoRef.current) {
+         videoRef.current.play().catch(() => {});
+      }
+   };
 
    return (
-      <div className={`relative w-full mb-16 md:mb-24 ${isFlipped ? 'z-50' : 'z-10'}`}>
+      <div ref={cardContainerRef} className={`relative w-full mb-16 md:mb-24 ${isFlipped ? 'z-50' : 'z-10'}`}>
          <div 
             className="relative w-full transition-all duration-700 ease-out"
             style={{ 
@@ -219,10 +272,15 @@ export const StageCard: React.FC<StageCardProps> = ({
                               if (stage.videoUrl && videoRef.current) {
                                  if (isVideoPlaying) {
                                     videoRef.current.pause();
+                                    if (videoStartTimeRef.current) {
+                                       const watchTime = Math.round((Date.now() - videoStartTimeRef.current) / 1000);
+                                       const stageSlug = stage.slug || `stage-${stage.id}`;
+                                       onVideoComplete?.(stageSlug, watchTime);
+                                    }
                                     setIsVideoPlaying(false);
+                                    videoStartTimeRef.current = null;
                                  } else {
-                                    videoRef.current.play();
-                                    setIsVideoPlaying(true);
+                                    handleVideoPlay();
                                  }
                               }
                            }}
