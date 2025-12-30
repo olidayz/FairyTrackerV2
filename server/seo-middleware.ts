@@ -10,6 +10,8 @@ interface PageMeta {
   canonical: string;
   ogTitle?: string;
   ogDescription?: string;
+  ogImage?: string;
+  noindex?: boolean;
 }
 
 const BASE_URL = 'https://kikithetoothfairy.co';
@@ -60,6 +62,11 @@ const staticPageMeta: Record<string, PageMeta> = {
     description: 'Understand our refund policy for Kiki the Tooth Fairy personalized videos. Learn about eligibility, non-refundable situations, and how to request support.',
     canonical: `${BASE_URL}/policies/refund-policy`,
   },
+  '/media-kit': {
+    title: 'Media Kit | Kiki the Tooth Fairy',
+    description: 'Download official Kiki the Tooth Fairy branding assets, logos, and media resources for press and partnership inquiries.',
+    canonical: `${BASE_URL}/media-kit`,
+  },
 };
 
 async function getBlogPostMeta(slug: string): Promise<PageMeta | null> {
@@ -70,6 +77,7 @@ async function getBlogPostMeta(slug: string): Promise<PageMeta | null> {
         metaTitle: blogPosts.metaTitle,
         metaDescription: blogPosts.metaDescription,
         excerpt: blogPosts.excerpt,
+        featuredImageUrl: blogPosts.featuredImageUrl,
       })
       .from(blogPosts)
       .where(eq(blogPosts.slug, slug))
@@ -79,6 +87,7 @@ async function getBlogPostMeta(slug: string): Promise<PageMeta | null> {
 
     const title = post.metaTitle || post.title;
     const description = post.metaDescription || post.excerpt || `Read about ${post.title} on Kiki's Blog`;
+    const ogImage = post.featuredImageUrl || `${BASE_URL}/og-image.png`;
 
     return {
       title: `${title} | Kiki the Tooth Fairy`,
@@ -86,6 +95,7 @@ async function getBlogPostMeta(slug: string): Promise<PageMeta | null> {
       canonical: `${BASE_URL}/blogs/kikis-blog/${slug}`,
       ogTitle: title,
       ogDescription: description,
+      ogImage,
     };
   } catch (error) {
     console.error('Error fetching blog post meta:', error);
@@ -111,6 +121,21 @@ function injectMeta(html: string, meta: PageMeta): string {
     `<link rel="canonical" href="${meta.canonical}">`
   );
 
+  if (meta.noindex) {
+    if (/<meta name="robots" content="[^"]*">/.test(result)) {
+      result = result.replace(
+        /<meta name="robots" content="[^"]*">/,
+        `<meta name="robots" content="noindex, nofollow">`
+      );
+    } else {
+      // Insert noindex tag after description meta tag if robots tag doesn't exist
+      result = result.replace(
+        /(<meta name="description" content="[^"]*">)/,
+        `$1\n  <meta name="robots" content="noindex, nofollow">`
+      );
+    }
+  }
+
   result = result.replace(
     /<meta property="og:url" content="[^"]*">/,
     `<meta property="og:url" content="${meta.canonical}">`
@@ -125,6 +150,17 @@ function injectMeta(html: string, meta: PageMeta): string {
     /<meta property="og:description" content="[^"]*">/,
     `<meta property="og:description" content="${meta.ogDescription || meta.description}">`
   );
+
+  if (meta.ogImage) {
+    result = result.replace(
+      /<meta property="og:image" content="[^"]*">/,
+      `<meta property="og:image" content="${meta.ogImage}">`
+    );
+    result = result.replace(
+      /<meta name="twitter:image" content="[^"]*">/,
+      `<meta name="twitter:image" content="${meta.ogImage}">`
+    );
+  }
 
   result = result.replace(
     /<meta name="twitter:url" content="[^"]*">/,
@@ -164,6 +200,16 @@ export async function seoMiddleware(reqPath: string, indexHtml: string): Promise
       title: 'Tooth Fairy Tracker | Kiki the Tooth Fairy',
       description: 'Track the tooth fairy\'s magical journey in real-time! Watch Kiki fly across the world to collect your tooth with personalized video updates.',
       canonical: `${BASE_URL}/tracker`,
+    });
+  }
+
+  // Intent landing pages / templates should not be indexed
+  if (reqPath.startsWith('/templates/') || reqPath.startsWith('/lp/')) {
+    return injectMeta(indexHtml, {
+      title: 'Tooth Fairy Tracker | Kiki the Tooth Fairy',
+      description: 'Track the tooth fairy\'s magical journey in real-time!',
+      canonical: `${BASE_URL}/`,
+      noindex: true,
     });
   }
 
