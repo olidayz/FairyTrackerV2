@@ -62,6 +62,8 @@ const IntentLandingTemplate = () => {
                     utmMedium: attribution.utmMedium,
                     utmCampaign: attribution.utmCampaign,
                     referrer: attribution.referrer,
+                    derivedSource: attribution.derivedSource,
+                    landingPage: attribution.landingPage,
                 }),
             });
             

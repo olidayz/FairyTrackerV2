@@ -14,7 +14,7 @@ export const storage = {
     return user || null;
   },
 
-  async createTrackerSession(userId: number, childName?: string, referralData?: { utmSource?: string; utmMedium?: string; utmCampaign?: string; referrer?: string }) {
+  async createTrackerSession(userId: number, childName?: string, referralData?: { utmSource?: string; utmMedium?: string; utmCampaign?: string; referrer?: string; derivedSource?: string; landingPage?: string }) {
     const trackerToken = uuidv4().replace(/-/g, '');
     const [session] = await db.insert(trackerSessions).values({
       userId,
@@ -24,6 +24,8 @@ export const storage = {
       utmMedium: referralData?.utmMedium,
       utmCampaign: referralData?.utmCampaign,
       referrer: referralData?.referrer,
+      derivedSource: referralData?.derivedSource,
+      landingPage: referralData?.landingPage,
     }).returning();
     return session;
   },

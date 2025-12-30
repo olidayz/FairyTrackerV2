@@ -949,4 +949,43 @@ router.post('/api/admin/import-shopify-blog-seo', async (req: Request, res: Resp
   }
 });
 
+router.get('/api/admin/attribution-debug', async (req: Request, res: Response) => {
+  try {
+    const sessions = await db
+      .select({
+        id: trackerSessions.id,
+        childName: trackerSessions.childName,
+        generatedAt: trackerSessions.generatedAt,
+        utmSource: trackerSessions.utmSource,
+        utmMedium: trackerSessions.utmMedium,
+        utmCampaign: trackerSessions.utmCampaign,
+        referrer: trackerSessions.referrer,
+        derivedSource: trackerSessions.derivedSource,
+        landingPage: trackerSessions.landingPage,
+        userEmail: users.email,
+      })
+      .from(trackerSessions)
+      .leftJoin(users, eq(trackerSessions.userId, users.id))
+      .orderBy(desc(trackerSessions.generatedAt))
+      .limit(50);
+    
+    const sourceCounts = await db
+      .select({
+        source: sql<string>`COALESCE(derived_source, 'unknown')`,
+        count: sql<number>`count(*)::int`,
+      })
+      .from(trackerSessions)
+      .groupBy(sql`COALESCE(derived_source, 'unknown')`)
+      .orderBy(desc(sql`count(*)`));
+    
+    res.json({
+      recentSessions: sessions,
+      sourceCounts,
+    });
+  } catch (error) {
+    console.error('[Admin] Failed to fetch attribution debug data:', error);
+    res.status(500).json({ error: 'Failed to fetch attribution data' });
+  }
+});
+
 export default router;
