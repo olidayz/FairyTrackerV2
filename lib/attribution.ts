@@ -68,29 +68,31 @@ export function captureAttribution(): void {
   if (typeof window === 'undefined') return;
   
   const existing = getStoredAttribution();
-  
-  if (existing && existing.capturedAt && existing.version === STORAGE_VERSION) {
-    const urlParams = new URLSearchParams(window.location.search);
-    const hasNewUtm = urlParams.get('utm_source') || urlParams.get('utm_campaign');
-    
-    if (!hasNewUtm) {
-      console.log('[Attribution] Already captured (v' + STORAGE_VERSION + '), skipping. Stored:', existing);
-      return;
-    }
-    console.log('[Attribution] New UTM params detected, updating attribution');
-  }
-  
   const urlParams = new URLSearchParams(window.location.search);
   const rawReferrer = document.referrer || '';
   const referrerDomain = extractDomain(rawReferrer);
-  
   const isInternal = isInternalDomain(referrerDomain);
   
   const utmSource = urlParams.get('utm_source') || undefined;
-  const derivedSource = deriveSource({ 
+  const newDerivedSource = deriveSource({ 
     utmSource, 
     referrerDomain: isInternal ? undefined : referrerDomain 
   });
+  
+  if (existing && existing.capturedAt && existing.version === STORAGE_VERSION) {
+    const hasNewUtm = urlParams.get('utm_source') || urlParams.get('utm_campaign');
+    const existingIsDirect = existing.derivedSource === 'direct';
+    const newSourceIsBetter = newDerivedSource !== 'direct';
+    
+    if (hasNewUtm) {
+      console.log('[Attribution] New UTM params detected, updating attribution');
+    } else if (existingIsDirect && newSourceIsBetter) {
+      console.log('[Attribution] Upgrading from "direct" to better source:', newDerivedSource);
+    } else {
+      console.log('[Attribution] Already captured (v' + STORAGE_VERSION + '), skipping. Stored:', existing);
+      return;
+    }
+  }
   
   const attribution: AttributionData = {
     version: STORAGE_VERSION,
@@ -101,16 +103,16 @@ export function captureAttribution(): void {
     utmContent: urlParams.get('utm_content') || undefined,
     referrer: isInternal ? undefined : (rawReferrer || undefined),
     referrerDomain: isInternal ? undefined : referrerDomain,
-    derivedSource,
-    landingPage: window.location.pathname + window.location.search,
-    capturedAt: new Date().toISOString(),
+    derivedSource: newDerivedSource,
+    landingPage: existing?.landingPage || (window.location.pathname + window.location.search),
+    capturedAt: existing?.capturedAt || new Date().toISOString(),
   };
   
   console.log('[Attribution] Capturing:', {
     rawReferrer,
     referrerDomain,
     isInternal,
-    derivedSource,
+    derivedSource: newDerivedSource,
     utmSource: attribution.utmSource,
     landingPage: attribution.landingPage,
   });
