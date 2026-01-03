@@ -5,6 +5,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import { getAttributionForSignup } from './lib/attribution';
 import { trackCtaClick, getJourneyForSignup } from './lib/journeyTracking';
+import { getOrCreateVisitorId } from './lib/visitor';
 
 const IntentLandingTemplate = () => {
     const navigate = useNavigate();
@@ -55,6 +56,7 @@ const IntentLandingTemplate = () => {
         
         const attribution = getAttributionForSignup();
         const journey = getJourneyForSignup();
+        const visitorId = getOrCreateVisitorId();
         
         try {
             const response = await fetch('/api/signup', {
@@ -63,6 +65,7 @@ const IntentLandingTemplate = () => {
                 body: JSON.stringify({ 
                     name: childName.trim(), 
                     email: email.trim(),
+                    visitorId,
                     utmSource: attribution.utmSource,
                     utmMedium: attribution.utmMedium,
                     utmCampaign: attribution.utmCampaign,

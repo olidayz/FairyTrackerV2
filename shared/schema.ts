@@ -211,12 +211,14 @@ export type CopySection = typeof copySections.$inferSelect;
 export const analyticsEvents = pgTable('analytics_events', {
   id: serial('id').primaryKey(),
   eventType: varchar('event_type', { length: 50 }).notNull(),
+  visitorId: varchar('visitor_id', { length: 64 }),
   trackerSessionId: integer('tracker_session_id').references(() => trackerSessions.id),
   userId: integer('user_id').references(() => users.id),
   stageDefinitionId: integer('stage_definition_id').references(() => stageDefinitions.id),
   source: varchar('source', { length: 100 }),
   referrer: text('referrer'),
   userAgent: text('user_agent'),
+  pagePath: varchar('page_path', { length: 500 }),
   metadata: jsonb('metadata'),
   occurredAt: timestamp('occurred_at').defaultNow().notNull(),
 });

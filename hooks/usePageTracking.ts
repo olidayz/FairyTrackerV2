@@ -1,21 +1,15 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-
-const getVisitorId = (): string => {
-  const key = 'kiki_visitor_id';
-  let visitorId = localStorage.getItem(key);
-  if (!visitorId) {
-    visitorId = crypto.randomUUID();
-    localStorage.setItem(key, visitorId);
-  }
-  return visitorId;
-};
+import { getOrCreateVisitorId } from '../lib/visitor';
+import { captureAttribution, getStoredAttribution } from '../lib/attribution';
 
 export function usePageTracking() {
   const location = useLocation();
   const lastTrackedPath = useRef<string>('');
 
   useEffect(() => {
+    captureAttribution();
+    
     const currentPath = location.pathname;
     
     if (currentPath === lastTrackedPath.current) return;
@@ -23,7 +17,8 @@ export function usePageTracking() {
     
     lastTrackedPath.current = currentPath;
 
-    const visitorId = getVisitorId();
+    const visitorId = getOrCreateVisitorId();
+    const attribution = getStoredAttribution();
 
     fetch('/api/analytics/page-view', {
       method: 'POST',
@@ -31,8 +26,29 @@ export function usePageTracking() {
       body: JSON.stringify({
         path: currentPath,
         visitorId,
-        referrer: document.referrer || null,
+        source: attribution?.derivedSource || 'direct',
+        referrer: attribution?.referrer || document.referrer || null,
+        utmSource: attribution?.utmSource,
+        utmMedium: attribution?.utmMedium,
+        utmCampaign: attribution?.utmCampaign,
+        landingPage: attribution?.landingPage,
       }),
     }).catch(() => {});
   }, [location.pathname]);
+}
+
+export function trackEvent(eventType: string, metadata?: Record<string, unknown>) {
+  const visitorId = getOrCreateVisitorId();
+  const attribution = getStoredAttribution();
+  
+  fetch('/api/analytics/event', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      visitorId,
+      eventType,
+      source: attribution?.derivedSource || 'direct',
+      metadata,
+    }),
+  }).catch(() => {});
 }

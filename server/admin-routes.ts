@@ -1066,4 +1066,191 @@ router.get('/api/admin/tracker-engagement', async (req: Request, res: Response) 
   }
 });
 
+router.get('/api/admin/traffic-sources', async (req: Request, res: Response) => {
+  try {
+    const days = parseInt(req.query.days as string) || 30;
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+    
+    const trafficBySource = await db
+      .select({
+        source: sql<string>`COALESCE(source, 'direct')`,
+        visitors: sql<number>`COUNT(DISTINCT visitor_id)::int`,
+        pageViews: sql<number>`COUNT(*)::int`,
+      })
+      .from(analyticsEvents)
+      .where(and(
+        eq(analyticsEvents.eventType, 'page_view'),
+        gte(analyticsEvents.occurredAt, startDate)
+      ))
+      .groupBy(sql`COALESCE(source, 'direct')`)
+      .orderBy(desc(sql`COUNT(DISTINCT visitor_id)`));
+    
+    const signupsBySource = await db
+      .select({
+        source: sql<string>`COALESCE(source, 'direct')`,
+        signups: sql<number>`COUNT(*)::int`,
+      })
+      .from(analyticsEvents)
+      .where(and(
+        eq(analyticsEvents.eventType, 'signup'),
+        gte(analyticsEvents.occurredAt, startDate)
+      ))
+      .groupBy(sql`COALESCE(source, 'direct')`);
+    
+    const signupsMap = new Map(signupsBySource.map(s => [s.source, s.signups]));
+    
+    const trafficWithConversions = trafficBySource.map(t => ({
+      source: t.source,
+      visitors: t.visitors,
+      pageViews: t.pageViews,
+      signups: signupsMap.get(t.source) || 0,
+      conversionRate: t.visitors > 0 ? ((signupsMap.get(t.source) || 0) / t.visitors * 100).toFixed(2) : '0.00',
+    }));
+    
+    const totalVisitors = await db
+      .select({
+        count: sql<number>`COUNT(DISTINCT visitor_id)::int`,
+      })
+      .from(analyticsEvents)
+      .where(and(
+        eq(analyticsEvents.eventType, 'page_view'),
+        gte(analyticsEvents.occurredAt, startDate)
+      ));
+    
+    const totalSignups = await db
+      .select({
+        count: sql<number>`COUNT(*)::int`,
+      })
+      .from(analyticsEvents)
+      .where(and(
+        eq(analyticsEvents.eventType, 'signup'),
+        gte(analyticsEvents.occurredAt, startDate)
+      ));
+    
+    res.json({
+      sources: trafficWithConversions,
+      totals: {
+        visitors: totalVisitors[0]?.count || 0,
+        signups: totalSignups[0]?.count || 0,
+        conversionRate: totalVisitors[0]?.count > 0 
+          ? ((totalSignups[0]?.count || 0) / totalVisitors[0].count * 100).toFixed(2) 
+          : '0.00',
+      },
+      period: { days, startDate },
+    });
+  } catch (error) {
+    console.error('[Admin] Failed to fetch traffic sources:', error);
+    res.status(500).json({ error: 'Failed to fetch traffic sources' });
+  }
+});
+
+router.get('/api/admin/visitor-journey/:visitorId', async (req: Request, res: Response) => {
+  try {
+    const { visitorId } = req.params;
+    
+    const events = await db
+      .select({
+        id: analyticsEvents.id,
+        eventType: analyticsEvents.eventType,
+        source: analyticsEvents.source,
+        referrer: analyticsEvents.referrer,
+        pagePath: analyticsEvents.pagePath,
+        metadata: analyticsEvents.metadata,
+        occurredAt: analyticsEvents.occurredAt,
+        userId: analyticsEvents.userId,
+        trackerSessionId: analyticsEvents.trackerSessionId,
+      })
+      .from(analyticsEvents)
+      .where(eq(analyticsEvents.visitorId, visitorId))
+      .orderBy(asc(analyticsEvents.occurredAt));
+    
+    let userInfo = null;
+    let sessionInfo = null;
+    
+    const signupEvent = events.find(e => e.eventType === 'signup');
+    if (signupEvent?.userId) {
+      const [user] = await db.select().from(users).where(eq(users.id, signupEvent.userId));
+      if (user) {
+        userInfo = { id: user.id, name: user.name, email: user.email, createdAt: user.createdAt };
+      }
+    }
+    
+    if (signupEvent?.trackerSessionId) {
+      const [session] = await db.select().from(trackerSessions).where(eq(trackerSessions.id, signupEvent.trackerSessionId));
+      if (session) {
+        sessionInfo = {
+          id: session.id,
+          childName: session.childName,
+          trackerToken: session.trackerToken,
+          generatedAt: session.generatedAt,
+          source: session.derivedSource,
+          landingPage: session.landingPage,
+        };
+      }
+    }
+    
+    res.json({
+      visitorId,
+      events,
+      user: userInfo,
+      session: sessionInfo,
+      summary: {
+        totalEvents: events.length,
+        firstSeen: events[0]?.occurredAt,
+        lastSeen: events[events.length - 1]?.occurredAt,
+        pagesViewed: events.filter(e => e.eventType === 'page_view').length,
+        converted: !!signupEvent,
+      },
+    });
+  } catch (error) {
+    console.error('[Admin] Failed to fetch visitor journey:', error);
+    res.status(500).json({ error: 'Failed to fetch visitor journey' });
+  }
+});
+
+router.get('/api/admin/visitors', async (req: Request, res: Response) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 50;
+    const offset = (page - 1) * limit;
+    
+    const visitors = await db
+      .select({
+        visitorId: analyticsEvents.visitorId,
+        source: sql<string>`MAX(source)`,
+        firstSeen: sql<Date>`MIN(occurred_at)`,
+        lastSeen: sql<Date>`MAX(occurred_at)`,
+        pageViews: sql<number>`COUNT(*) FILTER (WHERE event_type = 'page_view')::int`,
+        converted: sql<boolean>`BOOL_OR(event_type = 'signup')`,
+      })
+      .from(analyticsEvents)
+      .where(sql`visitor_id IS NOT NULL`)
+      .groupBy(analyticsEvents.visitorId)
+      .orderBy(desc(sql`MAX(occurred_at)`))
+      .limit(limit)
+      .offset(offset);
+    
+    const totalCount = await db
+      .select({
+        count: sql<number>`COUNT(DISTINCT visitor_id)::int`,
+      })
+      .from(analyticsEvents)
+      .where(sql`visitor_id IS NOT NULL`);
+    
+    res.json({
+      visitors,
+      pagination: {
+        page,
+        limit,
+        total: totalCount[0]?.count || 0,
+        totalPages: Math.ceil((totalCount[0]?.count || 0) / limit),
+      },
+    });
+  } catch (error) {
+    console.error('[Admin] Failed to fetch visitors:', error);
+    res.status(500).json({ error: 'Failed to fetch visitors' });
+  }
+});
+
 export default router;

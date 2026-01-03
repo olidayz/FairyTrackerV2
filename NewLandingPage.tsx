@@ -7,6 +7,7 @@ import 'leaflet/dist/leaflet.css';
 import { useCopy } from './lib/useCopy';
 import { getAttributionForSignup } from './lib/attribution';
 import { trackCtaClick, getJourneyForSignup } from './lib/journeyTracking';
+import { getOrCreateVisitorId } from './lib/visitor';
 
 // Component to fix map sizing issues
 const MapUpdater = ({ center, zoom }: { center: [number, number], zoom: number }) => {
@@ -179,6 +180,7 @@ const NewLandingPage = () => {
         
         const attribution = getAttributionForSignup();
         const journey = getJourneyForSignup();
+        const visitorId = getOrCreateVisitorId();
         
         try {
             const response = await fetch('/api/signup', {
@@ -187,6 +189,7 @@ const NewLandingPage = () => {
                 body: JSON.stringify({ 
                     name: childName.trim(), 
                     email: email.trim(),
+                    visitorId,
                     utmSource: attribution.utmSource,
                     utmMedium: attribution.utmMedium,
                     utmCampaign: attribution.utmCampaign,

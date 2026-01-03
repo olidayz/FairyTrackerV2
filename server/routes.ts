@@ -45,7 +45,7 @@ router.post('/api/webhooks/resend', async (req: Request, res: Response) => {
 
 router.post('/api/signup', async (req: Request, res: Response) => {
   try {
-    const { name, email, utmSource, utmMedium, utmCampaign, referrer: bodyReferrer, derivedSource, landingPage, journey } = req.body;
+    const { name, email, visitorId, utmSource, utmMedium, utmCampaign, referrer: bodyReferrer, derivedSource, landingPage, journey } = req.body;
 
     if (!name || !email) {
       return res.status(400).json({ error: 'Name and email are required' });
@@ -95,9 +95,10 @@ router.post('/api/signup', async (req: Request, res: Response) => {
 
     trackEvent({
       eventType: 'signup',
+      visitorId,
       trackerSessionId: session.id,
       userId: user.id,
-      source: 'web',
+      source,
       referrer,
       userAgent: req.headers['user-agent'] as string || undefined,
       metadata: {
@@ -554,7 +555,7 @@ router.post('/api/contact', async (req: Request, res: Response) => {
 
 router.post('/api/analytics/page-view', async (req: Request, res: Response) => {
   try {
-    const { path, visitorId, referrer } = req.body;
+    const { path, visitorId, source, referrer, utmSource, utmMedium, utmCampaign, landingPage } = req.body;
     
     if (!path) {
       return res.status(400).json({ error: 'Path is required' });
@@ -564,11 +565,16 @@ router.post('/api/analytics/page-view', async (req: Request, res: Response) => {
 
     trackEvent({
       eventType: 'page_view',
+      visitorId,
+      source: source || 'direct',
       referrer: referrer || req.headers.referer as string || undefined,
       userAgent,
+      pagePath: path,
       metadata: {
-        path,
-        visitorId,
+        utmSource,
+        utmMedium,
+        utmCampaign,
+        landingPage,
       },
     });
 
@@ -576,6 +582,31 @@ router.post('/api/analytics/page-view', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('[Analytics] Failed to track page view:', error);
     res.status(500).json({ error: 'Failed to track page view' });
+  }
+});
+
+router.post('/api/analytics/event', async (req: Request, res: Response) => {
+  try {
+    const { visitorId, eventType, source, metadata } = req.body;
+    
+    if (!eventType) {
+      return res.status(400).json({ error: 'Event type is required' });
+    }
+
+    const userAgent = req.headers['user-agent'] as string || undefined;
+
+    trackEvent({
+      eventType: eventType as any,
+      visitorId,
+      source: source || 'direct',
+      userAgent,
+      metadata,
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('[Analytics] Failed to track event:', error);
+    res.status(500).json({ error: 'Failed to track event' });
   }
 });
 

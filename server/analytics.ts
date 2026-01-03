@@ -6,16 +6,21 @@ export type EventType =
   | 'tracker_view'
   | 'stage_view'
   | 'stage_complete'
-  | 'page_view';
+  | 'page_view'
+  | 'cta_click'
+  | 'form_start'
+  | 'form_submit';
 
 export interface TrackEventParams {
   eventType: EventType;
+  visitorId?: string;
   trackerSessionId?: number;
   userId?: number;
   stageDefinitionId?: number;
   source?: string;
   referrer?: string;
   userAgent?: string;
+  pagePath?: string;
   metadata?: Record<string, any>;
 }
 
@@ -23,12 +28,14 @@ export async function trackEvent(params: TrackEventParams): Promise<void> {
   try {
     await db.insert(analyticsEvents).values({
       eventType: params.eventType,
+      visitorId: params.visitorId,
       trackerSessionId: params.trackerSessionId,
       userId: params.userId,
       stageDefinitionId: params.stageDefinitionId,
       source: params.source,
       referrer: params.referrer,
       userAgent: params.userAgent,
+      pagePath: params.pagePath,
       metadata: params.metadata,
       occurredAt: new Date(),
     });
