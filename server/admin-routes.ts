@@ -715,9 +715,14 @@ router.get('/api/admin/analytics/recent-signups', async (req: Request, res: Resp
         utmMedium: trackerSessions.utmMedium,
         utmCampaign: trackerSessions.utmCampaign,
         email: users.email,
+        visitorId: analyticsEvents.visitorId,
       })
       .from(trackerSessions)
       .innerJoin(users, eq(trackerSessions.userId, users.id))
+      .leftJoin(analyticsEvents, and(
+        eq(analyticsEvents.eventType, 'signup'),
+        eq(analyticsEvents.userId, users.id)
+      ))
       .orderBy(desc(trackerSessions.generatedAt))
       .limit(limit);
 

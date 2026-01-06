@@ -155,6 +155,7 @@ interface RecentSignup {
   utmSource: string | null;
   utmMedium: string | null;
   utmCampaign: string | null;
+  visitorId: string | null;
 }
 
 interface TrafficSources {
@@ -170,6 +171,22 @@ interface PressLogo {
   linkUrl: string | null;
   sortOrder: number;
   isActive: boolean;
+}
+
+interface VisitorJourneyEvent {
+  id: number;
+  eventType: string;
+  eventData: any;
+  source: string | null;
+  pagePath: string | null;
+  createdAt: string;
+}
+
+interface VisitorJourney {
+  visitorId: string;
+  events: VisitorJourneyEvent[];
+  user?: { childName: string; email: string } | null;
+  session?: { token: string; createdAt: string } | null;
 }
 
 const AdminPage = () => {
@@ -194,6 +211,8 @@ const AdminPage = () => {
   const [emailMetrics, setEmailMetrics] = useState<EmailMetrics | null>(null);
   const [recentSignups, setRecentSignups] = useState<RecentSignup[]>([]);
   const [trafficSources, setTrafficSources] = useState<TrafficSources | null>(null);
+  const [selectedVisitorJourney, setSelectedVisitorJourney] = useState<VisitorJourney | null>(null);
+  const [loadingJourney, setLoadingJourney] = useState(false);
   const [loading, setLoading] = useState(true);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [editingStage, setEditingStage] = useState<{ stage: StageDefinition; content: StageContent | null } | null>(null);
@@ -299,6 +318,24 @@ const AdminPage = () => {
       console.error('Failed to fetch data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchVisitorJourney = async (visitorId: string) => {
+    if (!visitorId) return;
+    setLoadingJourney(true);
+    try {
+      const res = await fetch(`/api/admin/visitor-journey/${visitorId}`, {
+        headers: getAuthHeaders(),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSelectedVisitorJourney(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch visitor journey:', error);
+    } finally {
+      setLoadingJourney(false);
     }
   };
 
@@ -1549,6 +1586,7 @@ const AdminPage = () => {
             {/* Recent Signups Table */}
             <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
               <h3 className="text-lg font-semibold mb-4">Recent Signups</h3>
+              <p className="text-slate-400 text-sm mb-4">Click on a row to view the visitor's journey</p>
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead>
@@ -1561,7 +1599,11 @@ const AdminPage = () => {
                   </thead>
                   <tbody>
                     {recentSignups.map((signup) => (
-                      <tr key={signup.id} className="border-b border-slate-800 hover:bg-slate-800/50">
+                      <tr 
+                        key={signup.id} 
+                        className={`border-b border-slate-800 hover:bg-slate-800/50 ${signup.visitorId ? 'cursor-pointer' : 'cursor-default opacity-70'}`}
+                        onClick={() => signup.visitorId && fetchVisitorJourney(signup.visitorId)}
+                      >
                         <td className="py-2 px-4">{signup.childName}</td>
                         <td className="py-2 px-4 text-slate-400">{signup.email}</td>
                         <td className="py-2 px-4">
@@ -1590,6 +1632,73 @@ const AdminPage = () => {
                 </table>
               </div>
             </div>
+
+            {/* Visitor Journey Modal */}
+            {(selectedVisitorJourney || loadingJourney) && (
+              <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+                <div className="bg-slate-900 border border-slate-700 rounded-xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+                  <div className="flex justify-between items-center p-4 border-b border-slate-700">
+                    <h3 className="text-lg font-semibold">Visitor Journey</h3>
+                    <button 
+                      onClick={() => setSelectedVisitorJourney(null)}
+                      className="text-slate-400 hover:text-white"
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
+                  
+                  {loadingJourney ? (
+                    <div className="p-8 text-center">
+                      <div className="animate-spin w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full mx-auto"></div>
+                      <p className="mt-4 text-slate-400">Loading journey...</p>
+                    </div>
+                  ) : selectedVisitorJourney && (
+                    <div className="p-4 overflow-y-auto max-h-[60vh]">
+                      {selectedVisitorJourney.user && (
+                        <div className="mb-4 p-3 bg-slate-800 rounded-lg">
+                          <p className="text-sm text-slate-400">Converted User</p>
+                          <p className="font-medium">{selectedVisitorJourney.user.childName}</p>
+                          <p className="text-slate-400 text-sm">{selectedVisitorJourney.user.email}</p>
+                        </div>
+                      )}
+                      
+                      <div className="space-y-3">
+                        {selectedVisitorJourney.events.length === 0 ? (
+                          <p className="text-slate-500 text-center py-4">No events recorded for this visitor</p>
+                        ) : (
+                          selectedVisitorJourney.events.map((event) => (
+                            <div key={event.id} className="flex gap-3 p-3 bg-slate-800/50 rounded-lg">
+                              <div className="flex-shrink-0 w-2 h-2 mt-2 rounded-full bg-cyan-500"></div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex justify-between items-start gap-2">
+                                  <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                                    event.eventType === 'signup' ? 'bg-green-500/20 text-green-300' :
+                                    event.eventType === 'page_view' ? 'bg-blue-500/20 text-blue-300' :
+                                    event.eventType === 'cta_click' ? 'bg-amber-500/20 text-amber-300' :
+                                    'bg-slate-500/20 text-slate-300'
+                                  }`}>
+                                    {event.eventType.replace(/_/g, ' ')}
+                                  </span>
+                                  <span className="text-xs text-slate-500">
+                                    {new Date(event.createdAt).toLocaleString()}
+                                  </span>
+                                </div>
+                                {event.pagePath && (
+                                  <p className="text-sm text-slate-400 mt-1">{event.pagePath}</p>
+                                )}
+                                {event.source && (
+                                  <p className="text-xs text-slate-500 mt-1">Source: {event.source}</p>
+                                )}
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <div className="space-y-4">
