@@ -53,6 +53,7 @@ const knownRoutes = [
   '/refund',
   '/faq',
   '/contact',
+  '/blogs/kikis-blog/is-the-tooth-fairy-real-what-to-say-when-kids-ask',
 ];
 
 const knownDynamicRoutes = [
