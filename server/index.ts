@@ -31,12 +31,52 @@ registerObjectStorageRoutes(app);
 const distPath = path.resolve(process.cwd(), 'dist');
 app.use(express.static(distPath));
 
+const knownRoutes = [
+  '/',
+  '/tracker',
+  '/blogs/kikis-blog',
+  '/pages/faq',
+  '/pages/contact',
+  '/media-kit',
+  '/emails',
+  '/policies/privacy-policy',
+  '/policies/terms-of-service',
+  '/policies/shipping-policy',
+  '/policies/refund-policy',
+  '/admin',
+  '/admin/cms',
+  '/templates/intent-landing',
+  '/blog',
+  '/privacy',
+  '/terms',
+  '/shipping',
+  '/refund',
+  '/faq',
+  '/contact',
+];
+
+const knownDynamicRoutes = [
+  /^\/tracker\/[^/]+$/,
+  /^\/blogs\/kikis-blog\/[^/]+$/,
+];
+
+function isKnownRoute(path: string): boolean {
+  const normalizedPath = path.endsWith('/') && path !== '/' ? path.slice(0, -1) : path;
+  if (knownRoutes.includes(normalizedPath)) return true;
+  return knownDynamicRoutes.some(regex => regex.test(normalizedPath));
+}
+
 app.get('/*splat', async (req, res) => {
   try {
     const indexPath = path.join(distPath, 'index.html');
     const indexHtml = fs.readFileSync(indexPath, 'utf-8');
     const modifiedHtml = await seoMiddleware(req.path, indexHtml);
     res.setHeader('Content-Type', 'text/html');
+    
+    if (!isKnownRoute(req.path)) {
+      res.status(404);
+    }
+    
     res.send(modifiedHtml);
   } catch (error) {
     console.error('Error serving page with SEO:', error);

@@ -14,6 +14,7 @@ import ShippingPolicyPage from './ShippingPolicyPage';
 import RefundPolicyPage from './RefundPolicyPage';
 import AdminPage from './AdminPage';
 import IntentLandingTemplate from './IntentLandingTemplate';
+import NotFoundPage from './NotFoundPage';
 import { usePageTracking } from './hooks/usePageTracking';
 import { captureAttribution } from './lib/attribution';
 import { useJourneyTracking } from './hooks/useJourneyTracking';
@@ -70,6 +71,9 @@ function App() {
         <Route path="/refund" element={<Navigate to="/policies/refund-policy" replace />} />
         <Route path="/faq" element={<Navigate to="/pages/faq" replace />} />
         <Route path="/contact" element={<Navigate to="/pages/contact" replace />} />
+        
+        {/* 404 catch-all - must be last */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Router>
   );
