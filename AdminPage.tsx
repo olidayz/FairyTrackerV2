@@ -178,6 +178,7 @@ interface VisitorJourneyEvent {
   eventType: string;
   eventData: any;
   source: string | null;
+  referrer: string | null;
   pagePath: string | null;
   createdAt: string;
 }
@@ -1686,8 +1687,22 @@ const AdminPage = () => {
                                 {event.pagePath && (
                                   <p className="text-sm text-slate-400 mt-1">{event.pagePath}</p>
                                 )}
-                                {event.source && (
-                                  <p className="text-xs text-slate-500 mt-1">Source: {event.source}</p>
+                                {(event.source || event.referrer) && (
+                                  <div className="flex flex-wrap gap-2 mt-1">
+                                    {event.source && event.source !== 'direct' && (
+                                      <span className="text-xs px-2 py-0.5 bg-cyan-500/20 text-cyan-300 rounded">
+                                        {event.source}
+                                      </span>
+                                    )}
+                                    {event.source === 'direct' && event.referrer && (
+                                      <span className="text-xs px-2 py-0.5 bg-amber-500/20 text-amber-300 rounded">
+                                        via: {event.referrer.replace(/https?:\/\/(www\.)?/, '').split('/')[0]}
+                                      </span>
+                                    )}
+                                    {event.source === 'direct' && !event.referrer && (
+                                      <span className="text-xs text-slate-500">Direct</span>
+                                    )}
+                                  </div>
                                 )}
                               </div>
                             </div>

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { getOrCreateVisitorId } from '../lib/visitor';
-import { captureAttribution, getStoredAttribution } from '../lib/attribution';
+import { captureAttribution, getStoredAttribution, deriveSourceFromReferrer } from '../lib/attribution';
 
 export function usePageTracking() {
   const location = useLocation();
@@ -19,6 +19,15 @@ export function usePageTracking() {
 
     const visitorId = getOrCreateVisitorId();
     const attribution = getStoredAttribution();
+    const currentReferrer = document.referrer || '';
+    
+    let source = attribution?.derivedSource || 'direct';
+    if (source === 'direct' && currentReferrer) {
+      const derivedFromReferrer = deriveSourceFromReferrer(currentReferrer);
+      if (derivedFromReferrer !== 'direct') {
+        source = derivedFromReferrer;
+      }
+    }
 
     fetch('/api/analytics/page-view', {
       method: 'POST',
@@ -26,8 +35,8 @@ export function usePageTracking() {
       body: JSON.stringify({
         path: currentPath,
         visitorId,
-        source: attribution?.derivedSource || 'direct',
-        referrer: attribution?.referrer || document.referrer || null,
+        source,
+        referrer: currentReferrer || attribution?.referrer || null,
         utmSource: attribution?.utmSource,
         utmMedium: attribution?.utmMedium,
         utmCampaign: attribution?.utmCampaign,

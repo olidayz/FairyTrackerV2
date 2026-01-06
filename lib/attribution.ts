@@ -64,6 +64,15 @@ function isInternalDomain(domain: string | undefined): boolean {
   return internal.some(d => domain.includes(d));
 }
 
+export function deriveSourceFromReferrer(referrerUrl: string): string {
+  if (!referrerUrl) return 'direct';
+  
+  const domain = extractDomain(referrerUrl);
+  if (!domain || isInternalDomain(domain)) return 'direct';
+  
+  return deriveSource({ referrerDomain: domain });
+}
+
 export function captureAttribution(): void {
   if (typeof window === 'undefined') return;
   
